@@ -84,7 +84,7 @@ jobs:
         mkdir libs
         mkdir tools
         popd
-        cp include/*.h ${ARTIFACT_ROOT}/include/
+        cp libs/dg_decoder/include/*.h ${ARTIFACT_ROOT}/include/
         cp build_release/Release/dgdec.lib ${ARTIFACT_ROOT}/libs/
         cp tools/dg_decoder_cui/build/Release/dg_decoder_cui.exe ${ARTIFACT_ROOT}/tools/
         cp tools/dg_player/build/Release/dg_player.exe ${ARTIFACT_ROOT}/tools/
