@@ -1,0 +1,92 @@
+%
+% 「Aqua Beamer テンプレート」（相馬 輔 (東京大学)）を使用・一部改変
+% https://ja.overleaf.com/project/634ccc89d2f90c89d88d5af7 
+%
+
+%Beamerの設定
+\usetheme{Boadilla}
+
+%Beamerフォント設定
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath} % TXフォント
+\usepackage{sfmath}
+% \usepackage[deluxe,uplatex]{otf} % 日本語多ウェイト化
+% \usepackage[noto-otc]{pxchfon} %Noto CJK JPを指定
+\usepackage{pxjahyper} % PDF目次文字化け回避(platexでは不要)
+\renewcommand{\familydefault}{\sfdefault}  % 英文をサンセリフ体に
+\renewcommand{\kanjifamilydefault}{\gtdefault}  % 日本語をゴシック体に
+\DeclareSymbolFont{operators}{OT1}{\sfdefault}{m}{n}
+\SetSymbolFont{operators}{bold}{OT1}{\sfdefault}{b}{n}
+\usefonttheme{structurebold} % タイトル部を太字
+\setbeamerfont{alerted text}{series=\bfseries} % Alertを太字
+\setbeamerfont{section in toc}{series=\mdseries} % 目次は太字にしない
+\setbeamerfont{frametitle}{size=\Large} % フレームタイトル文字サイズ
+\setbeamerfont{title}{size=\Large} % タイトル文字サイズ
+\setbeamerfont{date}{size=\small}  % 日付文字サイズ
+
+% Babel (日本語の場合のみ・英語の場合は不要)
+\uselanguage{japanese}
+\languagepath{japanese}
+\deftranslation[to=japanese]{Theorem}{定理}
+\deftranslation[to=japanese]{Lemma}{補題}
+\deftranslation[to=japanese]{Example}{例}
+\deftranslation[to=japanese]{Examples}{例}
+\deftranslation[to=japanese]{Definition}{定義}
+\deftranslation[to=japanese]{Definitions}{定義}
+\deftranslation[to=japanese]{Problem}{問題}
+\deftranslation[to=japanese]{Solution}{解}
+\deftranslation[to=japanese]{Fact}{事実}
+\deftranslation[to=japanese]{Proof}{証明}
+\def\proofname{証明}
+
+%Beamer色設定
+\definecolor{KiriyaBlue}{RGB}{20,38,116} % 初代DCDアイカツの霧矢あおいの髪から取得
+\definecolor{AlertOrange}{RGB}{255,76,0}
+\definecolor{AlmostBlack}{RGB}{38,38,38}
+\setbeamercolor{normal text}{fg=AlmostBlack}  % 本文カラー
+\setbeamercolor{structure}{fg=KiriyaBlue} % 見出しカラー
+\setbeamercolor{block title}{fg=KiriyaBlue!50!black} % ブロック部分タイトルカラー
+\setbeamercolor{alerted text}{fg=AlertOrange} % \alert 文字カラー
+\mode<beamer>{
+    \definecolor{BackGroundGray}{RGB}{254,254,254}
+    \setbeamercolor{background canvas}{bg=BackGroundGray} % スライドモードのみ背景をわずかにグレーにする
+}
+
+% tableofcontentsの列挙で数字を使う
+\setbeamertemplate{section in toc}[sections numbered]
+% 定理も数字
+\setbeamertemplate{theorems}[numbered]
+
+%フラットデザイン化
+\setbeamertemplate{blocks}[rounded] % Blockの影を消す
+\setbeamertemplate{items}[default] % enumerateを数字、itemizeは三角
+\setbeamertemplate{navigation symbols}{} % ナビゲーションシンボルを消す
+\setbeamertemplate{footline}[frame number] % フッターはスライド番号のみ
+
+%タイトルページ
+\setbeamertemplate{title page}{%
+    \vspace{2.5em}
+    {\usebeamerfont{title} \usebeamercolor[fg]{title} \inserttitle \par}
+    {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle \par}
+    \vspace{1.5em}
+    \begin{flushright}
+        \usebeamerfont{author}\insertauthor\par
+        \usebeamerfont{institute}\insertinstitute \par
+        \vspace{3em}
+        \usebeamerfont{date}\insertdate\par
+        \usebeamercolor[fg]{titlegraphic}\inserttitlegraphic
+    \end{flushright}
+}
+
+%目次スライド
+\AtBeginSection[]{
+    % \frame{\tableofcontents[currentsection, hideallsubsections]}
+    \frame{\tableofcontents[currentsection]}
+}
+
+\makeatletter
+\patchcmd{\beamer@sectionintoc}{\vskip1.5em}{\vskip0.5em}{}{}
+\makeatother
+
+% footnotemarkのフォント
+\renewcommand{\thefootnote}{$\ast$\arabic{footnote}}
