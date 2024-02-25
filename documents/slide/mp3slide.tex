@@ -84,9 +84,9 @@
     \frametitle{完全再構成}
     遅延・定数倍を除き入出力が一致すること：
     \begin{align}
-        \hat{x}[n] = c x[n - n_{0}] \quad c > 0
+        \hat{x}[n] = c x[n - n_{0}] \quad c \neq 0
     \end{align}
-    あるいは$z$領域で，
+    $z$領域で，
     \begin{align}
         \hat{X}(z) = c z^{-n_{0}} X(z)
     \end{align}
@@ -211,15 +211,39 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{ポリフェーズ行列表現}
-    以上より，もし
-    \begin{align}
-        \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0)
-    \end{align}
-    であれば，完全再構成になる\footnote{$\because$各バンドの遅延が$K$なら，$\tilde{X}(z) = aM z^{-(M - 1 - K)}X(z)$となる}
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    \begin{block}{}
+        \vspace{-14pt}
+        \begin{align}
+            \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0,\ m_{0} \in \mathbb{N}) \label{eq:filter_bank_PR_condition}
+        \end{align}
+        なら，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$なら，$\hat{X}(z) = aM z^{-(M - 1 - K)}X(z)$}
+    \end{block}
     \begin{figure}
         \includegraphics[width=70mm]{./figs/perfect_reconstraction_filter_bank.drawio.png}
     \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    \eqref{eq:filter_bank_PR_condition}式より，$\ve{R}(z)$を
+    \begin{align*}
+        \ve{R}(z) = a z^{-m_{0}} \ve{E}(z)^{-1}
+    \end{align*}
+    とすれば完全再構成．しかし$\ve{E}(z)^{-1}$の計算が数値計算の安定性などの問題を孕む．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    $\ve{E}(z)^{-1}$の代わりに，$\ve{E}(z)$に\structure{パラユニタリ性}
+    \begin{align}
+        \widetilde{\ve{E}}(z) \ve{E}(z) = d \ve{I} \quad d \neq 0
+    \end{align}
+    を求める方法がある\footnote{$\widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})$で，下付きの$\ast$は係数の複素共役}．$\ve{E}(z)$がパラユニタリであれば，
+    \begin{align*}
+        \ve{R}(z) = a z^{-m_{0}} \widetilde{\ve{E}}(z)
+    \end{align*}
+    とすると完全再構成フィルタバンクになる．
 \end{frame}
 
 \begin{frame}[c]
