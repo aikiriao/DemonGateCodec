@@ -17,6 +17,7 @@
 %     urlbordercolor=blue,
 %     %citecolor=black,
 % }
+\usepackage{nicematrix}
 
 \usepackage{booktabs}
 
@@ -73,7 +74,210 @@
 \subsection{コサイン変調フィルタバンク}
 
 \begin{frame}[c]
+    \frametitle{$M$分割フィルタバンク}
+    \begin{figure}
+        \includegraphics[width=120mm]{./figs/filter_bank.drawio.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{完全再構成}
+    遅延・定数倍を除き入出力が一致すること：
+    \begin{align}
+        \hat{x}[n] = c x[n - n_{0}] \quad c > 0
+    \end{align}
+    あるいは$z$領域で，
+    \begin{align}
+        \hat{X}(z) = c z^{-n_{0}} X(z)
+    \end{align}
+    となること
+    \begin{block}{}
+        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ表現}
+    フィルタ$H_{k}(z)\ (k = 0,...,M-1)$のインパルス応答を$h_{k}[n]$と書くとき，
+    \scriptsize
+    \begin{align*}
+        H_{k}(z) &= \sum_{n = -\infty}^{\infty} h_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} h_{k}[nM + l] z^{-(nM+l)} \\
+        &= \sum_{l = 0}^{M - 1} z^{-l} \sum_{n = -\infty}^{\infty}h_{k}[nM + l] z^{-nM} = \sum_{l = 0}^{M - 1} E_{k,l}(z^{M}) z^{-l}
+    \end{align*}
+    \normalsize
+    \begin{block}{$h_{k}$の（タイプI）ポリフェーズ表現}
+        \vspace{-13pt}
+        \begin{align}
+            E_{k,l}(z) = \sum_{n = -\infty}^{\infty} h_{k}[nM + l] z^{-n} \label{eq:type1_polyphase_representation}
+        \end{align}
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ表現}
+    $F_{k}(z)$のインパルス応答を$f_{k}[n]$と書くとき，
+    \scriptsize
+    \begin{align*}
+        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} f_{k}[nM + l] z^{-(nM+l)} \\
+        &= \sum_{n = -\infty}^{\infty} \sum_{l^{\prime} = 0}^{M - 1} f_{k}[nM + M - 1 - l^{\prime}] z^{-(nM + M - 1 - l^{\prime})} \\
+        &= \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l^{\prime}] z^{-nM} = \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} R_{k,l}(z^{M})
+    \end{align*}
+    \normalsize
+    \begin{block}{$f_{k}$の（タイプII）ポリフェーズ表現}
+        \vspace{-13pt}
+        \begin{align}
+            R_{k,l}(z) = \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l] z^{-n} \label{eq:type2_polyphase_representation}
+        \end{align}
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    \eqref{eq:type1_polyphase_representation}式を$l$について並べ，行列表現すると
+    \scriptsize
+    \begin{align*}
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+            H_{0}(z) \\
+            H_{1}(z) \\
+            \Vdots \\
+            H_{M-1}(z)
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{h}(z)$}}
+        =
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+              E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
+              E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
+                      \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            E_{M-1,0}(z^{M}) & E_{M-1,1}(z^{M}) & \Cdots & E_{M-1,M-1}(z^{M}) \\
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{E}(z)$}}
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+                     1 \\
+                z^{-1} \\
+                \Vdots \\
+            z^{-(M-1)}
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{e}(z)$}}
+    \end{align*}
+    \normalsize
+    \eqref{eq:type2_polyphase_representation}式も同様にして，以下のように書ける
+    \scriptsize
+    \begin{align*}
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+            F_{0}(z) \\
+            F_{1}(z) \\
+            \Vdots \\
+            F_{M-1}(z)
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{f}(z)$}}
+        =
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+              R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
+              R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
+                      \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            R_{M-1,0}(z^{M}) & R_{M-1,1}(z^{M}) & \Cdots & R_{M-1,M-1}(z^{M}) \\
+        \end{bNiceMatrix}^{\mathsf{T}}}_{\text{\normalsize $\ve{R}(z)^{\mathsf{T}}$}}
+        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+            z^{-(M-1)} \\
+          z^{-(M-1)+1} \\
+                \Vdots \\
+                     1
+        \end{bNiceMatrix}}_{z^{-(M-1)}\ve{e}(z^{-1})}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    $\tilde{\ve{e}}(z) = \ve{e}(z^{-1})^{\mathsf{T}}$とすると行列表現は
+    \begin{align}
+        \ve{h}(z) &= \ve{E}(z) \ve{e}(z) \\
+        \ve{f}(z)^{\mathsf{T}} &= z^{-(M-1)} \tilde{\ve{e}}(z) \ve{R}(z)
+    \end{align}
+    とまとめられる．$\ve{E}(z), \ve{R}(z)$を\structure{ポリフェーズ行列}という
+\end{frame}
+
+\begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{コサイン変調フィルタバンク}
+        \small
+        \begin{align}
+            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
+            f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
+        \end{align}
+        $p_{0}$：プロトタイプフィルタ，$M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{}
+    式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
+    \end{block}
+    \scriptsize
+    （証明）
+    \begin{align*}
+        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} h_{k}[L - 1 - n] z^{-n} = \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{-(L - 1 - n^{\prime})} \quad (n^{\prime} = L - 1 - n) \\
+        &= z^{-(L-1)} \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{n^{\prime}} = z^{-(L-1)} H_{k}(z^{-1})
+    \end{align*}
+    $H_{k}(z)$の周波数特性を（極座標で）$H_{k}(\omega) = |H_{k}(\omega)| \exp[j \psi(\omega)]$と書くと，
+    \begin{align*}
+        F_{k}(\omega) &= \exp[-j(L - 1)\omega] H_{k}(-\omega) = \exp[-j(L - 1)\omega] |H_{k}(-\omega)| \exp[-j \psi(\omega)] \\
+        &= \exp[-j(L - 1)\omega] |H_{k}(\omega)| \exp[-j \psi(\omega)] \quad \text{（$\because$ 実係数FIRの振幅特性は偶）}
+    \end{align*}
+    だから，$F_{k}(\omega) H_{k}(\omega) = \exp[-j(L - 1)\omega] |H_{k}(\omega)|^{2}$となって直線位相特性をもつ．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
+    \begin{block}{MP3のフィルタバンク}
+        \small
+        \begin{align}
+            y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( l - 16 \right) \right] \\
+            h[l] &= \left\{ \begin{array}{ll}
+                -C_{l} & \lfloor l / 64 \rfloor \text{が偶数} \\
+                 C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
+            \end{array} \right.
+        \end{align}
+        $C_{l}\ (l = 0,...,511)$は規格で設定
+    \end{block}
+    これは，$M = 32, L = 33$に該当
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
+    プログラムでは，
+    \begin{align*}
+        y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
+        t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
+    \end{align*}
+    で計算している．この式が定義式通りであることを示す．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
+    \scriptsize
+    \begin{align}
+        y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
+        &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] (-1)^{u} C_{s + 64u} t_{k,s+64u} \label{eq:mp3_filterbank_progaram_deviation}
+    \end{align}
+    ここで，
+    \begin{align*}
+        t_{k,s+64u} &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s + 64u - 16) \right] = \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) + \pi \left( 2k + 1 \right) u \right] \\
+        &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\cos\left[ \pi(2k + 1)u \right] \\
+        &\quad - \sin\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\sin\left[ \pi(2k + 1)u \right]
+        % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u} 
+        = (-1)^{u} t_{k,s}
+    \end{align*}
+    だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば欲しい結果が得られる．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認}
+    \scriptsize
+    MP3のフィルタバンクでは
+    \begin{align*}
+        G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
+        G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
+        G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
+        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n} \\
+    \end{align*}
+    となる．
 \end{frame}
 
 \subsection{MDCT}
