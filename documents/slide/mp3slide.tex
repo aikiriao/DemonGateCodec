@@ -1,4 +1,4 @@
-\documentclass[17pt,xcolor=dvipsnames,table,dvipdfmx]{beamer}
+\documentclass[14pt,xcolor=dvipsnames,table,dvipdfmx]{beamer}
 
 \usepackage{slide}
 \usepackage{appendixnumberbeamer}
@@ -136,20 +136,20 @@
     \eqref{eq:type1_polyphase_representation}式を$l$について並べ，行列表現すると
     \scriptsize
     \begin{align*}
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             H_{0}(z) \\
             H_{1}(z) \\
             \Vdots \\
             H_{M-1}(z)
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{h}(z)$}}
         =
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
               E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
               E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
                       \Vdots &           \Vdots & \Ddots &            \Vdots  \\
             E_{M-1,0}(z^{M}) & E_{M-1,1}(z^{M}) & \Cdots & E_{M-1,M-1}(z^{M}) \\
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{E}(z)$}}
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
                      1 \\
                 z^{-1} \\
                 \Vdots \\
@@ -160,20 +160,20 @@
     \eqref{eq:type2_polyphase_representation}式も同様にして，以下のように書ける
     \scriptsize
     \begin{align*}
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             F_{0}(z) \\
             F_{1}(z) \\
             \Vdots \\
             F_{M-1}(z)
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{f}(z)$}}
         =
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
               R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
               R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
                       \Vdots &           \Vdots & \Ddots &            \Vdots  \\
             R_{M-1,0}(z^{M}) & R_{M-1,1}(z^{M}) & \Cdots & R_{M-1,M-1}(z^{M}) \\
         \end{bNiceMatrix}^{\mathsf{T}}}_{\text{\normalsize $\ve{R}(z)^{\mathsf{T}}$}}
-        \underbrace{\begin{bNiceMatrix}[margin, xdots/shorten=0.5em]
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             z^{-(M-1)} \\
           z^{-(M-1)+1} \\
                 \Vdots \\
@@ -196,8 +196,11 @@
     \frametitle{ポリフェーズ行列表現}
     $\ve{E}(z), \ve{R}(z)$により，アナライザ・シンセサイザは以下のように変形できる
     \begin{figure}
-        \includegraphics[width=115mm]{./figs/polyphase_representation_analyzer.drawio.png}
-        \includegraphics[width=115mm]{./figs/polyphase_representation_synthesizer.drawio.png}
+        \includegraphics[width=118mm]{./figs/polyphase_representation_analyzer.drawio.png}
+    \end{figure}
+    \hrule
+    \begin{figure}
+        \includegraphics[width=118mm]{./figs/polyphase_representation_synthesizer.drawio.png}
     \end{figure}
 \end{frame}
 
