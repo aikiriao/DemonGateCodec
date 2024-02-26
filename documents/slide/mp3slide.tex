@@ -256,7 +256,7 @@
         \vspace{-10pt}
         \small
         \begin{align}
-            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
+            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \label{eq:cos_modulated_analysis_filter} \\
             f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
         \end{align}
         $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
@@ -282,6 +282,25 @@
         &= \exp[-j(L - 1)\omega] |H_{k}(\omega)| \exp[-j \psi(\omega)] \quad \text{（$\because$ 実係数FIRの振幅特性は偶）}
     \end{align*}
     だから，$F_{k}(\omega) H_{k}(\omega) = \exp[-j(L - 1)\omega] |H_{k}(\omega)|^{2}$となって直線位相特性をもつ．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    $h_{k}[n]$の伝達関数を求める．回転因子$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$を用いると
+    \scriptsize
+    \begin{align*}
+        &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
+        &= \frac{1}{2} \left\{ \exp\left[ j \left\{  \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right\} \right] + \exp\left[-j \left\{  \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right\} \right] \right\} \\
+        &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
+    \end{align*}
+    \normalsize
+    これを\eqref{eq:cos_modulated_analysis_filter}式に代入すると伝達関数は，
+    \scriptsize
+    \begin{align*}
+        H_{k}(z) &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{-\left(k + \frac{1}{2} \right)n} z^{-n} \\
+        &\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{\left(k + \frac{1}{2} \right)n} z^{-n} \\
+        &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{k + \frac{1}{2}} z \right) + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{-\left(k + \frac{1}{2}\right)} z \right)
+    \end{align*}
 \end{frame}
 
 \begin{frame}[c]
