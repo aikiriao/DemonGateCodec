@@ -251,22 +251,17 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    \begin{itemize}
-        \item 1つの\structure{プロトタイプフィルタ}$P_{0}(z)$から他のフィルタを従属的に決定するフィルタバンク
-        \item $P_{0}(z)$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{コサイン変調フィルタバンク}
+    1つの\structure{プロトタイプフィルタ}$p_{0}[n]$から他のフィルタを決めるフィルタバンク
     \begin{block}{コサイン変調フィルタバンク}
+        \vspace{-10pt}
         \small
         \begin{align}
             h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
             f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
         \end{align}
-        $p_{0}$：プロトタイプフィルタ，$M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
+        $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
     \end{block}
+    $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
 \end{frame}
 
 \begin{frame}[c]
@@ -277,8 +272,9 @@
     \scriptsize
     （証明）
     \begin{align*}
-        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} h_{k}[L - 1 - n] z^{-n} = \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{-(L - 1 - n^{\prime})} \quad (n^{\prime} = L - 1 - n) \\
-        &= z^{-(L-1)} \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{n^{\prime}} = z^{-(L-1)} H_{k}(z^{-1})
+        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} h_{k}[L - 1 - n] z^{-n} \\
+        &= \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{-(L - 1 - n^{\prime})} = z^{-(L-1)} \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{n^{\prime}} \\
+        &= z^{-(L-1)} H_{k}(z^{-1})
     \end{align*}
     $H_{k}(z)$の周波数特性を（極座標で）$H_{k}(\omega) = |H_{k}(\omega)| \exp[j \psi(\omega)]$と書くと，
     \begin{align*}
