@@ -92,17 +92,142 @@
     \end{align}
     となること
     \begin{block}{}
-        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？
+        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？→証明は補足（\ref{sec:proofs_filter_bank}節）
     \end{block}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{ポリフェーズ表現}
-    フィルタ$H_{k}(z)\ (k = 0,...,M-1)$のインパルス応答を$h_{k}[n]$と書くとき，
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{コサイン変調フィルタバンク}
+        \vspace{-10pt}
+        \begin{align}
+            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \label{eq:cos_modulated_analysis_filter} \\
+            f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
+        \end{align}
+        $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
+    \end{block}
+    \begin{itemize}
+        \item 1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$をコサインで変調して他のフィルタを設定
+        % \item $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
+        $l = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
+        \begin{align}
+            G_{l}(z^{-1}) G_{l}(z) + G_{M + l}(z^{-1}) G_{M + l}(z) = \alpha \quad 
+        \end{align}
+        となること．$G_{l}(z)$は$p_{0}[n]$のポリフェーズ表現で，
+        \begin{align}
+            G_{l}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + l] z^{-n}
+        \end{align}
+    \end{block}
+    本条件は\structure{電力相補条件}ともいう
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
+    \begin{block}{MP3のフィルタバンク}
+        \vspace{-10pt}
+        \begin{align}
+            y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( l - 16 \right) \right] \\
+            h[l] &= \left\{ \begin{array}{ll}
+                -C_{l} & \lfloor l / 64 \rfloor \text{が偶数} \\
+                 C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
+            \end{array} \right.
+        \end{align}
+        $C_{l}\ (l = 0,...,511)$は規格で設定
+    \end{block}
+    $M = 32, L = 33$としたコサイン変調フィルタバンク
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
+    プログラムでは，
+    \begin{align*}
+        y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
+        t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
+    \end{align*}
+    で計算．この式が定義式通りであることを示す．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンク}
     \scriptsize
+    \begin{align}
+        y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
+        &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] (-1)^{u} C_{s + 64u} t_{k,s+64u} \label{eq:mp3_filterbank_progaram_deviation}
+    \end{align}
+    ここで，
+    \begin{align*}
+        t_{k,s+64u} &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s + 64u - 16) \right] = \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) + \pi \left( 2k + 1 \right) u \right] \\
+        &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\cos\left[ \pi(2k + 1)u \right] \\
+        &\quad - \sin\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\sin\left[ \pi(2k + 1)u \right]
+        % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u} 
+        = (-1)^{u} t_{k,s}
+    \end{align*}
+    だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば欲しい結果が得られる．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認}
+    \scriptsize
+    MP3のフィルタバンクでは
+    \begin{align*}
+        G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
+        G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
+        G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
+        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n} \\
+    \end{align*}
+    となる．
+\end{frame}
+
+\subsection{MDCT}
+
+\begin{frame}[c]
+    \frametitle{MDCT}
+\end{frame}
+
+\subsection{エイリアス削除バタフライ演算}
+
+\begin{frame}[c]
+    \frametitle{エイリアス削除バタフライ演算}
+\end{frame}
+
+\section{量子化}
+
+\begin{frame}[c]
+    \frametitle{非線形量子化}
+\end{frame}
+
+\section{符号化}
+
+\begin{frame}[c]
+    \frametitle{ハフマン符号}
+\end{frame}
+
+\section{聴覚モデル}
+
+\begin{frame}[c]
+    \frametitle{聴覚モデル}
+\end{frame}
+
+\appendix
+
+\section{証明}
+
+\subsection{フィルタバンク} \label{sec:proofs_filter_bank}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ表現}
+    $H_{k}(z)$のインパルス応答を$h_{k}[n]$と書くとき，
+    \small
     \begin{align*}
         H_{k}(z) &= \sum_{n = -\infty}^{\infty} h_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} h_{k}[nM + l] z^{-(nM+l)} \\
-        &= \sum_{l = 0}^{M - 1} z^{-l} \sum_{n = -\infty}^{\infty}h_{k}[nM + l] z^{-nM} = \sum_{l = 0}^{M - 1} E_{k,l}(z^{M}) z^{-l}
+        &= \sum_{l = 0}^{M - 1} z^{-l} \sum_{n = -\infty}^{\infty}h_{k}[nM + l] z^{-nM} \\
+        &= \sum_{l = 0}^{M - 1} E_{k,l}(z^{M}) z^{-l}
     \end{align*}
     \normalsize
     \begin{block}{$h_{k}$の（タイプI）ポリフェーズ表現}
@@ -251,21 +376,6 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    1つの\structure{プロトタイプフィルタ}$p_{0}[n]$から他のフィルタを決めるフィルタバンク
-    \begin{block}{コサイン変調フィルタバンク}
-        \vspace{-10pt}
-        \small
-        \begin{align}
-            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \label{eq:cos_modulated_analysis_filter} \\
-            f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
-        \end{align}
-        $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
-    \end{block}
-    $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{コサイン変調フィルタバンク}
     \begin{block}{}
     式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
     \end{block}
@@ -303,91 +413,5 @@
     \end{align*}
 \end{frame}
 
-\begin{frame}[c]
-    \frametitle{MP3のフィルタバンク}
-    \begin{block}{MP3のフィルタバンク}
-        \small
-        \begin{align}
-            y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( l - 16 \right) \right] \\
-            h[l] &= \left\{ \begin{array}{ll}
-                -C_{l} & \lfloor l / 64 \rfloor \text{が偶数} \\
-                 C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
-            \end{array} \right.
-        \end{align}
-        $C_{l}\ (l = 0,...,511)$は規格で設定
-    \end{block}
-    これは，$M = 32, L = 33$に該当
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{MP3のフィルタバンク}
-    プログラムでは，
-    \begin{align*}
-        y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
-        t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
-    \end{align*}
-    で計算している．この式が定義式通りであることを示す．
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{MP3のフィルタバンク}
-    \scriptsize
-    \begin{align}
-        y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
-        &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] (-1)^{u} C_{s + 64u} t_{k,s+64u} \label{eq:mp3_filterbank_progaram_deviation}
-    \end{align}
-    ここで，
-    \begin{align*}
-        t_{k,s+64u} &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s + 64u - 16) \right] = \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) + \pi \left( 2k + 1 \right) u \right] \\
-        &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\cos\left[ \pi(2k + 1)u \right] \\
-        &\quad - \sin\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\sin\left[ \pi(2k + 1)u \right]
-        % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u} 
-        = (-1)^{u} t_{k,s}
-    \end{align*}
-    だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば欲しい結果が得られる．
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{電力相補条件の確認}
-    \scriptsize
-    MP3のフィルタバンクでは
-    \begin{align*}
-        G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
-        G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
-        G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
-        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n} \\
-    \end{align*}
-    となる．
-\end{frame}
-
-\subsection{MDCT}
-
-\begin{frame}[c]
-    \frametitle{MDCT}
-\end{frame}
-
-\subsection{エイリアス削除バタフライ演算}
-
-\begin{frame}[c]
-    \frametitle{エイリアス削除バタフライ演算}
-\end{frame}
-
-\section{量子化}
-
-\begin{frame}[c]
-    \frametitle{非線形量子化}
-\end{frame}
-
-\section{符号化}
-
-\begin{frame}[c]
-    \frametitle{ハフマン符号}
-\end{frame}
-
-\section{聴覚モデル}
-
-\begin{frame}[c]
-    \frametitle{聴覚モデル}
-\end{frame}
 
 \end{document}
