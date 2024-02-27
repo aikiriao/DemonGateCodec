@@ -286,15 +286,15 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    $h_{k}[n]$の伝達関数を求める．回転因子$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$を用いると
+    $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$}より
     \scriptsize
     \begin{align*}
         &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
-        &= \frac{1}{2} \left\{ \exp\left[ j \left\{  \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right\} \right] + \exp\left[-j \left\{  \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right\} \right] \right\} \\
+        &= \frac{1}{2} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] + \exp\left[-j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \right\} \\
         &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
     \end{align*}
     \normalsize
-    これを\eqref{eq:cos_modulated_analysis_filter}式に代入すると伝達関数は，
+    これを\eqref{eq:cos_modulated_analysis_filter}式に代入すると，
     \scriptsize
     \begin{align*}
         H_{k}(z) &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{-\left(k + \frac{1}{2} \right)n} z^{-n} \\
