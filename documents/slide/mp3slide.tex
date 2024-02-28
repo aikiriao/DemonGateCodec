@@ -92,7 +92,7 @@
     \end{align}
     となること
     \begin{block}{}
-        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？→証明は補足（\ref{sec:proofs_filter_bank}節）
+        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？（完全再構成条件→証明は補足（\ref{sec:proofs_filter_bank}節）
     \end{block}
 \end{frame}
 
@@ -119,10 +119,11 @@
         \begin{align}
             G_{l}(z^{-1}) G_{l}(z) + G_{M + l}(z^{-1}) G_{M + l}(z) = \alpha \quad 
         \end{align}
-        となること．$G_{l}(z)$は$p_{0}[n]$のポリフェーズ表現で，
+        となること．ここで，
         \begin{align}
-            G_{l}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + l] z^{-n}
+            G_{l}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + l] z^{-n} \label{eq:polyphase_representation_of_prototype}
         \end{align}
+        $G_{l}(z)$は$p_{0}[n]$のポリフェーズ表現という
     \end{block}
     本条件は\structure{電力相補条件}ともいう
 \end{frame}
@@ -173,15 +174,14 @@
 
 \begin{frame}[c]
     \frametitle{電力相補条件の確認}
-    \scriptsize
     MP3のフィルタバンクでは
+    \scriptsize
     \begin{align*}
         G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
         G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
         G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
         G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n} \\
     \end{align*}
-    となる．
 \end{frame}
 
 \subsection{MDCT}
@@ -410,6 +410,22 @@
         H_{k}(z) &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{-\left(k + \frac{1}{2} \right)n} z^{-n} \\
         &\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{\left(k + \frac{1}{2} \right)n} z^{-n} \\
         &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{k + \frac{1}{2}} z \right) + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{-\left(k + \frac{1}{2}\right)} z \right)
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{\scriptsize $\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
+    \scriptsize
+    \begin{align*}
+        &H_{k}(z) = \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{k + \frac{1}{2}} z \right)^{-l} G_{l}\left( \left( W_{2M}^{k + \frac{1}{2}} z \right)^{2M} \right) \\
+        &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{-l} G_{l}\left( \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{2M} \right) \\
+        &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{-l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
+        &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
+        &= 
+        \scalebox{0.97}{$\displaystyle\sum_{l = 0}^{2M - 1} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{-l\left( k + \frac{1}{2} \right)} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{l\left( k + \frac{1}{2} \right)} \right\} z^{-l} G_{l}(-z^{2M})$}
+        \\
+        &= \sum_{l = 0}^{2M - 1} 2 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] z^{-l} G_{l}(-z^{2M})
     \end{align*}
 \end{frame}
 
