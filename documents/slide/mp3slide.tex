@@ -415,7 +415,7 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{\scriptsize $\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
+    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{$\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
     \scriptsize
     \begin{align*}
         &H_{k}(z) = \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{k + \frac{1}{2}} z \right)^{-l} G_{l}\left( \left( W_{2M}^{k + \frac{1}{2}} z \right)^{2M} \right) \\
@@ -427,6 +427,101 @@
         \\
         &= \sum_{l = 0}^{2M - 1} 2 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] z^{-l} G_{l}(-z^{2M})
     \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    さらに変形すると
+    \small
+    \begin{align}
+        H_{k}(z) &= \sum_{l = 0}^{M - 1} z^{-l} \left\{ t_{k,l} G_{l}(-z^{2M}) + z^{-M} t_{k,M + l} G_{M + l}(-z^{2M}) \right\} \label{eq:another_polyphase_representation} \\
+        t_{k,l} &:= 2\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] \nonumber
+    \end{align}
+    \normalsize
+    \eqref{eq:type1_polyphase_representation}式と\eqref{eq:another_polyphase_representation}式を見比べると，
+    \begin{align}
+        E_{k, l}(z) = t_{k,l} G_{l}(-z^{2}) + z^{-1} t_{k,M + l} G_{M + l}(-z^{2}) \label{eq:polyphase_representation_of_cos_modulated_filter_bank}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \eqref{eq:polyphase_representation_of_cos_modulated_filter_bank}式より，アナライザのポリフェーズ行列は，
+    \footnotesize
+    \begin{align}
+        \ve{E}(z) &= 
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+              t_{0,0} & \Cdots &   t_{0,2M-1} \\
+              t_{1,0} & \Cdots &   t_{1,2M-1} \\
+               \Vdots & \Cdots &      \Vdots  \\
+            t_{M-1,0} & \Cdots & t_{M-1,2M-1} \\
+        \end{bNiceMatrix}}_{\ve{T}}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+                  G_{0}(-z^{2}) &        &                         \\
+                                & \Ddots &                         \\
+                                &        &         G_{M-1}(-z^{2}) \\
+            z^{-1}G_{M}(-z^{2}) &        &                         \\
+                                & \Ddots &                         \\
+                                &        & z^{-1} G_{2M-1}(-z^{2}) \\
+        \end{bNiceMatrix}
+        \nonumber \\
+        &= \ve{T}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{2}) \\
+            z^{-1} \ve{G}_{1}(z^{2}) \\
+        \end{bNiceMatrix} \label{eq:analyzer_matrix_of_cos_modulated_filter_bank} \\
+        \ve{G}_{i}(z) &:=
+        \diag \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            G_{Mi}(-z) & G_{Mi + 1}(-z) & \Cdots & G_{Mi + M - 1}(-z)
+        \end{bNiceMatrix}
+    \end{align}
+    \normalsize
+    と書ける
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    シンセサイザを構成する．フィルタ係数は実だから，
+    \begin{align}
+        \widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})^{\mathsf{T}} = 
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}}
+    \end{align}
+    $G_{l}(z)$の次数は$2K - 1$で，因果性のためには$2K - 1$の遅延がいるため
+    \begin{align}
+        \ve{R}(z) &= z^{-(2K-1)} \widetilde{\ve{E}}(z) \nonumber \\
+        &=
+        z^{-(2K-1)} 
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}} \label{eq:synthesizer_matrix_of_cos_modulated_filter_bank}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    完全再構成条件を導く．\eqref{eq:analyzer_matrix_of_cos_modulated_filter_bank}，\eqref{eq:synthesizer_matrix_of_cos_modulated_filter_bank}式より，
+    \begin{align*}
+        & \ve{R}(z)\ve{E}(z) = z^{-(2K - 1)} \widetilde{\ve{E}}(z) \ve{E}(z) \\
+        &= z^{-(2K - 1)} 
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}} \ve{T}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z) \\
+            z^{-1} \ve{G}_{1}(z)
+        \end{bNiceMatrix} \\
+        &= 2M z^{-(2K - 1)} \left\{ \ve{G}_{0}(z^{-1}) \ve{G}_{0}(z) + \ve{G}_{1}(z^{-1}) \ve{G}_{1}(z) \right\}
+    \end{align*}
+    ここで，$\ve{T}^{\mathsf{T}} \ve{T} = 2M \ve{I}$（後で示す）．$\ve{G}_{0}, \ve{G}_{1}$は対角行列だから，$l = 0, ..., M-1$に対し，
+    \begin{align*}
+        G_{l}(z^{-1}) G_{l}(z) + G_{M + l}(z^{-1}) G_{M + l}(z) = \alpha
+    \end{align*}
+    を満たせば完全再構成となる
 \end{frame}
 
 
