@@ -547,14 +547,43 @@
     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
     ここで，
     \begin{align}
-        \sum_{k = 0}^{M - 1}\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] &= M\delta_{ij} \\
-        \sum_{k = 0}^{M - 1}(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] &= 0
+        \sum_{k = 0}^{M - 1}\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] &= M\delta_{ij} \label{eq:orthogonal_condition_cos} \\
+        \sum_{k = 0}^{M - 1}(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] &= 0 \label{eq:orthogonal_condition_sin}
     \end{align}
     （$\delta_{ij}$：クロネッカーのデルタ）を示せば，
     \begin{align*}
         \left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = 2M \delta_{ij}
     \end{align*}
     となり命題が示せる．次ページから計算結果を載せる
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    $i = j$のとき，$\sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] = M$．$i \neq j$のとき，
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
+        &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ \exp\left[ j \frac{\pi}{M}  \left( k + \frac{1}{2} \right) (i - j) \right] + \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) (i - j) \right] \right\} \\
+        &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ W_{2M}^{-\left( k + \frac{1}{2} \right)(i - j)} + W_{2M}^{\left( k + \frac{1}{2} \right)(i - j)} \right\} \nonumber \\
+        &= \frac{1}{2} \left\{ W_{2M}^{-\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(i - j)k} + W_{2M}^{\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} \right\} \\
+        &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right]
+    \end{align*}
+    最後の式変形で等比級数の和$\sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} = \frac{W_{2M}^{(i -j)M} - 1}{W_{2M}^{i - j} - 1} = \frac{(-1)^{i - j} - 1}{W_{2M}^{i - j} - 1}$を使用
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    さらに式変形すると，
+    \scriptsize
+    \begin{align*}
+        & \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right] \\
+        &= \frac{W_{2M}^{-\frac{i - j}{2}} (W_{2M}^{i - j} - 1)\left\{ (-1)^{-(i - j)} - 1 \right\} + W_{2M}^{\frac{i - j}{2}} (W_{2M}^{-(i - j)} - 1)\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{-(i - j)} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= 0
+    \end{align*}
+    \normalsize
+    よって\eqref{eq:orthogonal_condition_cos}式が示された
 \end{frame}
 
 
