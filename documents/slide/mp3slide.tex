@@ -559,7 +559,11 @@
 
 \begin{frame}[c]
     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-    $i = j$のとき，$\sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] = M$．$i \neq j$のとき，
+    \eqref{eq:orthogonal_condition_cos}式を示す．$i = j$のとき，
+    \scriptsize
+    $\sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] = M$．
+    \normalsize
+    $i \neq j$のとき，
     \scriptsize
     \begin{align*}
         & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
@@ -576,7 +580,8 @@
     さらに式変形すると，
     \scriptsize
     \begin{align*}
-        & \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right] \\
+        & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
+        &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right] \\
         &= \frac{W_{2M}^{-\frac{i - j}{2}} (W_{2M}^{i - j} - 1)\left\{ (-1)^{-(i - j)} - 1 \right\} + W_{2M}^{\frac{i - j}{2}} (W_{2M}^{-(i - j)} - 1)\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
         &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{-(i - j)} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
         &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
@@ -586,5 +591,33 @@
     よって\eqref{eq:orthogonal_condition_cos}式が示された
 \end{frame}
 
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    \eqref{eq:orthogonal_condition_sin}式を示す．
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \\
+        &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] - \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \right\} \\
+        &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ W_{2M}^{-A\left( k + \frac{1}{2} \right)} - W_{2M}^{A\left( k + \frac{1}{2} \right)} \right\} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{-Ak} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{Ak} \right\} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(M + A)k} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(M + A)k} \right\} \quad \text{（$\because$ $(-1)^{k} = W_{2M}^{M} = W_{2M}^{-M}$）} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \frac{(-1)^{-(M + A)} - 1}{W_{2M}^{-(M + A)} - 1} - W_{2M}^{\frac{A}{2}} \frac{(-1)^{M + A} - 1}{W_{2M}^{M + A} - 1} \right\} \quad \text{（$\because$ 等比級数の和の公式）}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    さらに計算を進めると，
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A \right] \\
+        &= \frac{W_{2M}^{-\frac{A}{2}} \left\{ (-1)^{-(M + A)} - 1 \right\} (W_{2M}^{M + A} - 1) - W_{2M}^{\frac{A}{2}} \left\{ (-1)^{M + A} - 1 \right\} (W_{2M}^{-(M + A)} - 1)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{(-1)^{-(M + A)} W_{2M}^{M + \frac{A}{2}} - W_{2M}^{M + \frac{A}{2}} - (-1)^{M + A} W_{2M}^{-M - \frac{A}{2}} + W_{2M}^{-M - \frac{A}{2}}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{(-1)^{A}(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}}) - (-1)(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}})}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{-j2 (-1)^{A} \sin\left( \frac{\pi A}{2M} \right) -j2  \sin\left( \frac{\pi A}{2M} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} = -\frac{\sin\left( \frac{\pi A}{2M} \right) \left\{ (-1)^{A} + 1 \right\}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)}
+    \end{align*}
+    \normalsize
+    最後の式の分子は，$A$の偶奇に関わらず$0$．よって，\eqref{eq:orthogonal_condition_sin}式が示された．
+\end{frame}
 
 \end{document}
