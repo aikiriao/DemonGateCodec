@@ -524,5 +524,38 @@
     を満たせば完全再構成となる
 \end{frame}
 
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    $\left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = \sum_{k = 0}^{M - 1} t_{k,i} t_{k,j}$であり，
+    \scriptsize
+    \begin{align*}
+        & t_{k,i} t_{k,j} \\
+        &= 4 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( j - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \\
+        &= 2 \left\{ \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i + j - \frac{L - 1}{2} \right) k + (-1)^{k} \frac{\pi}{2} \right] + \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] \right\}
+    \end{align*}
+    \normalsize
+    $i + j - (L - 1) = A$とおくと，
+    \scriptsize
+    \begin{align*}
+        & \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A + (-1)^{k}\frac{\pi}{2} \right] \\
+        &= \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \cos\left[(-1)^{k}\frac{\pi}{2} \right] - \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \sin\left[(-1)^{k}\frac{\pi}{2} \right] \\
+        &= -(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right]
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    ここで，
+    \begin{align}
+        \sum_{k = 0}^{M - 1}\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] &= M\delta_{ij} \\
+        \sum_{k = 0}^{M - 1}(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] &= 0
+    \end{align}
+    （$\delta_{ij}$：クロネッカーのデルタ）を示せば，
+    \begin{align*}
+        \left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = 2M \delta_{ij}
+    \end{align*}
+    となり命題が示せる．次ページから計算結果を載せる
+\end{frame}
+
 
 \end{document}
