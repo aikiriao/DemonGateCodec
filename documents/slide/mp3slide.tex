@@ -20,6 +20,7 @@
 \usepackage{nicematrix}
 
 \usepackage{booktabs}
+\usepackage{caption}
 
 \newcommand{\comment}[2]{\textcolor{green!35!black}{#1 \fbox{\scalebox{0.4}{#2}}}}
 
@@ -499,6 +500,22 @@
         \end{bNiceMatrix}
         \ve{T}^{\mathsf{T}} \label{eq:synthesizer_matrix_of_cos_modulated_filter_bank}
     \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{figure}
+        \includegraphics[width=95mm]{./figs/cos_modulated_analysis_bank_filter.drawio.png}
+        \caption*{アナライザの構成}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{figure}
+        \includegraphics[width=115mm]{./figs/cos_modulated_synthesis_bank_filter.drawio.png}
+        \caption*{シンセサイザの構成}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
