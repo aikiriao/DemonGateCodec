@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
+from itertools import cycle
 
 ENCODER_C_COEF = [
     0.000000000, -0.000000477, -0.000000477, -0.000000477,
@@ -132,7 +133,6 @@ ENCODER_C_COEF = [
      0.000000954,  0.000000954,  0.000000477,  0.000000477,
      0.000000477,  0.000000477,  0.000000477,  0.000000477,
 ]
-
 
 DECODER_C_COEF = [
     0.000000000, -0.000015259, -0.000015259, -0.000015259,
@@ -269,13 +269,32 @@ if __name__ == "__main__":
     assert len(ENCODER_C_COEF) == 512
     assert len(DECODER_C_COEF) == 512
 
+    # フィルタ係数に変換
     ENCODER_FILTER_COEF = [ENCODER_C_COEF[i] if ((i // 64) % 2 == 0) else -ENCODER_C_COEF[i] for i in range(512)]
     DECODER_FILTER_COEF = [DECODER_C_COEF[i] if ((i // 64) % 2 == 0) else -DECODER_C_COEF[i] for i in range(512)]
 
-    plt.plot(32 * np.array(ENCODER_FILTER_COEF) - np.array(DECODER_FILTER_COEF))
-    plt.show()
+    # 係数プロット
+    plt.cla()
+    plt.plot(ENCODER_FILTER_COEF)
+    plt.title('MP3 Encoder prototype filter coefficients')
+    plt.grid()
+    plt.xlabel('index')
+    plt.ylabel('amplitude')
+    plt.tight_layout()
+    plt.savefig('mp3_encoder_prototype_filter_coef.pdf')
+    plt.cla()
+    plt.plot(DECODER_FILTER_COEF)
+    plt.title('MP3 Decoder prototype filter coefficients')
+    plt.grid()
+    plt.xlabel('index')
+    plt.ylabel('amplitude')
+    plt.tight_layout()
+    plt.savefig('mp3_decoder_prototype_filter_coef.pdf')
 
-    result = []
+    # 電力相補条件のチェック
+    plt.cla()
+    LINES = ['-', '--', '-.', ':']
+    LINECYCLER = cycle(LINES)
     for l in range(32):
         gl_coef = ENCODER_FILTER_COEF[l::64]
         denom = [0.0] * 8
@@ -286,7 +305,15 @@ if __name__ == "__main__":
         _, glMz = signal.freqz(glM_coef, a = 1.0)
         _, glMinvz = signal.freqz(glM_coef[::-1], a = denom)
 
-        plt.plot(w, np.real(glz * glinvz + glMz * glMinvz), label=f'{l}')
-        plt.plot(w, np.imag(glz * glinvz + glMz * glMinvz), label=f'{l} imag')
-    plt.legend()
-    plt.show()
+        Gl = glz * glinvz + glMz * glMinvz
+        linetype = next(LINECYCLER)
+        plt.plot(w, np.real(Gl), label=f'real', linestyle=linetype)
+        plt.plot(w, np.imag(Gl), label=f'imag', linestyle=linetype)
+    plt.annotate('Real part', xy=(np.pi / 2, 1.0 / 512), xytext=(0.5, 1.0 / 1024), arrowprops=dict(arrowstyle='->', facecolor='black'))
+    plt.annotate('Imaginary part', xy=(np.pi / 2, 0.0), xytext=(2.0, 1.0 / 1024), arrowprops=dict(arrowstyle='->', facecolor='black'))
+    plt.title('MP3 prototype filter power complementary condition check')
+    plt.grid()
+    plt.xlabel('normalized frequency')
+    plt.ylabel('amplitude')
+    plt.tight_layout()
+    plt.savefig('mp3_encoder_prototype_filter_power_complementary_condition.pdf')
