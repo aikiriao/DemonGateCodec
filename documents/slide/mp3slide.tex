@@ -146,7 +146,24 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンク}
+    \frametitle{MP3のフィルタバンクの特性}
+    \vspace{-5pt}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/mp3_encoder_prototype_filter_coef.pdf}
+    \end{figure}
+    \vspace{-5pt}
+    \begin{itemize}
+        \item $h$の概形．対称で直線位相特性をもつ．
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンクの特性}
+    TODO: 周波数特性
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンクの実装}
     プログラムでは，
     \begin{align*}
         y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
@@ -156,7 +173,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンク}
+    \frametitle{MP3のフィルタバンクの実装}
     \scriptsize
     \begin{align}
         y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
@@ -181,9 +198,23 @@
         G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
         G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
         G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
-        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n} \\
+        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n}
+    \end{align*}
+    \normalsize
+    実際に計算すると，
+    \begin{align*}
+        G_{l}(z^{-1})G_{l}(z) + G_{M+l}(z^{-1})G_{M+l}(z) \approx \frac{1}{512} \quad l = 0, ..., 31
     \end{align*}
 \end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認（計算結果）}
+    \begin{figure}
+        \includegraphics[width=115mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
+    \end{figure}
+\end{frame}
+
+% TODO: k,lがごっちゃになっている。kは帯域インデックスに統一したい（lは視認性が悪い）。
 
 \subsection{MDCT}
 
@@ -635,6 +666,18 @@
     \end{align*}
     \normalsize
     最後の式の分子は，$A$の偶奇に関わらず$0$．よって，\eqref{eq:orthogonal_condition_sin}式が示された．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンクの特性}
+    \vspace{-5pt}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/mp3_decoder_prototype_filter_coef.pdf}
+    \end{figure}
+    \vspace{-5pt}
+    \begin{itemize}
+        \item デコーダの係数．エンコーダの係数の$32$倍
+    \end{itemize}
 \end{frame}
 
 \end{document}
