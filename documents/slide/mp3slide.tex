@@ -146,7 +146,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンクの特性}
+    \frametitle{フィルタバンクの特性}
     \vspace{-5pt}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/mp3_encoder_prototype_filter_coef.pdf}
@@ -158,12 +158,25 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンクの特性}
-    TODO: 周波数特性
+    \frametitle{フィルタバンクの周波数特性}
+    バンク$k = 0, ..., 15$の周波数特性
+    \vspace{-5pt}
+    \begin{figure}
+        \includegraphics[width=105mm]{./figs/mp3_encoder_filter_bank_frequency_spec_0_15.pdf}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンクの実装}
+    \frametitle{フィルタバンクの周波数特性}
+    バンク$k = 16, ..., 31$の周波数特性
+    \vspace{-5pt}
+    \begin{figure}
+        \includegraphics[width=105mm]{./figs/mp3_encoder_filter_bank_frequency_spec_16_31.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{フィルタバンクの実装}
     プログラムでは，
     \begin{align*}
         y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
@@ -173,7 +186,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3のフィルタバンクの実装}
+    \frametitle{フィルタバンクの実装}
     \scriptsize
     \begin{align}
         y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
