@@ -116,15 +116,15 @@
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
     \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
-        $l = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
+        $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
         \begin{align}
-            G_{l}(z^{-1}) G_{l}(z) + G_{M + l}(z^{-1}) G_{M + l}(z) = \alpha \quad 
+            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha \quad 
         \end{align}
         となること．ここで，
         \begin{align}
-            G_{l}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + l] z^{-n} \label{eq:polyphase_representation_of_prototype}
+            G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + k] z^{-n} \label{eq:polyphase_representation_of_prototype}
         \end{align}
-        $G_{l}(z)$は$p_{0}[n]$のポリフェーズ表現という
+        $G_{k}(z)$は$p_{0}[n]$のポリフェーズ表現という
     \end{block}
     本条件は\structure{電力相補条件}ともいう
 \end{frame}
@@ -179,7 +179,7 @@
     \frametitle{フィルタバンクの実装}
     プログラムでは，
     \begin{align*}
-        y_{k}[t] &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} \\
+        y_{k}[t] &= \sum_{s = 0}^{63} t_{k,s} \sum_{u = 0}^{7} x[t - s - 64u] C_{s + 64u} \\
         t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
     \end{align*}
     で計算．この式が定義式通りであることを示す．
@@ -200,7 +200,10 @@
         % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u} 
         = (-1)^{u} t_{k,s}
     \end{align*}
-    だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば欲しい結果が得られる．
+    だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば，
+    \begin{align*}
+        y_{k}[t] = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} = \sum_{s = 0}^{63} t_{k,s} \sum_{u = 0}^{7} x[t - s - 64u] C_{s + 64u}
+    \end{align*}
 \end{frame}
 
 \begin{frame}[c]
@@ -208,15 +211,15 @@
     MP3のフィルタバンクでは
     \scriptsize
     \begin{align*}
-        G_{l}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + l] z^{-n} = \sum_{n = 0}^{7} h[64n + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + l} z^{-n} \\
-        G_{M+l}(z) &= \sum_{n = 0}^{7} h[64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + l} z^{-n} \\
-        G_{l}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + l] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + l] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + l} z^{-n} \\
-        G_{M+l}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + l] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + l} z^{-n}
+        G_{k}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + k] z^{-n} = \sum_{n = 0}^{7} h[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
+        G_{M+k}(z) &= \sum_{n = 0}^{7} h[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
+        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
+        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
     \end{align*}
     \normalsize
-    実際に計算すると，
+   $k = 0, ..., 31$で実際に計算すると，
     \begin{align*}
-        G_{l}(z^{-1})G_{l}(z) + G_{M+l}(z^{-1})G_{M+l}(z) \approx \frac{1}{512} \quad l = 0, ..., 31
+        G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
     \end{align*}
 \end{frame}
 
@@ -227,9 +230,16 @@
     \end{figure}
 \end{frame}
 
-% TODO: k,lがごっちゃになっている。kは帯域インデックスに統一したい（lは視認性が悪い）。
-
 \subsection{MDCT}
+
+\begin{frame}[c]
+    \frametitle{MDCT}
+    \begin{itemize}
+        \item 変換式
+        \item Princen-Bladrey条件
+        \item MP3のブロックサイズ切り替え（）
+    \end{itemize}
+\end{frame}
 
 \begin{frame}[c]
     \frametitle{MDCT}
@@ -239,6 +249,7 @@
 
 \begin{frame}[c]
     \frametitle{エイリアス削除バタフライ演算}
+    処理と周波数特性の表示で十分（理論的なことはあまりないため）
 \end{frame}
 
 \section{量子化}
@@ -390,10 +401,11 @@
         \begin{align}
             \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0,\ m_{0} \in \mathbb{N}) \label{eq:filter_bank_PR_condition}
         \end{align}
-        なら，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$なら，$\hat{X}(z) = aM z^{-(M - 1 - K)}X(z)$}
+        ならば，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$ならば，$\hat{X}(z) = aM z^{-(M - 1 - K)}X(z)$}
     \end{block}
     \begin{figure}
         \includegraphics[width=70mm]{./figs/perfect_reconstraction_filter_bank.drawio.png}
+        \caption*{$\ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I}$を満たす$M$分割フィルタバンク}
     \end{figure}
 \end{frame}
 
@@ -578,9 +590,9 @@
         \end{bNiceMatrix} \\
         &= 2M z^{-(2K - 1)} \left\{ \ve{G}_{0}(z^{-1}) \ve{G}_{0}(z) + \ve{G}_{1}(z^{-1}) \ve{G}_{1}(z) \right\}
     \end{align*}
-    ここで，$\ve{T}^{\mathsf{T}} \ve{T} = 2M \ve{I}$（後で示す）．$\ve{G}_{0}, \ve{G}_{1}$は対角行列だから，$l = 0, ..., M-1$に対し，
+    ここで，$\ve{T}^{\mathsf{T}} \ve{T} = 2M \ve{I}$（後で示す）．$\ve{G}_{0}, \ve{G}_{1}$は対角行列だから，$k = 0, ..., M-1$に対し，
     \begin{align*}
-        G_{l}(z^{-1}) G_{l}(z) + G_{M + l}(z^{-1}) G_{M + l}(z) = \alpha
+        G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
     \end{align*}
     を満たせば完全再構成となる
 \end{frame}
