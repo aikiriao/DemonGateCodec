@@ -289,30 +289,7 @@
     \begin{align}
         x_{m}[n] = x_{m - 1}[n + N]
     \end{align}
-    が成り立つものとする．窓かけした信号$g_{m}[n]$を
-    \begin{align}
-        g_{m}[n] := w_{a}[n] x_{m}[n] \quad (n = 0, ..., 2N-1)
-    \end{align}
-    と書く（$w_{a}$：分析窓）．
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{MDCTと完全再構成条件}
-    % TODO: 図
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{MDCTと完全再構成条件}
-    $g_{m}[n]$をMDCT・IMDCTして再構成した信号$z_{m}[n]$は，\eqref{eq:mdct_reconstruction}式より，
-    \small
-    \begin{align}
-        z_{m}[n] = \left\{ \begin{array}{ll}
-            g_{m}[n] - g_{m}[N - 1 - n] & (n = 0, ..., N - 1) \\
-            g_{m}[n] + g_{m}[3N - 1 - n] & (n = N, ..., 2N - 1)
-        \end{array} \right. \label{eq:windowed_mdct_reconstruction}
-    \end{align}
-    \normalsize
-    合成窓を$w_{s}$としたとき，完全再構成となる窓関数の条件が得られる
+    が成り立つものとする．分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，完全再構成となる窓関数の条件は：
     \begin{block}{Princen-Bradley条件}
         \vspace{-10pt}
         \begin{align}
@@ -322,7 +299,27 @@
             \end{aligned}
         \end{align}
     \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCTと完全再構成条件}
     % TODO: 図
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{Princen-Bradley条件の導出}
+    窓かけした信号$g_{m}[n]$を
+    \begin{align}
+        g_{m}[n] := w_{a}[n] x_{m}[n] \quad (n = 0, ..., 2N-1)
+    \end{align}
+    と書く．$g_{m}[n]$をMDCT・IMDCTして再構成した信号$z_{m}[n]$は，\eqref{eq:mdct_reconstruction}式より，
+    \small
+    \begin{align}
+        z_{m}[n] = \left\{ \begin{array}{ll}
+            g_{m}[n] - g_{m}[N - 1 - n] & (n = 0, ..., N - 1) \\
+            g_{m}[n] + g_{m}[3N - 1 - n] & (n = N, ..., 2N - 1)
+        \end{array} \right. \label{eq:windowed_mdct_reconstruction}
+    \end{align}
 \end{frame}
 
 \begin{frame}[c]
