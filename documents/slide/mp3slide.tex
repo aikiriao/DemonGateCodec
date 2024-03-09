@@ -230,19 +230,118 @@
     \end{figure}
 \end{frame}
 
-\subsection{MDCT}
+\subsection{MDCT (Modified Discrete Cosine Transform)}
 
 \begin{frame}[c]
-    \frametitle{MDCT}
+    \frametitle{MP3のMDCT (Modified DCT)}
     \begin{itemize}
-        \item 変換式
-        \item Princen-Bladrey条件
-        \item MP3のブロックサイズ切り替え（）
+        \item サブバンドフィルタで32帯域に分割した信号に対し，18サンプル単位でMDCTを実行
+            \begin{itemize}
+                \item 出力：$32 \times 18 = 576$点のスペクトルデータ
+            \end{itemize}
+        \item MDCTの実行前には窓関数を適用
+            \begin{itemize}
+                \item MP3では4種類の窓関数を使用
+                \item 窓関数は完全再構成条件を満たす
+            \end{itemize}
     \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MDCT}
+    \frametitle{MDCTとIMDCT}
+    入力信号を$x[n]$，再構成信号を$y[n]$として
+    \begin{block}{MDCT (Modified Discrete Cosine Transform)}
+        \vspace{-10pt}
+        \begin{align}
+            X_{k} = \sum_{n = 0}^{2N - 1} x[n] \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:mdct}
+        \end{align}
+    \end{block}
+    \begin{block}{IMDCT (Inverse MDCT)}
+        \vspace{-10pt}
+        \begin{align}
+            y[n] = \frac{2}{N} \sum_{n = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct} 
+        \end{align}
+    \end{block}
+    \begin{itemize}
+        \item $k = 0, ..., N$のため，時間領域は$2N$点，周波数領域は$N$点の変換
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCTと完全再構成条件}
+    \eqref{eq:imdct}式に\eqref{eq:mdct}式を代入して整理すると
+    \begin{align}
+        y[n] = 
+        \left\{ \begin{array}{ll}
+             x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[n] + x[3N - 1 - n] & (n = N, ..., 2N - 1)
+        \end{array} \right. \label{eq:mdct_reconstruction}
+    \end{align}
+    となる（証明は補足）．
+    \begin{block}{}
+        \structure{ハーフオーバーラップで処理するとき，$x[n]$にうまく窓関数を適用すると完全再構成にできる．}その条件は？
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCTと完全再構成条件}
+    $m$フレーム目の$n$時刻の入力$x_{m}[n]$は，フレームあたり$N$サンプルでスライドしており
+    \begin{align}
+        x_{m}[n] = x_{m - 1}[n + N]
+    \end{align}
+    が成り立つものとする．窓かけした信号$g_{m}[n]$を
+    \begin{align}
+        g_{m}[n] := w_{a}[n] x_{m}[n] \quad (n = 0, ..., 2N-1)
+    \end{align}
+    と書く（$w_{a}$：分析窓）．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCTと完全再構成条件}
+    % TODO: 図
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCTと完全再構成条件}
+    $g_{m}[n]$をMDCT・IMDCTして再構成した信号$z_{m}[n]$は，\eqref{eq:mdct_reconstruction}式より，
+    \small
+    \begin{align}
+        z_{m}[n] = \left\{ \begin{array}{ll}
+            g_{m}[n] - g_{m}[N - 1 - n] & (n = 0, ..., N - 1) \\
+            g_{m}[n] + g_{m}[3N - 1 - n] & (n = N, ..., 2N - 1)
+        \end{array} \right. \label{eq:windowed_mdct_reconstruction}
+    \end{align}
+    \normalsize
+    合成窓を$w_{s}$としたとき，完全再構成となる窓関数の条件が得られる
+    \begin{block}{Princen-Bradley条件}
+        \vspace{-10pt}
+        \begin{align}
+            \begin{aligned}
+                & w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N] = 1 \\
+                & w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n]
+            \end{aligned}
+        \end{align}
+    \end{block}
+    % TODO: 図
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{Princen-Bradley条件の導出}
+    ハーフオーバーラップアドした結果を$\hat{x}_{m}[n]$と書くと，\eqref{eq:windowed_mdct_reconstruction}式より，
+    \footnotesize
+    \begin{align*}
+        &\hat{x}_{m}[n] = w_{s}[n]z_{m}[n] + w_{s}[n + N]z_{m-1}[n + N] \\
+        &= w_{s}[n] (g_{m}[n] - g_{m}[N - 1 - n]) \\
+        &\quad + w_{s}[n + N] (g_{m-1}[n + N] + g_{m-1}[3N - 1 - (n + N)]) \\
+        &= w_{s}[n] (w_{a}[n] x_{m}[n] - w_{a}[N - 1 - n]x_{m}[N - 1 - n]) \\
+        &\quad + w_{s}[n + N] (w_{a}[n + N] x_{m-1}[n + N] + w_{a}[2N - 1 - n]x_{m-1}[2N - 1 - n]) \\
+        &= w_{s}[n] (w_{a}[n] x_{m}[n] - w_{a}[N - 1 - n]x_{m}[N - 1 - n]) \\
+        &\quad + w_{s}[n + N] (w_{a}[n + N] x_{m}[n] + w_{a}[2N - 1 - n]x_{m}[N - 1 - n]) \\
+        &= x_{m}[n](w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N]) \\
+        &\quad + x_{m}[N - 1 - n](w_{a}[n + N] w_{s}[2N - 1 - n] - w_{a}[n]w_{s}[N - 1 - n])
+    \end{align*}
+    \normalsize
+    この結果を$x_{m}[n] = \hat{x}_{m}[n]$として両辺比較することで条件が得られる
 \end{frame}
 
 \subsection{エイリアス削除バタフライ演算}
