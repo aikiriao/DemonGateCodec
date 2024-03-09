@@ -290,8 +290,8 @@
         x_{m}[n] = x_{m - 1}[n + N]
     \end{align}
     が成り立つものとする．分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，完全再構成となる窓関数の条件は：
-    \begin{block}{Princen-Bradley条件}
-        \vspace{-10pt}
+    \begin{block}{Princen--Bradley条件}
+        \vspace{-15pt}
         \begin{align}
             \begin{aligned}
                 & w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N] = 1 \\
@@ -307,7 +307,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{Princen-Bradley条件の導出}
+    \frametitle{Princen--Bradley条件の導出}
     窓かけした信号$g_{m}[n]$を
     \begin{align}
         g_{m}[n] := w_{a}[n] x_{m}[n] \quad (n = 0, ..., 2N-1)
@@ -323,7 +323,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{Princen-Bradley条件の導出}
+    \frametitle{Princen--Bradley条件の導出}
     ハーフオーバーラップアドした結果を$\hat{x}_{m}[n]$と書くと，\eqref{eq:windowed_mdct_reconstruction}式より，
     \footnotesize
     \begin{align*}
@@ -339,6 +339,27 @@
     \end{align*}
     \normalsize
     この結果を$x_{m}[n] = \hat{x}_{m}[n]$として両辺比較することで条件が得られる
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3とPrincen--Bradley条件}
+    分析窓と合成窓が同一$w[n] = w_{a}[n] = w_{s}[n]$のとき，Princen--Bradley条件は
+    \begin{block}{Princen--Bradley条件（分析窓と合成窓が同一）}
+        \vspace{-15pt}
+        \begin{align}
+            \begin{aligned}
+                & w[n]^{2} + w[n + N]^{2} = 1 \\
+                & w[n + N] w[2N - 1 - n] = w[n]w[N - 1 - n]
+            \end{aligned}
+        \end{align}
+    \end{block}
+    となる．\structure{窓関数が対称 $w[n] = w[2N - 1 - n]$}であれば，
+    \footnotesize
+    \begin{align*}
+        w[n + N] w[2N - 1 - n] = w[N - 1 - n]w[2N - 1 - n] = w[N - 1 - n]w[n]
+    \end{align*}
+    \normalsize
+    となり下の条件は満たされる\footnote{逆に，下の条件を満たしても対称とは限らない．$w[n] = \frac{w[n + N]w[2N - 1 - n]}{w[N - 1 - n]}$だが，一般に$w[n + N] \neq w[N - 1 - n]$だから$w[n] \neq w[2N - 1 - n]$．}
 \end{frame}
 
 \subsection{エイリアス削除バタフライ演算}
