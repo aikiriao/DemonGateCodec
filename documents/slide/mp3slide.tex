@@ -251,13 +251,13 @@
     \frametitle{MDCTとIMDCT}
     入力信号を$x[n]$，再構成信号を$y[n]$として
     \begin{block}{MDCT (Modified Discrete Cosine Transform)}
-        \vspace{-10pt}
+        \vspace{-15pt}
         \begin{align}
             X_{k} = \sum_{n = 0}^{2N - 1} x[n] \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:mdct}
         \end{align}
     \end{block}
     \begin{block}{IMDCT (Inverse MDCT)}
-        \vspace{-10pt}
+        \vspace{-15pt}
         \begin{align}
             y[n] = \frac{2}{N} \sum_{n = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct} 
         \end{align}
@@ -343,7 +343,7 @@
 
 \begin{frame}[c]
     \frametitle{MP3とPrincen--Bradley条件}
-    分析窓と合成窓が同一$w[n] = w_{a}[n] = w_{s}[n]$のとき，Princen--Bradley条件は
+    分析・合成窓が同じ$w[n] = w_{a}[n] = w_{s}[n]$とき，条件は
     \begin{block}{Princen--Bradley条件（分析窓と合成窓が同一）}
         \vspace{-15pt}
         \begin{align}
@@ -360,6 +360,70 @@
     \end{align*}
     \normalsize
     となり下の条件は満たされる\footnote{逆に，下の条件を満たしても対称とは限らない．$w[n] = \frac{w[n + N]w[2N - 1 - n]}{w[N - 1 - n]}$だが，一般に$w[n + N] \neq w[N - 1 - n]$だから$w[n] \neq w[2N - 1 - n]$．}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3とMDCT}
+    MP3は4種類の窓関数を使用
+    \footnotesize
+    \begin{itemize}
+        \item[long]
+            \begin{align}
+                w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)
+            \end{align}
+        \item[short]
+            \begin{align}
+                w[n] = \sin\left[ \frac{\pi}{12} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 11)
+            \end{align}
+        \item[start]
+            \begin{align}
+                w[n] = 
+                \left\{ \begin{array}{ll}
+                    \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 0, ..., 17) \\
+                    1 & (n = 18, ..., 23) \\
+                    \sin\left[ \frac{\pi}{12} \left( n - 18 + \frac{1}{2} \right) \right] & (n = 24, ..., 29) \\
+                    0 & (n = 30, ..., 35)
+                \end{array}\right.
+            \end{align}
+        \item[stop]
+            \begin{align}
+                w[n] = 
+                \left\{ \begin{array}{ll}
+                    0 & (n = 0, ..., 5) \\
+                    \sin\left[ \frac{\pi}{12} \left( n - 6 + \frac{1}{2} \right) \right] & (n = 6, ..., 11) \\
+                    1 & (n = 12, ..., 17) \\
+                    \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 18, ..., 35)
+                \end{array}\right.
+            \end{align}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3とPrincen--Bradley条件}
+    % TODO: 窓関数の概形と状態遷移
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3とPrincen--Bradley条件}
+    \begin{block}{}
+        サイン窓
+        \begin{align}
+            w[n] = \sin \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 2N - 1)
+        \end{align}
+        はPrincen--Bradley条件を満たす．
+    \end{block}
+    \scriptsize
+    （証明）上の条件は：
+    \begin{align*}
+        &w[n]^{2} + w[n + N]^{2} = \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \sin^{2} \left[ \frac{\pi}{2N} \left( n + N + \frac{1}{2} \right) \right] \\
+        % &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \frac{\pi}{2} \right] \\
+        &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \cos^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = 1
+    \end{align*}
+    下の条件は，窓関数が対称であることより示される：
+    \begin{align*}
+        & w[2N - 1 - n] = \sin\left[ \frac{\pi}{2N} \left( 2N - 1 - n + \frac{1}{2} \right) \right] = \sin\left[ \pi + \frac{\pi}{2N} \left( - n - \frac{1}{2} \right) \right] \\
+        &= \sin \left[ -\frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \pi \right] = \sin \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = w[n]
+    \end{align*}
 \end{frame}
 
 \subsection{エイリアス削除バタフライ演算}
