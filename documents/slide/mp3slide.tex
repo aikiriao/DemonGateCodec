@@ -289,15 +289,14 @@
     \begin{align}
         x_{m}[n] = x_{m - 1}[n + N]
     \end{align}
-    が成り立つものとする．分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，完全再構成となる窓関数の条件は：
-    \begin{block}{Princen--Bradley条件}
-        \vspace{-15pt}
+    が成り立つものとする．
+    \begin{block}{Princen--Bradley条件（完全再構成条件）}
+        分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，
         \begin{align}
-            \begin{aligned}
-                & w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N] = 1 \\
-                & w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n]
-            \end{aligned}
+            & w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N] = 1 \label{eq:princen_bradley_conditon_1} \\
+            & w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n] \label{eq:princen_bradley_conditon_2} 
         \end{align}
+        ならば，MDCT・IMDCTは完全再構成
     \end{block}
 \end{frame}
 
@@ -343,23 +342,20 @@
 
 \begin{frame}[c]
     \frametitle{MP3とPrincen--Bradley条件}
-    分析・合成窓が同じ$w[n] = w_{a}[n] = w_{s}[n]$とき，条件は
     \begin{block}{Princen--Bradley条件（分析窓と合成窓が同一）}
-        \vspace{-15pt}
+        分析・合成窓が同じ$w[n] = w_{a}[n] = w_{s}[n]$とき，
         \begin{align}
-            \begin{aligned}
-                & w[n]^{2} + w[n + N]^{2} = 1 \\
-                & w[n + N] w[2N - 1 - n] = w[n]w[N - 1 - n]
-            \end{aligned}
+            & w[n]^{2} + w[n + N]^{2} = 1 \label{eq:another_princen_bradley_conditon_1} \\
+            & w[n + N] w[2N - 1 - n] = w[n]w[N - 1 - n] \label{eq:another_princen_bradley_conditon_2}
         \end{align}
     \end{block}
-    となる．\structure{窓関数が対称 $w[n] = w[2N - 1 - n]$}であれば，
+    とくに\structure{窓関数が対称 $w[n] = w[2N - 1 - n]$}であれば，
     \footnotesize
     \begin{align*}
         w[n + N] w[2N - 1 - n] = w[N - 1 - n]w[2N - 1 - n] = w[N - 1 - n]w[n]
     \end{align*}
     \normalsize
-    となり下の条件は満たされる\footnote{逆に，下の条件を満たしても対称とは限らない．$w[n] = \frac{w[n + N]w[2N - 1 - n]}{w[N - 1 - n]}$だが，一般に$w[n + N] \neq w[N - 1 - n]$だから$w[n] \neq w[2N - 1 - n]$．}
+    となり式\eqref{eq:another_princen_bradley_conditon_2}が満たされる\footnote{逆に，式\eqref{eq:another_princen_bradley_conditon_2}を満たしても対称とは限らない．$w[n] = \frac{w[n + N]w[2N - 1 - n]}{w[N - 1 - n]}$だが，一般に$w[n + N] \neq w[N - 1 - n]$だから$w[n] \neq w[2N - 1 - n]$．}
 \end{frame}
 
 \begin{frame}[c]
@@ -413,13 +409,13 @@
         はPrincen--Bradley条件を満たす．
     \end{block}
     \scriptsize
-    （証明）上の条件は：
+    （証明）式\eqref{eq:another_princen_bradley_conditon_1}は：
     \begin{align*}
         &w[n]^{2} + w[n + N]^{2} = \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \sin^{2} \left[ \frac{\pi}{2N} \left( n + N + \frac{1}{2} \right) \right] \\
         % &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \frac{\pi}{2} \right] \\
         &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \cos^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = 1
     \end{align*}
-    下の条件は，窓関数が対称であることより示される：
+    式\eqref{eq:another_princen_bradley_conditon_2}は，窓関数が対称であることより示される：
     \begin{align*}
         & w[2N - 1 - n] = \sin\left[ \frac{\pi}{2N} \left( 2N - 1 - n + \frac{1}{2} \right) \right] = \sin\left[ \pi + \frac{\pi}{2N} \left( - n - \frac{1}{2} \right) \right] \\
         &= \sin \left[ -\frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \pi \right] = \sin \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = w[n]
@@ -884,6 +880,101 @@
     \begin{itemize}
         \item デコーダの係数．エンコーダの係数の$32$倍
     \end{itemize}
+\end{frame}
+
+\subsection{MDCT} \label{sec:proofs_mdct}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    式\eqref{eq:imdct}に式\eqref{eq:mdct}を代入すると，
+    \scriptsize
+    \begin{align*}
+        y[n] &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( m + \frac{1}{2} + \frac{N}{2} \right) \right] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \\
+        &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\} \\
+        &= \frac{2}{N} \sum_{m = 0}^{2N - 1} x[m] \sum_{k = 0}^{N - 1} \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\}
+    \end{align*}
+    \normalsize
+    ここで，
+    \begin{align}
+        I_{n} := \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right]
+    \end{align}
+    を計算していく
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    \begin{align*}
+        I_{n} &= \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right] = \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{2N} ( 2k + 1 ) n \right] \\
+        &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left\{ \exp\left[ j \frac{\pi}{2N} ( 2k + 1 )n \right] + \exp\left[-j \frac{\pi}{2N} ( 2k + 1 )n \right] \right\} \\
+        &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left( W_{2N}^{-\frac{2k + 1}{2}n} + W_{2N}^{\frac{2k + 1}{2}n} \right) = \frac{1}{2} \left( W_{2N}^{-\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{-nk} + W_{2N}^{\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{nk} \right)
+    \end{align*}
+    ここで，
+    \begin{align*}
+        \sum_{k = 0}^{N - 1} W_{2N}^{nk} &= \sum_{k = 0}^{N - 1} \left( W_{2N}^{n} \right)^{k}
+        = \left\{ \begin{array}{ll}
+            \displaystyle \sum_{k = 0}^{N - 1} 1^{k} = N & \text{（$n$が$2N$の倍数）} \\
+            \displaystyle \frac{1\left\{ \left( W_{2N}^{n} \right)^{N} - 1 \right\}}{W_{2N}^{n} - 1} = \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1} & \text{（$n$が$2N$の倍数ではない）} 
+        \end{array} \right.
+    \end{align*}
+    から，場合分けして考える
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    $n$が$2N$の倍数のとき，$n = 2Nm\ (m \in \mathbb{Z})$と書けて，
+    \begin{align*}
+        I_{n} &= \frac{N}{2} \left( W_{2N}^{-2Nm} + W_{2N}^{2Nm} \right) = \frac{N}{2} \left\{ (-1)^{-m} + (-1)^{m} \right\} \\
+        &= \left\{ \begin{array}{ll}
+            N & \text{（$m$：偶数 $\iff$ $n = 0, \pm 4N, \pm 8N$）} \\
+            -N & \text{（$m$：奇数 $\iff$ $n = \pm 2N, \pm 6N, \pm 10N$）} \\
+        \end{array} \right.
+    \end{align*}
+    $n$が$2N$の倍数ではないとき，
+    \begin{align*}
+        & I_{n} = \frac{1}{2} 
+        \left\{ 
+        W_{2N}^{-\frac{n}{2}} \frac{(-1)^{-n} - 1}{W_{2N}^{-n} - 1} + W_{2N}^{\frac{n}{2}} \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1}
+        \right\} \\
+        &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} - 1 \right\} ( W_{2N}^{n} - 1 ) +  W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} - 1 \right\} ( W_{2N}^{-n} - 1 ) }{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} W_{2N}^{n} - (-1)^{-n} - W_{2N}^{n} + 1 \right\} + W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} W_{2N}^{-n} - (-1)^{n} - W_{2N}^{-n} + 1 \right\}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= \frac{ (-1)^{-n} W_{2N}^{\frac{n}{2}} - (-1)^{-n} W_{2N}^{-\frac{n}{2}} - W_{2N}^{\frac{n}{2}} + W_{2N}^{-\frac{n}{2}} + (-1)^{n} W_{2N}^{-\frac{n}{2}} - (-1)^{n} W_{2N}^{\frac{n}{2}} - W_{2N}^{-\frac{n}{2}} + W_{2N}^{\frac{n}{2}}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= 0
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    まとめると，
+    \begin{align}
+        I_{n} = \left\{ \begin{array}{ll}
+            N & (n = 0, \pm 4N, \pm 8N, ...) \\
+            -N & (n = \pm 2N, \pm 6N, \pm 10N, ...) \\
+            0 & (\text{otherwise})
+        \end{array} \right. \label{eq:result_of_In}
+    \end{align}
+    となる．式\eqref{eq:result_of_In}を使えば，
+    \begin{align*}
+        \sum_{m = 0}^{2N - 1} x[m] I_{m - n} &= \left\{ \begin{array}{ll}
+            x[n] I_{0} = N x[n] & (n = 0, ..., N - 1) \\
+            x[n] I_{0} = N x[n] & (n = N, ..., 2N - 1)
+        \end{array} \right. \\
+        \sum_{m = 0}^{2N - 1} x[m] I_{n + m + 1 + N} &= \left\{ \begin{array}{ll}
+            x[N - 1 - n] I_{2N} = -N x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[3N - 1 - n] I_{4N} = N x[3N - 1 - n] & (n = N, ..., 2N - 1)
+        \end{array} \right.
+    \end{align*}
+    だから，
+    \begin{align*}
+        y[n] &= \frac{1}{N} \sum_{m = 0}^{2N - 1} x[m] ( I_{n + m + 1 + N} + I_{m - n} ) \\
+        &= \left\{ \begin{array}{ll}
+            x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[n] + x[3N - 1 - n] & (n = 0, ..., N - 1)
+        \end{array} \right.
+    \end{align*}
+    となる．
 \end{frame}
 
 \end{document}
