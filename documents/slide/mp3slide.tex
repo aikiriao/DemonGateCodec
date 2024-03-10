@@ -118,7 +118,7 @@
     \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
         $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
         \begin{align}
-            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha \quad 
+            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
         \end{align}
         となること．ここで，
         \begin{align}
@@ -197,7 +197,7 @@
         t_{k,s+64u} &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s + 64u - 16) \right] = \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) + \pi \left( 2k + 1 \right) u \right] \\
         &= \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\cos\left[ \pi(2k + 1)u \right] \\
         &\quad - \sin\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right]\sin\left[ \pi(2k + 1)u \right]
-        % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u} 
+        % &= (-1)^{u} \cos\left[ \frac{\pi}{32} \left( k + \frac{1}{2} \right) (s - 16) \right] = (-1)^{u}
         = (-1)^{u} t_{k,s}
     \end{align*}
     だから，これを式\eqref{eq:mp3_filterbank_progaram_deviation}に代入すれば，
@@ -259,7 +259,7 @@
     \begin{block}{IMDCT (Inverse MDCT)}
         \vspace{-15pt}
         \begin{align}
-            y[n] = \frac{2}{N} \sum_{n = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct} 
+            y[n] = \frac{2}{N} \sum_{n = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct}
         \end{align}
     \end{block}
     \begin{itemize}
@@ -271,7 +271,7 @@
     \frametitle{MDCTと完全再構成条件}
     \eqref{eq:imdct}式に\eqref{eq:mdct}式を代入して整理すると
     \begin{align}
-        y[n] = 
+        y[n] =
         \left\{ \begin{array}{ll}
             x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
             x[n] + x[3N - 1 - n] & (n = N, ..., 2N - 1)
@@ -294,7 +294,7 @@
         分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，
         \begin{align}
             & w_{a}[n] w_{s}[n] + w_{a}[n + N]w_{s}[n + N] = 1 \label{eq:princen_bradley_conditon_1} \\
-            & w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n] \label{eq:princen_bradley_conditon_2} 
+            & w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n] \label{eq:princen_bradley_conditon_2}
         \end{align}
         ならば，MDCT・IMDCTは完全再構成
     \end{block}
@@ -373,7 +373,7 @@
             \end{align}
         \item[start]
             \begin{align}
-                w[n] = 
+                w[n] =
                 \left\{ \begin{array}{ll}
                     \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 0, ..., 17) \\
                     1 & (n = 18, ..., 23) \\
@@ -383,7 +383,7 @@
             \end{align}
         \item[stop]
             \begin{align}
-                w[n] = 
+                w[n] =
                 \left\{ \begin{array}{ll}
                     0 & (n = 0, ..., 5) \\
                     \sin\left[ \frac{\pi}{12} \left( n - 6 + \frac{1}{2} \right) \right] & (n = 6, ..., 11) \\
@@ -656,7 +656,7 @@
         &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{-l} G_{l}\left( \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{2M} \right) \\
         &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{-l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
         &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
-        &= 
+        &=
         \scalebox{0.97}{$\displaystyle\sum_{l = 0}^{2M - 1} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{-l\left( k + \frac{1}{2} \right)} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{l\left( k + \frac{1}{2} \right)} \right\} z^{-l} G_{l}(-z^{2M})$}
         \\
         &= \sum_{l = 0}^{2M - 1} 2 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] z^{-l} G_{l}(-z^{2M})
@@ -683,7 +683,7 @@
     \eqref{eq:polyphase_representation_of_cos_modulated_filter_bank}式より，アナライザのポリフェーズ行列は，
     \footnotesize
     \begin{align}
-        \ve{E}(z) &= 
+        \ve{E}(z) &=
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             t_{0,0} & \Cdots &   t_{0,2M-1} \\
             t_{1,0} & \Cdots &   t_{1,2M-1} \\
@@ -717,7 +717,7 @@
     \frametitle{コサイン変調フィルタバンク}
     シンセサイザを構成する．フィルタ係数は実だから，
     \begin{align}
-        \widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})^{\mathsf{T}} = 
+        \widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})^{\mathsf{T}} =
         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
         \end{bNiceMatrix}
@@ -727,7 +727,7 @@
     \begin{align}
         \ve{R}(z) &= z^{-(2K-1)} \widetilde{\ve{E}}(z) \nonumber \\
         &=
-        z^{-(2K-1)} 
+        z^{-(2K-1)}
         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
         \end{bNiceMatrix}
@@ -756,7 +756,7 @@
     完全再構成条件を導く．\eqref{eq:analyzer_matrix_of_cos_modulated_filter_bank}，\eqref{eq:synthesizer_matrix_of_cos_modulated_filter_bank}式より，
     \begin{align*}
         & \ve{R}(z)\ve{E}(z) = z^{-(2K - 1)} \widetilde{\ve{E}}(z) \ve{E}(z) \\
-        &= z^{-(2K - 1)} 
+        &= z^{-(2K - 1)}
         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
         \end{bNiceMatrix}
@@ -914,7 +914,7 @@
         \sum_{k = 0}^{N - 1} W_{2N}^{nk} &= \sum_{k = 0}^{N - 1} \left( W_{2N}^{n} \right)^{k}
         = \left\{ \begin{array}{ll}
             \displaystyle \sum_{k = 0}^{N - 1} 1^{k} = N & \text{（$n$が$2N$の倍数）} \\
-            \displaystyle \frac{1\left\{ \left( W_{2N}^{n} \right)^{N} - 1 \right\}}{W_{2N}^{n} - 1} = \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1} & \text{（$n$が$2N$の倍数ではない）} 
+            \displaystyle \frac{1\left\{ \left( W_{2N}^{n} \right)^{N} - 1 \right\}}{W_{2N}^{n} - 1} = \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1} & \text{（$n$が$2N$の倍数ではない）}
         \end{array} \right.
     \end{align*}
     から，場合分けして考える
@@ -933,8 +933,8 @@
     \end{align*}
     $n$が$2N$の倍数ではないとき，
     \begin{align*}
-        & I_{n} = \frac{1}{2} 
-        \left\{ 
+        & I_{n} = \frac{1}{2}
+        \left\{
         W_{2N}^{-\frac{n}{2}} \frac{(-1)^{-n} - 1}{W_{2N}^{-n} - 1} + W_{2N}^{\frac{n}{2}} \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1}
         \right\} \\
         &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} - 1 \right\} ( W_{2N}^{n} - 1 ) +  W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} - 1 \right\} ( W_{2N}^{-n} - 1 ) }{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
