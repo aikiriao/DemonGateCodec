@@ -109,7 +109,7 @@
     \end{block}
     \begin{itemize}
         \item 1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$をコサインで変調して他のフィルタを設定
-        % \item $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
+            % \item $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
     \end{itemize}
 \end{frame}
 
@@ -137,7 +137,7 @@
             y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( l - 16 \right) \right] \\
             h[l] &= \left\{ \begin{array}{ll}
                 -C_{l} & \lfloor l / 64 \rfloor \text{が偶数} \\
-                 C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
+                C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
             \end{array} \right.
         \end{align}
         $C_{l}\ (l = 0,...,511)$は規格で設定
@@ -217,7 +217,7 @@
         G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
     \end{align*}
     \normalsize
-   $k = 0, ..., 31$で実際に計算すると，
+    $k = 0, ..., 31$で実際に計算すると，
     \begin{align*}
         G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
     \end{align*}
@@ -273,7 +273,7 @@
     \begin{align}
         y[n] = 
         \left\{ \begin{array}{ll}
-             x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
             x[n] + x[3N - 1 - n] & (n = N, ..., 2N - 1)
         \end{array} \right. \label{eq:mdct_reconstruction}
     \end{align}
@@ -502,15 +502,15 @@
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{h}(z)$}}
         =
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-              E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
-              E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
-                      \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
+            E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
+            \Vdots &           \Vdots & \Ddots &            \Vdots  \\
             E_{M-1,0}(z^{M}) & E_{M-1,1}(z^{M}) & \Cdots & E_{M-1,M-1}(z^{M}) \\
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{E}(z)$}}
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-                     1 \\
-                z^{-1} \\
-                \Vdots \\
+            1 \\
+            z^{-1} \\
+            \Vdots \\
             z^{-(M-1)}
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{e}(z)$}}
     \end{align*}
@@ -526,16 +526,16 @@
         \end{bNiceMatrix}}_{\text{\normalsize $\ve{f}(z)$}}
         =
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-              R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
-              R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
-                      \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
+            R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
+            \Vdots &           \Vdots & \Ddots &            \Vdots  \\
             R_{M-1,0}(z^{M}) & R_{M-1,1}(z^{M}) & \Cdots & R_{M-1,M-1}(z^{M}) \\
         \end{bNiceMatrix}^{\mathsf{T}}}_{\text{\normalsize $\ve{R}(z)^{\mathsf{T}}$}}
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
             z^{-(M-1)} \\
-          z^{-(M-1)+1} \\
-                \Vdots \\
-                     1
+            z^{-(M-1)+1} \\
+            \Vdots \\
+            1
         \end{bNiceMatrix}}_{z^{-(M-1)}\ve{e}(z^{-1})}
     \end{align*}
 \end{frame}
@@ -611,7 +611,7 @@
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
     \begin{block}{}
-    式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
+        式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
     \end{block}
     \scriptsize
     （証明）
@@ -685,18 +685,18 @@
     \begin{align}
         \ve{E}(z) &= 
         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-              t_{0,0} & \Cdots &   t_{0,2M-1} \\
-              t_{1,0} & \Cdots &   t_{1,2M-1} \\
-               \Vdots & \Cdots &      \Vdots  \\
+            t_{0,0} & \Cdots &   t_{0,2M-1} \\
+            t_{1,0} & \Cdots &   t_{1,2M-1} \\
+            \Vdots & \Cdots &      \Vdots  \\
             t_{M-1,0} & \Cdots & t_{M-1,2M-1} \\
         \end{bNiceMatrix}}_{\ve{T}}
         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-                  G_{0}(-z^{2}) &        &                         \\
-                                & \Ddots &                         \\
-                                &        &         G_{M-1}(-z^{2}) \\
+            G_{0}(-z^{2}) &        &                         \\
+            & \Ddots &                         \\
+            &        &         G_{M-1}(-z^{2}) \\
             z^{-1}G_{M}(-z^{2}) &        &                         \\
-                                & \Ddots &                         \\
-                                &        & z^{-1} G_{2M-1}(-z^{2}) \\
+            & \Ddots &                         \\
+            &        & z^{-1} G_{2M-1}(-z^{2}) \\
         \end{bNiceMatrix}
         \nonumber \\
         &= \ve{T}
