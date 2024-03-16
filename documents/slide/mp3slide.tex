@@ -259,7 +259,7 @@
     \begin{block}{IMDCT (Inverse MDCT)}
         \vspace{-15pt}
         \begin{align}
-            y[n] = \frac{2}{N} \sum_{n = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct}
+            y[n] = \frac{2}{N} \sum_{k = 0}^{N - 1} X_{k} \cos\left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \label{eq:imdct}
         \end{align}
     \end{block}
     \begin{itemize}
@@ -307,6 +307,7 @@
 
 \begin{frame}[c]
     \frametitle{Princen--Bradley条件の導出}
+    % TODO: g, zなど中間変数が多い。減らしたい
     窓かけした信号$g_{m}[n]$を
     \begin{align}
         g_{m}[n] := w_{a}[n] x_{m}[n] \quad (n = 0, ..., 2N-1)
@@ -415,7 +416,7 @@
         % &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \frac{\pi}{2} \right] \\
         &= \sin^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] + \cos^{2} \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = 1
     \end{align*}
-    式\eqref{eq:another_princen_bradley_conditon_2}は，窓関数が対称であることより示される：
+    式\eqref{eq:another_princen_bradley_conditon_2}は，サイン窓が対称であることより示される：
     \begin{align*}
         & w[2N - 1 - n] = \sin\left[ \frac{\pi}{2N} \left( 2N - 1 - n + \frac{1}{2} \right) \right] = \sin\left[ \pi + \frac{\pi}{2N} \left( - n - \frac{1}{2} \right) \right] \\
         &= \sin \left[ -\frac{\pi}{2N} \left( n + \frac{1}{2} \right) + \pi \right] = \sin \left[ \frac{\pi}{2N} \left( n + \frac{1}{2} \right) \right] = w[n]
