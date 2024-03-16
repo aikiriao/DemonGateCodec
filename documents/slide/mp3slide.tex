@@ -100,17 +100,13 @@
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
     \begin{block}{コサイン変調フィルタバンク}
-        \vspace{-10pt}
+        1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$から，分析フィルタ$h_{k}$と合成フィルタ$f_{k}$を次で設定：
         \begin{align}
             h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \label{eq:cos_modulated_analysis_filter} \\
             f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
         \end{align}
         $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
     \end{block}
-    \begin{itemize}
-        \item 1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$をコサインで変調して他のフィルタを設定
-            % \item $p_{0}[n]$をうまく設計することで，アナライザ$H_{k}(z)$，シンセサイザ$F_{k}(z)$を実係数FIRフィルタとできる
-    \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
@@ -143,6 +139,7 @@
         $C_{n}\ (n = 0,...,511)$は規格で設定
     \end{block}
     $M = 32, L = 33$としたコサイン変調フィルタバンク
+    % TODO: \theta_{k}ないやん…どうしてこれでいいの？たぶん、MP3の奇数インデックスの符号反転に関わってくると思うのだが…
 \end{frame}
 
 \begin{frame}[c]
