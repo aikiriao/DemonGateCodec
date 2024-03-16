@@ -102,7 +102,7 @@
     \begin{block}{コサイン変調フィルタバンク}
         \vspace{-10pt}
         \begin{align}
-            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \label{eq:cos_modulated_analysis_filter} \\
+            h_{k}[n] &= 2 p_{0}[n] \cos \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \label{eq:cos_modulated_analysis_filter} \\
             f_{k}[n] &= h_{k}[L - 1 - n] \label{eq:cos_modulated_synthesis_filter}
         \end{align}
         $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
@@ -652,8 +652,8 @@
     $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$}より
     \scriptsize
     \begin{align*}
-        &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \\
-        &= \frac{1}{2} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] + \exp\left[-j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} + \theta_{k} \right) \right] \right\} \\
+        &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \\
+        &= \frac{1}{2} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] + \exp\left[-j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \right\} \\
         &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
     \end{align*}
     \normalsize
