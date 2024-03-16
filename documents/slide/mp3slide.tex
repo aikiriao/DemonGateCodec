@@ -134,13 +134,13 @@
     \begin{block}{MP3のフィルタバンク}
         \vspace{-10pt}
         \begin{align}
-            y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( l - 16 \right) \right] \\
-            h[l] &= \left\{ \begin{array}{ll}
-                -C_{l} & \lfloor l / 64 \rfloor \text{が偶数} \\
-                C_{l} & \lfloor l / 64 \rfloor \text{が奇数} \\
+            h_{k}[n] &= p_{0}[n] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( n - 16 \right) \right] \\
+            p_{0}[n] &= \left\{ \begin{array}{ll}
+                -C_{n} & \lfloor n / 64 \rfloor \text{が偶数} \\
+                C_{n} & \lfloor n / 64 \rfloor \text{が奇数} \\
             \end{array} \right.
         \end{align}
-        $C_{l}\ (l = 0,...,511)$は規格で設定
+        $C_{n}\ (n = 0,...,511)$は規格で設定
     \end{block}
     $M = 32, L = 33$としたコサイン変調フィルタバンク
 \end{frame}
@@ -153,7 +153,7 @@
     \end{figure}
     \vspace{-5pt}
     \begin{itemize}
-        \item $h$の概形．対称で直線位相特性をもつ．
+        \item $p_{0}[n]$の形状．対称で直線位相特性をもつ．
     \end{itemize}
 \end{frame}
 
@@ -177,19 +177,24 @@
 
 \begin{frame}[c]
     \frametitle{フィルタバンクの実装}
-    プログラムでは，
+    プログラムでは，入力$x[t]$へのバンド$k$の出力$y_{k}[t]$を
     \begin{align*}
         y_{k}[t] &= \sum_{s = 0}^{63} t_{k,s} \sum_{u = 0}^{7} x[t - s - 64u] C_{s + 64u} \\
         t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
     \end{align*}
-    で計算．この式が定義式通りであることを示す．
+    で計算．この式がFIRフィルタ出力計算式
+    \begin{align}
+        y_{k}[t] = \sum_{n = 0}^{511} x[t - n] h_{k}[n] = \sum_{n = 0}^{511} x[t - n] p_{0}[n]  t_{k, n} \label{eq:cos_modulated_filter_fir_output}
+    \end{align}
+    から導かれることを示す．
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{フィルタバンクの実装}
     \scriptsize
+    \eqref{eq:cos_modulated_filter_fir_output}式を変形していくと，
     \begin{align}
-        y_{k}[t] &= \sum_{l = 0}^{511} x[t - l] h[l] t_{k,l} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] h[s + 64u] t_{k,s+64u} \nonumber \\
+        y_{k}[t] &= \sum_{n = 0}^{511} x[t - n] p_{0}[n] t_{k, n} = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] p_{0}[s + 64u] t_{k,s+64u} \nonumber \\
         &= \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] (-1)^{u} C_{s + 64u} t_{k,s+64u} \label{eq:mp3_filterbank_progaram_deviation}
     \end{align}
     ここで，
@@ -204,6 +209,7 @@
     \begin{align*}
         y_{k}[t] = \sum_{u = 0}^{7} \sum_{s = 0}^{63} x[t - s - 64u] C_{s + 64u} t_{k,s} = \sum_{s = 0}^{63} t_{k,s} \sum_{u = 0}^{7} x[t - s - 64u] C_{s + 64u}
     \end{align*}
+    プログラムの計算式が導かれた．
 \end{frame}
 
 \begin{frame}[c]
