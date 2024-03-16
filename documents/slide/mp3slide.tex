@@ -217,10 +217,10 @@
     MP3のフィルタバンクでは
     \scriptsize
     \begin{align*}
-        G_{k}(z) &= \sum_{n = -\infty}^{\infty} h[2nM + k] z^{-n} = \sum_{n = 0}^{7} h[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
-        G_{M+k}(z) &= \sum_{n = 0}^{7} h[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
-        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} h[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} h[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
-        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} h[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
+        G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
+        G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
+        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
+        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
     \end{align*}
     \normalsize
     $k = 0, ..., 31$で実際に計算すると，
