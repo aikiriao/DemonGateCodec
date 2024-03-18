@@ -594,7 +594,7 @@
         \begin{align}
             \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0,\ m_{0} \in \mathbb{N}) \label{eq:filter_bank_PR_condition}
         \end{align}
-        ならば，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$ならば，$\hat{X}(z) = aM z^{-(M - 1 - K)}X(z)$}
+        ならば，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$ならば，$\hat{X}(z) = aM z^{-(M - 1 + K)}X(z)$}
     \end{block}
     \begin{figure}
         \includegraphics[width=70mm]{./figs/perfect_reconstraction_filter_bank.drawio.png}
@@ -650,7 +650,7 @@
     \scriptsize
     \begin{align*}
         &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \\
-        &= \frac{1}{2} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] + \exp\left[-j \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \right\} \\
+        &= \frac{1}{2} \left\{ \exp\left[ j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] + \exp\left[-j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] \right\} \\
         &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
     \end{align*}
     \normalsize
@@ -797,10 +797,10 @@
     \begin{align*}
         & t_{k,i} t_{k,j} \\
         &= 4 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( j - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \\
-        &= 2 \left\{ \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i + j - \frac{L - 1}{2} \right) + (-1)^{k} \frac{\pi}{2} \right] + \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] \right\}
+        &= 2 \left\{ \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left\{ i + j - (L - 1) \right\} + (-1)^{k} \frac{\pi}{2} \right] + \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] \right\}
     \end{align*}
     \normalsize
-    $i + j - \frac{L - 1}{2} = A$とおくと，
+    $i + j - (L - 1) = A$とおくと，
     \scriptsize
     \begin{align*}
         & \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A + (-1)^{k}\frac{\pi}{2} \right] \\
