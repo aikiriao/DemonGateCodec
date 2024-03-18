@@ -87,14 +87,11 @@
     \begin{align}
         \hat{x}[n] = c x[n - n_{0}] \quad c \neq 0
     \end{align}
-    $z$領域で，
+    これは$z$領域で，
     \begin{align}
         \hat{X}(z) = c z^{-n_{0}} X(z)
     \end{align}
-    となること
-    \begin{block}{}
-        どんなどきに，$M$分割フィルタバンクが完全再構成になるか？（完全再構成条件→証明は補足（\ref{sec:proofs_filter_bank}節）
-    \end{block}
+    となることと等価
 \end{frame}
 
 \begin{frame}[c]
@@ -110,25 +107,9 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{コサイン変調フィルタバンク}
-    \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
-        $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
-        \begin{align}
-            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
-        \end{align}
-        となること．ここで，
-        \begin{align}
-            G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + k] z^{-n} \label{eq:polyphase_representation_of_prototype}
-        \end{align}
-        $G_{k}(z)$は$p_{0}[n]$のポリフェーズ表現という
-    \end{block}
-    本条件は\structure{電力相補条件}ともいう
-\end{frame}
-
-\begin{frame}[c]
     \frametitle{MP3のフィルタバンク}
     \begin{block}{MP3のフィルタバンク}
-        \vspace{-10pt}
+        $M = 32, L = 33$としたコサイン変調フィルタバンク\alert{に近いが異なる！（$\theta_{k}$がない！）}
         \begin{align}
             h_{k}[n] &= p_{0}[n] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( n - 16 \right) \right] \\
             p_{0}[n] &= \left\{ \begin{array}{ll}
@@ -138,8 +119,6 @@
         \end{align}
         $C_{n}\ (n = 0,...,511)$は規格で設定
     \end{block}
-    $M = 32, L = 33$としたコサイン変調フィルタバンク
-    % TODO: \theta_{k}ないやん…どうしてこれでいいの？たぶん、MP3の奇数インデックスの符号反転に関わってくると思うのだが…
 \end{frame}
 
 \begin{frame}[c]
@@ -150,7 +129,7 @@
     \end{figure}
     \vspace{-5pt}
     \begin{itemize}
-        \item $p_{0}[n]$の形状．対称で直線位相特性をもつ．
+        \item $p_{0}[n]$の形状．対称（$=$直線位相特性をもつ）．
     \end{itemize}
 \end{frame}
 
@@ -210,27 +189,55 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{電力相補条件の確認}
-    MP3のフィルタバンクでは
-    \scriptsize
+    \frametitle{フィルタバンクは完全再構成か？}
+    \begin{itemize}
+        \item $C_{n}$の導出方法が不明のため，厳密に完全再構成性を示せない
+        \item 再構成信号$\hat{x}[n]$が入力信号の遅延+定数倍になるか観察
+            \small
+            \begin{align*}
+                \left\{ \begin{array}{ll}
+                    y_{k}[n] = \displaystyle\sum_{i = 0}^{511} h_{k}[i] x[n - i] & \text{バンク$k$の分析フィルタ出力} \\
+                    z_{k}[n] = \displaystyle\sum_{i = 0}^{511} f_{k}[i] y_{k}[n - i] & \text{バンク$k$の合成フィルタ出力} \\
+                    \hat{x}[n] = \displaystyle\sum_{k = 0}^{31} z_{k}[n] & \text{再構成信号} 
+                \end{array} \right.
+            \end{align*}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{フィルタバンクは完全再構成か？}
+    \small
+    \vspace{-10pt}
     \begin{align*}
-        G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
-        G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
-        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
-        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
-    \end{align*}
-    \normalsize
-    $k = 0, ..., 31$で実際に計算すると，
-    \begin{align*}
-        G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
+        \hat{x}[n] &= \sum_{k = 0}^{31} z_{k}[n] = \sum_{k = 0}^{31} \left( \sum_{i = 0}^{511} f_{k}[i] y_{k}[n - i] \right) \\
+        &= \sum_{k = 0}^{31} \left\{ \sum_{i = 0}^{511} f_{k}[i] \left( \sum_{j = 0}^{511} h_{k}[j] x[n - i - j] \right) \right\} \\
+        &= \sum_{k = 0}^{31} \sum_{i = 0}^{511} \sum_{j = 0}^{511} f_{k}[i] h_{k}[j] x[n - i - j] \\
+        &= \sum_{k = 0}^{31} \sum_{m = 0}^{1022} \sum_{i = \max\{ 0, m-511 \}}^{\min\{ 511, m \}} f_{k}[i] h_{k}[m - i] x[n - m] \quad (m := i + j) \\
+        &= \sum_{m = 0}^{1022} x[n - m] \underbrace{\sum_{i = \max\{ 0, m-511 \}}^{\min\{ 511, m \}} \sum_{k = 0}^{31} f_{k}[i] h_{k}[m - i]}_{=g[m]}
     \end{align*}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{電力相補条件の確認（計算結果）}
-    \begin{figure}
-        \includegraphics[width=115mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
-    \end{figure}
+    \frametitle{フィルタバンクは完全再構成か？}
+    \begin{columns}
+        \begin{column}{0.35\textwidth}
+            \small
+            \begin{itemize}
+                \item $g[m]$の絶対値グラフ（右図）
+                \item $g[m] \approx 32\delta_{m,512}$だから，
+                    \begin{align*}
+                        \hat{x}[n] \approx 32 x[n - 512]
+                    \end{align*}
+                    近似的に完全再構成
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.65\textwidth}
+            \vspace{-20pt}
+            \begin{figure}
+                \includegraphics[width=85mm]{./figs/impluse_responce_of_MP3_analysis_synthesis_filter.pdf}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \subsection{MDCT (Modified Discrete Cosine Transform)}
@@ -791,6 +798,22 @@
 \end{frame}
 
 \begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
+        $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
+        \begin{align}
+            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
+        \end{align}
+        となること．ここで，
+        \begin{align}
+            G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + k] z^{-n} \label{eq:polyphase_representation_of_prototype}
+        \end{align}
+        $G_{k}(z)$は$p_{0}[n]$のポリフェーズ表現
+    \end{block}
+    本条件は\structure{電力相補条件}ともいう
+\end{frame}
+
+\begin{frame}[c]
     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
     $\left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = \sum_{k = 0}^{M - 1} t_{k,i} t_{k,j}$であり，
     \scriptsize
@@ -896,6 +919,31 @@
     \begin{itemize}
         \item デコーダの係数．エンコーダの係数の$32$倍
     \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認}
+    MP3のフィルタバンクでは
+    \scriptsize
+    \begin{align*}
+        G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
+        G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
+        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
+        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
+    \end{align*}
+    \normalsize
+    $k = 0, ..., 31$で実際に計算すると，
+    \begin{align*}
+        G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認（計算結果）}
+    \begin{figure}
+        \includegraphics[width=105mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
+    \end{figure}
+   "ほぼ"完全再構成と言ってよい
 \end{frame}
 
 \subsection{MDCT} \label{sec:proofs_mdct}

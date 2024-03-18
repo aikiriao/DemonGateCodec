@@ -371,10 +371,10 @@ def plot_analysis_synthesis_filter_impulse_resonse():
             for k in range(32):
                 sums[m] += analy_coefs[k][i] * synth_coefs[k][m - i]
     plt.cla()
-    plt.plot(20.0 * np.log10(sums))
-    plt.title('impulse response of MP3 analysys-synthesis filter')
+    plt.plot(20.0 * np.log10(np.abs(sums)))
+    plt.title('impulse response of MP3 analysis-synthesis filter')
     plt.xlabel('sample')
-    plt.ylabel('amplitude (dB)')
+    plt.ylabel('abs amplitude (dB)')
     plt.xticks(np.arange(0, 1025, 128))
     plt.ylim((-250, 50))
     plt.grid()
