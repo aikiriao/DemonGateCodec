@@ -2,23 +2,7 @@ import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
 from itertools import cycle
-
-def mdct(indata):
-    N = len(indata) // 2
-    out = np.zeros(N)
-    for n in range(2 * N):
-        for k in range(N):
-            out[k] += indata[n] * np.cos(np.pi / N * ( k + 1/2 ) * ( n + 1/2 + N/2 ))
-    return out
-
-def imdct(inspec):
-    N = len(inspec)
-    out = np.zeros(2 * N)
-    for k in range(N):
-        for n in range(2 * N):
-            out[n] += inspec[k] * np.cos(np.pi / N * ( k + 1/2 ) * ( n + 1/2 + N/2 ))
-    out *= 2/N
-    return out
+from mp3_routines import mdct, imdct
 
 if __name__ == "__main__":
     LINES = ['-', '--', '-.', ':']

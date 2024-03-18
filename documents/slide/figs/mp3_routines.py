@@ -323,6 +323,11 @@ def imdct(inspec):
     return out
 
 def plot_frequency_inversion():
+    '''
+    フィルタバンク（バンドパスフィルタ）の間でピークを持つ正弦波を入力したときの
+    分析フィルタバンクの周波数特性をプロット
+    奇数バンドで周波数特性を逆転させている（(-1)**nを掛けている）理由を探る
+    '''
     NUM_SAMPLES = 1024 * 4
 
     for k in range(31):
@@ -330,6 +335,7 @@ def plot_frequency_inversion():
         analy = mp3_analysis_filter(data)
         decim = mp3_decimation(analy)
 
+        plt.cla()
         for i in np.arange(k, k + 2):
             spec = np.fft.fft(decim[i], norm='forward')[:len(decim[i])//2 + 1]
             if i % 2 == 1:
@@ -346,7 +352,33 @@ def plot_frequency_inversion():
         plt.ylabel('amplitude (dB)')
         plt.grid()
         plt.legend()
-        plt.show()
+        plt.savefig(f'analysis_filter_output_{k + 1}_64Hz_sin.pdf')
+
+def plot_analysis_synthesis_filter_impulse_resonse():
+    '''
+    フィルタバンクで分析合成するときのインパルス応答を計算・プロット
+    '''
+    analy_coefs = []
+    synth_coefs = []
+    for k in range(32):
+        analy_coef = ENCODER_FILTER_COEF * np.cos(np.pi / 32 * (k + 1/2) * (np.arange(0, 512) - 16))
+        synth_coef = DECODER_FILTER_COEF * np.cos(np.pi / 32 * (k + 1/2) * (np.arange(0, 512) + 16))
+        analy_coefs.append(analy_coef)
+        synth_coefs.append(synth_coef)
+    sums = np.zeros(1023)
+    for m in range(1023):
+        for i in np.arange(max(0, m - 511), min(511, m) + 1):
+            for k in range(32):
+                sums[m] += analy_coefs[k][i] * synth_coefs[k][m - i]
+    plt.cla()
+    plt.plot(20.0 * np.log10(sums))
+    plt.title('impulse response of MP3 analysys-synthesis filter')
+    plt.xlabel('sample')
+    plt.ylabel('amplitude (dB)')
+    plt.xticks(np.arange(0, 1025, 128))
+    plt.ylim((-250, 50))
+    plt.grid()
+    plt.savefig(f'impluse_responce_of_MP3_analysis_synthesis_filter.pdf')
 
 if __name__ == '__main__':
     NUM_SAMPLES = 1024 * 4
@@ -362,4 +394,4 @@ if __name__ == '__main__':
     print(20.0 * np.log10(rmse))
 
     plot_frequency_inversion()
-
+    plot_analysis_synthesis_filter_impulse_resonse()
