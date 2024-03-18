@@ -220,21 +220,20 @@
 \begin{frame}[c]
     \frametitle{フィルタバンクは完全再構成か？}
     \begin{columns}
-        \begin{column}{0.35\textwidth}
-            \small
+        \begin{column}{0.475\textwidth}
             \begin{itemize}
-                \item $g[m]$の絶対値グラフ（右図）
+                \item $g[m]$のグラフ（右図）
                 \item $g[m] \approx 32\delta_{m,512}$だから，
                     \begin{align*}
                         \hat{x}[n] \approx 32 x[n - 512]
                     \end{align*}
-                    近似的に完全再構成
+                    \structure{近似的に完全再構成}
             \end{itemize}
         \end{column}
         \begin{column}{0.65\textwidth}
-            \vspace{-20pt}
+            \vspace*{-10pt}
             \begin{figure}
-                \includegraphics[width=85mm]{./figs/impluse_responce_of_MP3_analysis_synthesis_filter.pdf}
+                \includegraphics[width=66mm]{./figs/impluse_responce_of_MP3_analysis_synthesis_filter.pdf}
             \end{figure}
         \end{column}
     \end{columns}

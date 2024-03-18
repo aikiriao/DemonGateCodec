@@ -370,14 +370,23 @@ def plot_analysis_synthesis_filter_impulse_resonse():
         for i in np.arange(max(0, m - 511), min(511, m) + 1):
             for k in range(32):
                 sums[m] += analy_coefs[k][i] * synth_coefs[k][m - i]
+
     plt.cla()
-    plt.plot(20.0 * np.log10(np.abs(sums)))
-    plt.title('impulse response of MP3 analysis-synthesis filter')
-    plt.xlabel('sample')
-    plt.ylabel('abs amplitude (dB)')
-    plt.xticks(np.arange(0, 1025, 128))
-    plt.ylim((-250, 50))
-    plt.grid()
+    fig = plt.figure(figsize=(6, 8))
+    ax1.title('impulse response of MP3 analysis-synthesis filter')
+    ax1 = fig.add_subplot(2, 1, 1)
+    ax1.plot(sums)
+    ax1.set_ylabel('amplitude')
+    ax1.set_xticks(np.arange(0, 1025, 128))
+    ax1.grid()
+    ax2 = fig.add_subplot(2, 1, 2)
+    ax2.plot(20.0 * np.log10(np.abs(sums)))
+    ax2.set_ylabel('abs amplitude (dB)')
+    ax2.set_xticks(np.arange(0, 1025, 128))
+    ax2.set_ylim((-250, 50))
+    ax2.grid()
+    plt.xlabel('samples')
+    plt.tight_layout()
     plt.savefig(f'impluse_responce_of_MP3_analysis_synthesis_filter.pdf')
 
 if __name__ == '__main__':
