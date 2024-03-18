@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from itertools import cycle
 
 ENCODER_C_COEF = [
     0.000000000, -0.000000477, -0.000000477, -0.000000477,
@@ -289,6 +290,7 @@ def mp3_synthesis_filter(data):
 
 def mp3_decimation(bands):
     out = []
+    # 各バンドで間引く
     for band in bands:
         out.append(band[::32])
     return out
@@ -296,8 +298,8 @@ def mp3_decimation(bands):
 def mp3_interpolation(bands):
     out = []
     outlen = 32 * len(bands[0])
+    # 各バンドで補間
     for band in bands:
-        # 補間
         interp = np.zeros(outlen)
         interp[::32] = band
         out.append(interp)
@@ -320,13 +322,44 @@ def imdct(inspec):
     out *= 2/N
     return out
 
+def plot_frequency_inversion():
+    NUM_SAMPLES = 1024 * 4
+
+    for k in range(31):
+        data = np.sin(2.0 * np.pi * smpls * ((k + 1) / 64.0))
+        analy = mp3_analysis_filter(data)
+        decim = mp3_decimation(analy)
+
+        for i in np.arange(k, k + 2):
+            spec = np.fft.fft(decim[i], norm='forward')[:len(decim[i])//2 + 1]
+            if i % 2 == 1:
+                # 奇数バンド：(-1)**n を掛けて周波数特性を逆転させる
+                freqinv = decim[i] * ((-1) ** np.arange(0, len(decim[i])))
+                invspec = np.fft.fft(freqinv, norm='forward')[:len(decim[i])//2 + 1]
+                plt.plot(20 * np.log10(np.abs(invspec)), label=f'bank {i} (freq inverted)')
+                plt.plot(20 * np.log10(np.abs(spec)), label=f'bank {i}', linestyle='--')
+            else:
+                plt.plot(20 * np.log10(np.abs(spec)), label=f'bank {i}')
+        plt.title(f'MP3 analysis filterbank output for {k + 1}/64 Hz sin wave')
+        plt.ylim((-70, 0))
+        plt.xlabel('bin')
+        plt.ylabel('amplitude (dB)')
+        plt.grid()
+        plt.legend()
+        plt.show()
+
 if __name__ == '__main__':
-    NUM_SAMPLES = 3000
+    NUM_SAMPLES = 1024 * 4
     smpls = np.arange(0, NUM_SAMPLES)
-    data = np.sin(2.0 * np.pi * 1.0 * smpls / 20.0) + np.cos(2.0 * np.pi * 0.1 * smpls / 20.0)
+    data = np.sin(2.0 * np.pi * 0.01 * smpls / 20.0) + np.cos(2.0 * np.pi * 0.3 * smpls / 20.0)
+
     analy = mp3_analysis_filter(data)
-    synth = mp3_synthesis_filter(analy)[512 // 2 + 1:][:NUM_SAMPLES]
-    # plt.plot(analy)
-    plt.plot(data)
-    plt.plot(synth)
-    plt.show()
+    decim = mp3_decimation(analy)
+    intrp = mp3_interpolation(decim)
+    synth = mp3_synthesis_filter(intrp)[512 // 2 + 1:][:NUM_SAMPLES] # 畳み込み係数の半分だけ遅延する（線形位相特性）
+
+    rmse = np.mean((data - synth) ** 2.0) ** 0.5
+    print(20.0 * np.log10(rmse))
+
+    plot_frequency_inversion()
+
