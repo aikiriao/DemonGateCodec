@@ -274,21 +274,33 @@ def mp3_analysis_filter(data):
     out = []
     for k in range(32):
         coef = ENCODER_FILTER_COEF * np.cos(np.pi / 32 * (k + 1/2) * (np.arange(0, 512) - 16))
-        # 畳み込み・間引き
-        sig = np.convolve(data, coef, 'full')[::32]
+        # 畳み込み
+        sig = np.convolve(data, coef, 'full')
         out.append(sig)
     return out
 
 def mp3_synthesis_filter(data):
-    outlen = 32 * len(data[0])
-    out = np.zeros(outlen)
+    out = np.zeros(len(data[0]))
     for k, sig in enumerate(data):
-        # 補間
-        interp = np.zeros(outlen)
-        interp[::32] = sig
         # 畳み込み
         coef = DECODER_FILTER_COEF * np.cos(np.pi / 32 * (k + 1/2) * (np.arange(0, 512) + 16))
-        out += np.convolve(interp, coef, 'same')
+        out += np.convolve(sig, coef, 'same')
+    return out
+
+def mp3_decimation(bands):
+    out = []
+    for band in bands:
+        out.append(band[::32])
+    return out
+
+def mp3_interpolation(bands):
+    out = []
+    outlen = 32 * len(bands[0])
+    for band in bands:
+        # 補間
+        interp = np.zeros(outlen)
+        interp[::32] = band
+        out.append(interp)
     return out
 
 def mdct(indata):
