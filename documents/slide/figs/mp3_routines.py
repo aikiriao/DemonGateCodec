@@ -380,6 +380,7 @@ def plot_frequency_inversion():
         plt.grid()
         plt.legend()
         plt.savefig(f'analysis_filter_output_{k + 1}_64Hz_sin.pdf')
+        plt.close()
 
 def plot_analysis_synthesis_filter_impulse_resonse():
     '''
@@ -415,6 +416,7 @@ def plot_analysis_synthesis_filter_impulse_resonse():
     plt.xlabel('samples')
     plt.tight_layout()
     plt.savefig(f'impluse_responce_of_MP3_analysis_synthesis_filter.pdf')
+    plt.close()
 
 def mp3_reconstruct(data, observe_butterfly=False):
     '''
@@ -490,10 +492,13 @@ def plot_aliasing_reduction_butterfly():
     plt.ylabel('amplitude (dB)')
     plt.xlabel('frequency bin')
     plt.ylim(bottom=-160, top=-50)
+    plt.xlim((0, 255))
     plt.grid()
     plt.title('Aliasing reduction butterfly effect (no butterfly)')
     plt.tight_layout()
     plt.savefig('MP3_aliasing_reduction_butterfly_no_butterfly.pdf')
+    plt.close()
+
     plt.cla()
     for k in range(32):
         frame = butterfly_bands[k].copy()[:512]
@@ -503,10 +508,11 @@ def plot_aliasing_reduction_butterfly():
     plt.ylabel('amplitude (dB)')
     plt.xlabel('frequency bin')
     plt.ylim(bottom=-160, top=-50)
+    plt.xlim((0, 255))
     plt.grid()
     plt.tight_layout()
     plt.savefig('MP3_aliasing_reduction_butterfly_butterfly.pdf')
-
+    plt.close()
 
     # 特定のバンドにフォーカスしてプロット
     plt.cla()
@@ -526,6 +532,7 @@ def plot_aliasing_reduction_butterfly():
     plt.legend(ncols=2)
     plt.tight_layout()
     plt.savefig('MP3_aliasing_reduction_butterfly_focusbands.pdf')
+    plt.close()
 
 if __name__ == '__main__':
     NUM_SAMPLES = 1024 * 4

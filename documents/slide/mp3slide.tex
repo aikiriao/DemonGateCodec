@@ -444,11 +444,67 @@
     \end{align*}
 \end{frame}
 
-\subsection{エイリアス削除バタフライ演算}
+\subsection{エイリアス削減バタフライ演算}
 
 \begin{frame}[c]
-    \frametitle{エイリアス削除バタフライ演算}
-    処理と周波数特性の表示で十分（理論的なことはあまりないため）
+    \frametitle{エイリアス削減バタフライ演算}
+    隣接バンクのMDCTのスペクトルを使いエイリアスを削減
+    \begin{itemize}
+        \item a % TODO: 処理図．つらいので引用
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{エイリアス削減バタフライ演算}
+    \begin{columns}
+        \begin{column}{0.35\textwidth}
+            \begin{itemize}
+                \item フィルタバンクは，隣接バンクの周波数成分（エイリアス）が混入
+                    \begin{itemize}
+                        \item フィルタの遮断特性が不十分なため
+                    \end{itemize}
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.7\textwidth}
+            \begin{figure}
+                \includegraphics[width=85mm]{./figs/MP3_aliasing_reduction_butterfly_no_butterfly.pdf}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{エイリアス削減バタフライ演算}
+    \begin{columns}
+        \begin{column}{0.35\textwidth}
+            \begin{itemize}
+                \item 中心14-17バンドの周波数特性比較
+                \item バタフライ演算により，隣接バンクと交差する振幅が-2dBほど下に移動（改善）
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.7\textwidth}
+            \begin{figure}
+                \includegraphics[width=85mm]{./figs/MP3_aliasing_reduction_butterfly_focusbands.pdf}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{エイリアス削減バタフライ演算}
+    \begin{columns}
+        \begin{column}{0.35\textwidth}
+            \begin{itemize}
+                \item 振幅が小さくなると遮断特性は悪化
+                \item 可聴域帯を優先した結果？
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.7\textwidth}
+            \begin{figure}
+                \includegraphics[width=85mm]{./figs/MP3_aliasing_reduction_butterfly_butterfly.pdf}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \section{量子化}
@@ -470,6 +526,13 @@
 \end{frame}
 
 \appendix
+
+\section{参考文献}
+
+\begin{frame}[allowframebreaks]{参考文献}
+    \scriptsize
+    \printbibliography[heading=none]
+\end{frame}
 
 \section{証明}
 
