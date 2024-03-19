@@ -271,6 +271,11 @@ assert len(DECODER_C_COEF) == 512
 ENCODER_FILTER_COEF = [ENCODER_C_COEF[i] if ((i // 64) % 2 == 0) else -ENCODER_C_COEF[i] for i in range(512)]
 DECODER_FILTER_COEF = [DECODER_C_COEF[i] if ((i // 64) % 2 == 0) else -DECODER_C_COEF[i] for i in range(512)]
 
+# エイリアス除去バタフライ演算係数
+ALIASING_REDUCTION_BUTTERFLY_COEF = [
+        -0.6, -0.535, -0.33, -0.185, -0.095, -0.041, -0.0142, -0.0037
+]
+
 def mp3_analysis_filter(data):
     out = []
     for k in range(32):
@@ -280,13 +285,14 @@ def mp3_analysis_filter(data):
         out.append(sig)
     return out
 
-def mp3_synthesis_filter(data):
-    out = np.zeros(len(data[0]))
-    for k, sig in enumerate(data):
+def mp3_synthesis_filter(bands):
+    out = np.zeros(len(bands[0]))
+    for k in range(32):
         # 畳み込み
         coef = DECODER_FILTER_COEF * np.cos(np.pi / 32 * (k + 1/2) * (np.arange(0, 512) + 16))
-        out += np.convolve(sig, coef, 'same')
-    return out
+        bands[k] = np.convolve(bands[k], coef, 'same')
+        out += bands[k]
+    return out, bands
 
 def mp3_decimation(bands):
     out = []
@@ -294,6 +300,12 @@ def mp3_decimation(bands):
     for band in bands:
         out.append(band[::32])
     return out
+
+def mp3_frequency_inversion(bands):
+    # 奇数バンドの周波数特性を反転
+    for k in np.arange(1, 32, 2):
+        bands[k] *= (-1.0) ** np.arange(0, len(bands[k]))
+    return bands
 
 def mp3_interpolation(bands):
     out = []
@@ -304,6 +316,21 @@ def mp3_interpolation(bands):
         interp[::32] = band
         out.append(interp)
     return out
+
+def aliasing_reduction_butterfly(bands, encode=True):
+    CS = [ 1.0 / ((1.0 + ci ** 2.0) ** 0.5) for ci in ALIASING_REDUCTION_BUTTERFLY_COEF]
+    CA = [  ci / ((1.0 + ci ** 2.0) ** 0.5) for ci in ALIASING_REDUCTION_BUTTERFLY_COEF]
+    for i in range(8):
+        for k in range(31):
+            assert len(bands[k]) == 18
+            bu = bands[k][17 - i]
+            bd = bands[k + 1][i]
+            if encode is True:
+                bands[k][17 - i] = CS[i] * bu + CA[i] * bd
+                bands[k + 1][i]  = CS[i] * bd - CA[i] * bu
+            else:
+                bands[k][17 - i] = CS[i] * bu - CA[i] * bd
+                bands[k + 1][i]  = CS[i] * bd + CA[i] * bu
 
 def mdct(indata):
     N = len(indata) // 2
@@ -372,8 +399,8 @@ def plot_analysis_synthesis_filter_impulse_resonse():
                 sums[m] += analy_coefs[k][i] * synth_coefs[k][m - i]
 
     plt.cla()
+    plt.title('impulse response of MP3 analysis-synthesis filter')
     fig = plt.figure(figsize=(6, 8))
-    ax1.title('impulse response of MP3 analysis-synthesis filter')
     ax1 = fig.add_subplot(2, 1, 1)
     ax1.plot(sums)
     ax1.set_ylabel('amplitude')
@@ -389,18 +416,133 @@ def plot_analysis_synthesis_filter_impulse_resonse():
     plt.tight_layout()
     plt.savefig(f'impluse_responce_of_MP3_analysis_synthesis_filter.pdf')
 
+def mp3_reconstruct(data, observe_butterfly=False):
+    '''
+    MP3のアルゴリズムに沿って信号を再構成
+    '''
+    # 分析フィルタ
+    bands = mp3_analysis_filter(data)
+    # 間引き
+    bands = mp3_decimation(bands)
+    # 奇数バンドで周波数特性を反転
+    bands = mp3_frequency_inversion(bands)
+
+    prev_decframe = []
+    for k in range(32):
+        prev_decframe.append(np.zeros(18))
+        # スライドサイズ分のゼロ値挿入
+        bands[k] = np.append(np.zeros(18), bands[k])
+    SIN_WINDOW = np.sin(np.pi / 36 * (np.arange(0, 36) + 1/2))
+
+    # サンプル数分フレーム処理
+    # MDCT・IMDCT（ロングブロックのみ）
+    for i in range(len(data) // (18 * 32)):
+        specs = []
+        # MDCT
+        for k in range(32):
+            frame = bands[k][18 * i:18 * i + 36] * SIN_WINDOW
+            specs.append(mdct(frame))
+        # エイリアス除去バタフライ演算
+        aliasing_reduction_butterfly(specs, encode=True)
+        
+        # ここのspecsが伝送（符号化）される
+
+        # エイリアス除去バタフライ演算
+        if observe_butterfly is False:
+            aliasing_reduction_butterfly(specs, encode=False)
+        # IMDCT（ハーフオーバーラップ）
+        for k in range(32):
+            decframe = imdct(specs[k]) * SIN_WINDOW
+            bands[k][18 * i:18 * i + 18] = prev_decframe[k] + decframe[:18]
+            prev_decframe[k] = decframe[18:]
+    # ゼロ値挿入をリセット
+    for k in range(32):
+        bands[k] = bands[k][18:]
+    # 奇数バンドで周波数特性を反転
+    bands = mp3_frequency_inversion(bands)
+    # ゼロ値挿入
+    bands = mp3_interpolation(bands)
+    # 合成フィルタ
+    synth, bands = mp3_synthesis_filter(bands)
+
+    return synth, bands
+
+def plot_aliasing_reduction_butterfly():
+    '''
+    エイリアス除去バタフライ演算の効果をプロット
+    '''
+    NUM_SAMPLES = 2 * 18 * 32
+
+    # インパルス信号
+    data = np.zeros(NUM_SAMPLES)
+    data[0] = 1.0
+
+    # 各バンドの再構成信号を取得
+    bands = mp3_reconstruct(data, observe_butterfly=False)[1]
+    butterfly_bands = mp3_reconstruct(data, observe_butterfly=True)[1]
+
+    # 全バンドをプロット
+    plt.cla()
+    for k in range(32):
+        frame = bands[k].copy()[:512]
+        spec = np.fft.fft(frame, norm='forward')[:len(frame) // 2]
+        plt.plot(20.0 * np.log10(np.abs(spec)))
+    plt.ylabel('amplitude (dB)')
+    plt.xlabel('frequency bin')
+    plt.ylim(bottom=-160, top=-50)
+    plt.grid()
+    plt.title('Aliasing reduction butterfly effect (no butterfly)')
+    plt.tight_layout()
+    plt.savefig('MP3_aliasing_reduction_butterfly_no_butterfly.pdf')
+    plt.cla()
+    for k in range(32):
+        frame = butterfly_bands[k].copy()[:512]
+        spec = np.fft.fft(frame, norm='forward')[:len(frame) // 2]
+        plt.plot(20.0 * np.log10(np.abs(spec)))
+    plt.title('Aliasing reduction butterfly effect')
+    plt.ylabel('amplitude (dB)')
+    plt.xlabel('frequency bin')
+    plt.ylim(bottom=-160, top=-50)
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig('MP3_aliasing_reduction_butterfly_butterfly.pdf')
+
+
+    # 特定のバンドにフォーカスしてプロット
+    plt.cla()
+    for k in np.arange(14, 18):
+        frame = butterfly_bands[k].copy()[:512]
+        spec = np.fft.fft(frame, norm='forward')[:len(frame) // 2]
+        plt.plot(20.0 * np.log10(np.abs(spec)), label=f'Band {k} butterfly')
+        frame = bands[k].copy()[:512]
+        spec = np.fft.fft(frame, norm='forward')[:len(frame) // 2]
+        plt.plot(20.0 * np.log10(np.abs(spec)), label=f'Band {k}', linestyle='--')
+    plt.title('Aliasing reduction butterfly effect for center bands')
+    plt.ylabel('amplitude (dB)')
+    plt.xlabel('frequency bin')
+    plt.ylim(bottom=-80, top=-50)
+    plt.xlim((105, 150))
+    plt.grid()
+    plt.legend(ncols=2)
+    plt.tight_layout()
+    plt.savefig('MP3_aliasing_reduction_butterfly_focusbands.pdf')
+
 if __name__ == '__main__':
     NUM_SAMPLES = 1024 * 4
     smpls = np.arange(0, NUM_SAMPLES)
     data = np.sin(2.0 * np.pi * 0.01 * smpls / 20.0) + np.cos(2.0 * np.pi * 0.3 * smpls / 20.0)
 
-    analy = mp3_analysis_filter(data)
-    decim = mp3_decimation(analy)
-    intrp = mp3_interpolation(decim)
-    synth = mp3_synthesis_filter(intrp)[512 // 2 + 1:][:NUM_SAMPLES] # 畳み込み係数の半分だけ遅延する（線形位相特性）
-
-    rmse = np.mean((data - synth) ** 2.0) ** 0.5
-    print(20.0 * np.log10(rmse))
+    # analy = mp3_analysis_filter(data)
+    # decim = mp3_decimation(analy)
+    # intrp = mp3_interpolation(decim)
+    # # synth = mp3_synthesis_filter(intrp)[0][512 // 2 + 1:][:NUM_SAMPLES] # 畳み込み係数の半分だけ遅延する（線形位相特性）
+    # synth = mp3_synthesis_filter(intrp)[0] # 畳み込み係数の半分だけ遅延する（線形位相特性）
+    # plt.plot(data[:-2])
+    # plt.plot(synth[2:])
+    # plt.show()
+    # rmse = np.mean((data[:-2] - synth[2:]) ** 2.0) ** 0.5
+    # print(20.0 * np.log10(rmse))
 
     plot_frequency_inversion()
     plot_analysis_synthesis_filter_impulse_resonse()
+    plot_aliasing_reduction_butterfly()
