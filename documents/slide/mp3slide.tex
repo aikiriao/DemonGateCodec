@@ -439,26 +439,35 @@
 
 \begin{frame}[c]
     \frametitle{エイリアス削減バタフライ演算}
-    隣接バンクのMDCTのスペクトルを使いエイリアスを削減
-    \begin{itemize}
-        \item a % TODO: 処理図．つらいので引用
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{エイリアス削減バタフライ演算}
     \begin{columns}
         \begin{column}{0.35\textwidth}
             \begin{itemize}
                 \item フィルタバンクは，隣接バンクの周波数成分（エイリアス）が混入
-                    \begin{itemize}
-                        \item フィルタの遮断特性が不十分なため
-                    \end{itemize}
+                \item MP3は，隣接バンクのMDCTのスペクトルを使いエイリアス削減
             \end{itemize}
         \end{column}
         \begin{column}{0.7\textwidth}
             \begin{figure}
                 \includegraphics[width=85mm]{./figs/MP3_aliasing_reduction_butterfly_no_butterfly.pdf}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{エイリアス削減バタフライ演算}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{itemize}
+                \item FFF
+                \item 計算式
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \vspace*{-10pt}
+            \begin{figure}
+                \includegraphics[width=64mm]{./figs/alias.jpg}
+                \caption*{TODOより引用}
             \end{figure}
         \end{column}
     \end{columns}
