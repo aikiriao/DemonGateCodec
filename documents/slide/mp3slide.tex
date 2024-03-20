@@ -381,43 +381,35 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3とMDCT}
-    MP3は4種類の窓関数を使用
-    \footnotesize
-    \begin{itemize}
-        \item[long]
-            \begin{align}
-                w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)
-            \end{align}
-        \item[short]
-            \begin{align}
-                w[n] = \sin\left[ \frac{\pi}{12} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 11)
-            \end{align}
-        \item[start]
-            \begin{align}
-                w[n] =
-                \left\{ \begin{array}{ll}
-                    \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 0, ..., 17) \\
-                    1 & (n = 18, ..., 23) \\
-                    \sin\left[ \frac{\pi}{12} \left( n - 18 + \frac{1}{2} \right) \right] & (n = 24, ..., 29) \\
-                    0 & (n = 30, ..., 35)
-                \end{array}\right.
-            \end{align}
-        \item[stop]
-            \begin{align}
-                w[n] =
-                \left\{ \begin{array}{ll}
-                    0 & (n = 0, ..., 5) \\
-                    \sin\left[ \frac{\pi}{12} \left( n - 6 + \frac{1}{2} \right) \right] & (n = 6, ..., 11) \\
-                    1 & (n = 12, ..., 17) \\
-                    \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 18, ..., 35)
-                \end{array}\right.
-            \end{align}
-    \end{itemize}
+    \frametitle{MP3とMDCT -- 4種類の窓関数}
+    \small
+    \begin{table}[H]
+        \begin{tabular}{|l|l|}
+            \toprule
+            種類 & 定義 \\ 
+            \midrule
+             long & $\displaystyle w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)$ \\[3ex]
+            short & $\displaystyle w[n] = \sin\left[ \frac{\pi}{12} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 11)$ \\[3ex]
+            start & $\displaystyle w[n] =
+            \left\{ \begin{array}{ll}
+                \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 0, ..., 17) \\
+                1 & (n = 18, ..., 23) \\
+                \sin\left[ \frac{\pi}{12} \left( n - 18 + \frac{1}{2} \right) \right] & (n = 24, ..., 29) \\
+                0 & (n = 30, ..., 35)
+            \end{array}\right.$ \\[5ex]
+            stop & $\displaystyle w[n] =
+            \left\{ \begin{array}{ll}
+                0 & (n = 0, ..., 5) \\
+                \sin\left[ \frac{\pi}{12} \left( n - 6 + \frac{1}{2} \right) \right] & (n = 6, ..., 11) \\
+                1 & (n = 12, ..., 17) \\
+                \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 18, ..., 35)
+            \end{array}\right.$ \\[5ex] \hline
+        \end{tabular}
+    \end{table}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{MP3とPrincen--Bradley条件}
+    \frametitle{MP3とMDCT -- 4種類の窓関数}
     % TODO: 窓関数の概形と状態遷移
 \end{frame}
 
@@ -478,7 +470,7 @@
     \begin{columns}
         \begin{column}{0.35\textwidth}
             \begin{itemize}
-                \item 中心14-17バンドの周波数特性比較
+                \item 14-17バンドの周波数特性比較
                 \item バタフライ演算により，隣接バンクと交差する振幅が-2dBほど下に移動（改善）
             \end{itemize}
         \end{column}
