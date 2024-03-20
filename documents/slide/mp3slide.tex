@@ -108,17 +108,16 @@
 
 \begin{frame}[c]
     \frametitle{MP3のフィルタバンク}
-    \begin{block}{MP3のフィルタバンク}
-        $M = 32, L = 33$としたコサイン変調フィルタバンク\alert{に近いが異なる！（$\theta_{k}$がない！）}
-        \begin{align}
-            h_{k}[n] &= p_{0}[n] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( n - 16 \right) \right] \\
-            p_{0}[n] &= \left\{ \begin{array}{ll}
-                -C_{n} & \lfloor n / 64 \rfloor \text{が偶数} \\
-                C_{n} & \lfloor n / 64 \rfloor \text{が奇数} \\
-            \end{array} \right.
-        \end{align}
-        $C_{n}\ (n = 0,...,511)$は規格で設定
-    \end{block}
+    $M = 32, L = 33$としたコサイン変調フィルタバンク\alert{に近いが異なる！（$\theta_{k}$がない！）}
+    \begin{align}
+        h_{k}[n] &= p_{0}[n] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( n - 16 \right) \right] \\
+        f_{k}[n] &= 32 p_{0}[n] \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( n + 16 \right) \right] \\
+        p_{0}[n] &= \left\{ \begin{array}{ll}
+            -C_{n} & \lfloor n / 64 \rfloor \text{が偶数} \\
+            C_{n} & \lfloor n / 64 \rfloor \text{が奇数} \\
+        \end{array} \right.
+    \end{align}
+    $C_{n}\ (n = 0,...,511)$は規格で設定
 \end{frame}
 
 \begin{frame}[c]
@@ -293,6 +292,23 @@
 \end{frame}
 
 \begin{frame}[c]
+    \frametitle{ハーフオーバーラップアドの手順}
+    \vspace*{-25pt}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=60mm]{./figs/halft_overlap_add_encode.png}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \includegraphics[width=60mm]{./figs/halft_overlap_add_decode.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
     \frametitle{MDCTと完全再構成条件}
     $m$フレーム目の$n$時刻の入力$x_{m}[n]$は，フレームあたり$N$サンプルでスライドしており
     \begin{align}
@@ -307,23 +323,6 @@
         \end{align}
         ならば，MDCT・IMDCTは完全再構成
     \end{block}
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{MDCTと完全再構成条件}
-    \vspace*{-25pt}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \includegraphics[width=60mm]{./figs/halft_overlap_add_encode.png}
-            \end{figure}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{figure}
-                \includegraphics[width=60mm]{./figs/halft_overlap_add_decode.png}
-            \end{figure}
-        \end{column}
-    \end{columns}
 \end{frame}
 
 \begin{frame}[c]
@@ -382,14 +381,14 @@
 
 \begin{frame}[c]
     \frametitle{MP3とMDCT -- 4種類の窓関数}
-    \small
+    \footnotesize
     \begin{table}[H]
         \begin{tabular}{|l|l|}
             \toprule
             種類 & 定義 \\ 
             \midrule
              long & $\displaystyle w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)$ \\[3ex]
-            short & $\displaystyle w[n] = \sin\left[ \frac{\pi}{12} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 11)$ \\[3ex]
+            short & $\displaystyle w[n] = \sin\left[ \frac{\pi}{12} \left( n - 12k + \frac{1}{2} \right) \right] \ (k = 0,1,2,\ n = 12k, ..., 12k+11)$ \\[3ex]
             start & $\displaystyle w[n] =
             \left\{ \begin{array}{ll}
                 \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] & (n = 0, ..., 17) \\
