@@ -227,7 +227,7 @@
                 \left\{ \begin{array}{ll}
                     y_{k}[n] = \displaystyle\sum_{i = 0}^{511} h_{k}[i] x[n - i] & \text{バンク$k$の分析フィルタ出力} \\
                     z_{k}[n] = \displaystyle\sum_{i = 0}^{511} f_{k}[i] y_{k}[n - i] & \text{バンク$k$の合成フィルタ出力} \\
-                    \hat{x}[n] = \displaystyle\sum_{k = 0}^{31} z_{k}[n] & \text{再構成信号} 
+                    \hat{x}[n] = \displaystyle\sum_{k = 0}^{31} z_{k}[n] & \text{再構成信号}
                 \end{array} \right.
             \end{align*}
     \end{itemize}
@@ -425,9 +425,9 @@
     \begin{table}[H]
         \begin{tabular}{|l|l|}
             \toprule
-            種類 & 定義 \\ 
+            種類 & 定義 \\
             \midrule
-             long & $\displaystyle w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)$ \\[3ex]
+            long  & $\displaystyle w[n] = \sin\left[ \frac{\pi}{36} \left( n + \frac{1}{2} \right) \right] \quad (n = 0, ..., 35)$ \\[3ex]
             short & $\displaystyle w[n] = \sin\left[ \frac{\pi}{12} \left( n - 6k + \frac{1}{2} \right) \right] \ (k = 1,2,3,\ n = 6k, ..., 6k+11)$ \\[3ex]
             start & $\displaystyle w[n] =
             \left\{ \begin{array}{ll}
@@ -1145,7 +1145,7 @@
     \begin{figure}
         \includegraphics[width=105mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
     \end{figure}
-   "ほぼ"完全再構成と言ってよい
+    "ほぼ"完全再構成と言ってよい
 \end{frame}
 
 \subsection{MDCT} \label{sec:proofs_mdct}

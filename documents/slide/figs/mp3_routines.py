@@ -446,7 +446,7 @@ def mp3_reconstruct(data, observe_butterfly=False):
             specs.append(mdct(frame))
         # エイリアス除去バタフライ演算
         aliasing_reduction_butterfly(specs, encode=True)
-        
+
         # ここのspecsが伝送（符号化）される
 
         # エイリアス除去バタフライ演算
@@ -701,8 +701,7 @@ if __name__ == '__main__':
     # rmse = np.mean((data[:-2] - synth[2:]) ** 2.0) ** 0.5
     # print(20.0 * np.log10(rmse))
 
-    # plot_frequency_inversion()
-    # plot_analysis_synthesis_filter_impulse_resonse()
-    # plot_aliasing_reduction_butterfly()
-
+    plot_frequency_inversion()
+    plot_analysis_synthesis_filter_impulse_resonse()
+    plot_aliasing_reduction_butterfly()
     plot_window_functions()
