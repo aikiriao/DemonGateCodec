@@ -21,21 +21,22 @@
 
 \usepackage{booktabs}
 \usepackage{caption}
+\usepackage{dashrule}
 
 \newcommand{\comment}[2]{\textcolor{green!35!black}{#1 \fbox{\scalebox{0.4}{#2}}}}
 
 % 引用
-\usepackage[backend=bibtex, sorting=none]{biblatex}
+% \usepackage[backend=bibtex, sorting=none]{biblatex}
+\usepackage[sorting=none]{biblatex}
 \addbibresource{./references.bib}
 % 脚注に引用文献の情報を強引に乗せる
 \newcommand*{\mycite}[1]{\parencite{#1} \citeauthor{#1} (\citeyear{#1})}
 \renewcommand*{\footcite}[1]{\footnote{\mycite{#1}}}
 \AtBeginBibliography{\scriptsize}
 
-\title{MP3 (aka MPEG1-Layer3)}
+\title{MP3 (aka MPEG1-LayerIII)}
 \author[aikiriao]{aikiriao}
 \date{2024.3.XX}
-
 
 \begin{document}
 \maketitle
@@ -48,10 +49,41 @@
 
 \section{MP3概要}
 
-\subsection{歴史}
+\subsection{MPEG/Audioの歴史}
 
 \begin{frame}[c]
-    \frametitle{歴史}
+    \frametitle{MPEG/Audioの歴史}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/mpeg_history.jpg}
+        \caption*{MPEG/Audioの系譜．\cite{fujiwara2001}より引用}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MPEG/Audioの歴史}
+    \begin{figure}
+        \includegraphics[width=120mm]{./figs/mpeg_relation.jpg}
+        \caption*{MPEG/Audioの関係．\cite{fujiwara2001}より引用}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MPEG1の要素技術}
+    \begin{columns}
+        \begin{column}{0.4\textwidth}
+            \begin{itemize}
+                \item レイヤI,II,IIIの順に圧縮率（複雑度）向上
+                \item レイヤI,IIはサブバンド符号化がメイン
+                \item 聴覚心理モデルはI,IIとIIIで異なる
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.6\textwidth}
+            \begin{figure}
+                \includegraphics[width=70mm]{./figs/mpeg1_element_technologies.jpg}
+                \caption*{\cite{fujiwara2001}より引用}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \subsection{コーデック構造}
@@ -61,6 +93,11 @@
     \begin{figure}
         \includegraphics[width=115mm]{./figs/mp3_encoder_struct.png}
     \end{figure}
+    \begin{description}
+        \item[ハイブリッドフィルタバンク] 32バンドのフィルタバンクの後，18点のMDCT $\rightarrow$ 576点のスペクトルを計算
+        \item[量子化] 臨界帯域・マスキングの情報を元にスペクトルを量子化
+        \item[符号化] 低域を精密・高域を荒く符号化
+    \end{description}
 \end{frame}
 
 \begin{frame}[c]
@@ -68,34 +105,26 @@
     \begin{figure}
         \includegraphics[width=115mm]{./figs/mp3_decoder_struct.png}
     \end{figure}
+    エンコーダの逆の操作
 \end{frame}
 
 \section{ハイブリッドフィルタバンク}
 
-\subsection{コサイン変調フィルタバンク}
+\subsection{フィルタバンク}
 
 \begin{frame}[c]
-    \frametitle{$M$分割フィルタバンク}
+    \frametitle{$M$分割フィルタバンク\cite{kiya1995}}
     \begin{figure}
         \includegraphics[width=120mm]{./figs/filter_bank.drawio.png}
     \end{figure}
+    \begin{itemize}
+        \item 信号を$M$個の帯域に分割
+        \item $M$個の分析フィルタ$h_{k}$・合成フィルタ$f_{k}$を使用
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{完全再構成}
-    遅延・定数倍を除き入出力が一致すること：
-    \begin{align}
-        \hat{x}[n] = c x[n - n_{0}] \quad c \neq 0
-    \end{align}
-    これは$z$領域で，
-    \begin{align}
-        \hat{X}(z) = c z^{-n_{0}} X(z)
-    \end{align}
-    となることと等価
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{コサイン変調フィルタバンク}
+    \frametitle{コサイン変調フィルタバンク\cite{vaidyanathan2002}}
     \begin{block}{コサイン変調フィルタバンク}
         1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$から，分析フィルタ$h_{k}$と合成フィルタ$f_{k}$を次で設定：
         \begin{align}
@@ -104,6 +133,7 @@
         \end{align}
         $M$：分割帯域数，$L$：タップ長，$\theta_{k} = (-1)^{k} \frac{\pi}{4}$
     \end{block}
+    詳細は補足\ref{sec:proofs_filter_bank}節に記載
 \end{frame}
 
 \begin{frame}[c]
@@ -207,13 +237,13 @@
     \frametitle{フィルタバンクは完全再構成か？}
     \small
     \vspace{-10pt}
-    \begin{align*}
-        \hat{x}[n] &= \sum_{k = 0}^{31} z_{k}[n] = \sum_{k = 0}^{31} \left( \sum_{i = 0}^{511} f_{k}[i] y_{k}[n - i] \right) \\
-        &= \sum_{k = 0}^{31} \left\{ \sum_{i = 0}^{511} f_{k}[i] \left( \sum_{j = 0}^{511} h_{k}[j] x[n - i - j] \right) \right\} \\
-        &= \sum_{k = 0}^{31} \sum_{i = 0}^{511} \sum_{j = 0}^{511} f_{k}[i] h_{k}[j] x[n - i - j] \\
-        &= \sum_{k = 0}^{31} \sum_{m = 0}^{1022} \sum_{i = \max\{ 0, m-511 \}}^{\min\{ 511, m \}} f_{k}[i] h_{k}[m - i] x[n - m] \quad (m := i + j) \\
+    \begin{align}
+        \hat{x}[n] &= \sum_{k = 0}^{31} z_{k}[n] = \sum_{k = 0}^{31} \left( \sum_{i = 0}^{511} f_{k}[i] y_{k}[n - i] \right) \nonumber \\
+        &= \sum_{k = 0}^{31} \left\{ \sum_{i = 0}^{511} f_{k}[i] \left( \sum_{j = 0}^{511} h_{k}[j] x[n - i - j] \right) \right\} \nonumber \\
+        &= \sum_{k = 0}^{31} \sum_{i = 0}^{511} \sum_{j = 0}^{511} f_{k}[i] h_{k}[j] x[n - i - j] \nonumber \\
+        &= \sum_{k = 0}^{31} \sum_{m = 0}^{1022} \sum_{i = \max\{ 0, m-511 \}}^{\min\{ 511, m \}} f_{k}[i] h_{k}[m - i] x[n - m] \quad (m := i + j) \nonumber \\
         &= \sum_{m = 0}^{1022} x[n - m] \underbrace{\sum_{i = \max\{ 0, m-511 \}}^{\min\{ 511, m \}} \sum_{k = 0}^{31} f_{k}[i] h_{k}[m - i]}_{=g[m]}
-    \end{align*}
+    \end{align}
 \end{frame}
 
 \begin{frame}[c]
@@ -296,13 +326,23 @@
     \vspace*{-25pt}
     \begin{columns}
         \begin{column}{0.5\textwidth}
+            \vspace*{12pt}
             \begin{figure}
-                \includegraphics[width=60mm]{./figs/halft_overlap_add_encode.png}
+                \includegraphics[width=58mm]{./figs/halft_overlap_add_encode.png}
+                \caption*{エンコード}
             \end{figure}
         \end{column}
+        \begin{column}{.01\textwidth}
+            % \rule{.5mm}{.7\textheight}
+            \vspace*{60pt}
+            \rotatebox{-90}{\hskip-1.8cm\hdashrule[0.2ex]{8cm}{1pt}{3mm}}
+        \end{column}
+        \hspace{-10pt}
         \begin{column}{0.5\textwidth}
+            \vspace*{12pt}
             \begin{figure}
-                \includegraphics[width=60mm]{./figs/halft_overlap_add_decode.png}
+                \includegraphics[width=57mm]{./figs/halft_overlap_add_decode.png}
+                \caption*{デコード}
             \end{figure}
         \end{column}
     \end{columns}
@@ -505,7 +545,7 @@
         \begin{column}{0.35\textwidth}
             \begin{itemize}
                 \item フィルタバンクは，隣接バンクの周波数成分（エイリアス）が混入
-                \item MP3は，隣接バンクのMDCTのスペクトルを使いエイリアス削減
+                \item 隣接バンクのスペクトルを使いエイリアス削減（\cite{edler1992aliasing}）
             \end{itemize}
         \end{column}
         \begin{column}{0.7\textwidth}
@@ -590,588 +630,617 @@
     \frametitle{ハフマン符号}
 \end{frame}
 
-\section{聴覚モデル}
+\section{聴覚心理モデル}
 
 \begin{frame}[c]
-    \frametitle{聴覚モデル}
+    \frametitle{聴覚心理モデル}
 \end{frame}
 
 \appendix
 
 \section{参考文献}
 
+\begin{frame}{参考文献の紹介}
+    \scriptsize
+    \begin{itemize}
+        \item \cite{edler1992aliasing,liu1997design}：エイリアス削減の論文
+        \item \cite{princen1986analysis}：Princen--Bradleyの完全再構成条件の導出
+        \item \cite{raissi2002theory}：MP3の概要説明．
+        \item \cite{fujiwara2001}：MPEG/Audioの他，2000年代前半の他のコーデックの概要を解説
+        \item \cite{yasuda1994}：MPEG標準化に関する書物．技術は概要程度
+        \item \cite{kiya1995}：マルチレートに関わる信号処理を広範に解説
+        \item \cite{vaidyanathan2002}：フィルタバンクに関する詳細書
+        \item \cite{kiya1997}：DCTに関する詳しい解説
+        \item \cite{kosugi200108,kosugi200109,kosugi200111,kosugi200201,kosugi200202}：技術解説と簡易MP3コーデックの実装例
+        \item \cite{urata1999}：MP3のソース(dist10)の解説．ただし木を見て森を見ずな印象
+    \end{itemize}
+\end{frame}
+
 \begin{frame}[allowframebreaks]{参考文献}
     \scriptsize
     \printbibliography[heading=none]
 \end{frame}
 
-% \section{証明}
-% 
-% \subsection{フィルタバンク} \label{sec:proofs_filter_bank}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ表現}
-%     $H_{k}(z)$のインパルス応答を$h_{k}[n]$と書くとき，
-%     \small
-%     \begin{align*}
-%         H_{k}(z) &= \sum_{n = -\infty}^{\infty} h_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} h_{k}[nM + l] z^{-(nM+l)} \\
-%         &= \sum_{l = 0}^{M - 1} z^{-l} \sum_{n = -\infty}^{\infty}h_{k}[nM + l] z^{-nM} \\
-%         &= \sum_{l = 0}^{M - 1} E_{k,l}(z^{M}) z^{-l}
-%     \end{align*}
-%     \normalsize
-%     \begin{block}{$h_{k}$の（タイプI）ポリフェーズ表現}
-%         \vspace{-13pt}
-%         \begin{align}
-%             E_{k,l}(z) = \sum_{n = -\infty}^{\infty} h_{k}[nM + l] z^{-n} \label{eq:type1_polyphase_representation}
-%         \end{align}
-%     \end{block}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ表現}
-%     $F_{k}(z)$のインパルス応答を$f_{k}[n]$と書くとき，
-%     \scriptsize
-%     \begin{align*}
-%         F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} f_{k}[nM + l] z^{-(nM+l)} \\
-%         &= \sum_{n = -\infty}^{\infty} \sum_{l^{\prime} = 0}^{M - 1} f_{k}[nM + M - 1 - l^{\prime}] z^{-(nM + M - 1 - l^{\prime})} \\
-%         &= \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l^{\prime}] z^{-nM} = \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} R_{k,l}(z^{M})
-%     \end{align*}
-%     \normalsize
-%     \begin{block}{$f_{k}$の（タイプII）ポリフェーズ表現}
-%         \vspace{-13pt}
-%         \begin{align}
-%             R_{k,l}(z) = \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l] z^{-n} \label{eq:type2_polyphase_representation}
-%         \end{align}
-%     \end{block}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ行列表現}
-%     \eqref{eq:type1_polyphase_representation}式を$l$について並べ，行列表現すると
-%     \scriptsize
-%     \begin{align*}
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             H_{0}(z) \\
-%             H_{1}(z) \\
-%             \Vdots \\
-%             H_{M-1}(z)
-%         \end{bNiceMatrix}}_{\text{\normalsize $\ve{h}(z)$}}
-%         =
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
-%             E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
-%             \Vdots &           \Vdots & \Ddots &            \Vdots  \\
-%             E_{M-1,0}(z^{M}) & E_{M-1,1}(z^{M}) & \Cdots & E_{M-1,M-1}(z^{M}) \\
-%         \end{bNiceMatrix}}_{\text{\normalsize $\ve{E}(z)$}}
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             1 \\
-%             z^{-1} \\
-%             \Vdots \\
-%             z^{-(M-1)}
-%         \end{bNiceMatrix}}_{\text{\normalsize $\ve{e}(z)$}}
-%     \end{align*}
-%     \normalsize
-%     \eqref{eq:type2_polyphase_representation}式も同様にして，以下のように書ける
-%     \scriptsize
-%     \begin{align*}
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             F_{0}(z) \\
-%             F_{1}(z) \\
-%             \Vdots \\
-%             F_{M-1}(z)
-%         \end{bNiceMatrix}}_{\text{\normalsize $\ve{f}(z)$}}
-%         =
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
-%             R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
-%             \Vdots &           \Vdots & \Ddots &            \Vdots  \\
-%             R_{M-1,0}(z^{M}) & R_{M-1,1}(z^{M}) & \Cdots & R_{M-1,M-1}(z^{M}) \\
-%         \end{bNiceMatrix}^{\mathsf{T}}}_{\text{\normalsize $\ve{R}(z)^{\mathsf{T}}$}}
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             z^{-(M-1)} \\
-%             z^{-(M-1)+1} \\
-%             \Vdots \\
-%             1
-%         \end{bNiceMatrix}}_{z^{-(M-1)}\ve{e}(z^{-1})}
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ行列表現}
-%     $\tilde{\ve{e}}(z) = \ve{e}(z^{-1})^{\mathsf{T}}$とすると行列表現は
-%     \begin{align}
-%         \ve{h}(z) &= \ve{E}(z) \ve{e}(z) \\
-%         \ve{f}(z)^{\mathsf{T}} &= z^{-(M-1)} \tilde{\ve{e}}(z) \ve{R}(z)
-%     \end{align}
-%     とまとめられる．$\ve{E}(z), \ve{R}(z)$を\structure{ポリフェーズ行列}という
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ行列表現}
-%     $\ve{E}(z), \ve{R}(z)$により，アナライザ・シンセサイザは以下のように変形できる
-%     \begin{figure}
-%         \includegraphics[width=118mm]{./figs/polyphase_representation_analyzer.drawio.png}
-%     \end{figure}
-%     \hrule
-%     \begin{figure}
-%         \includegraphics[width=118mm]{./figs/polyphase_representation_synthesizer.drawio.png}
-%     \end{figure}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{ポリフェーズ行列表現}
-%     $\ve{E}(z), \ve{R}(z)$により，$M$分割フィルタバンクは以下のように表せる
-%     \vspace{-13pt}
-%     \begin{figure}
-%         \includegraphics[width=120mm]{./figs/polyphase_representation_filter_bank.drawio.png}
-%     \end{figure}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
-%     \begin{block}{}
-%         \vspace{-14pt}
-%         \begin{align}
-%             \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0,\ m_{0} \in \mathbb{N}) \label{eq:filter_bank_PR_condition}
-%         \end{align}
-%         ならば，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$ならば，$\hat{X}(z) = aM z^{-(M - 1 + K)}X(z)$}
-%     \end{block}
-%     \begin{figure}
-%         \includegraphics[width=70mm]{./figs/perfect_reconstraction_filter_bank.drawio.png}
-%         \caption*{$\ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I}$を満たす$M$分割フィルタバンク}
-%     \end{figure}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
-%     \eqref{eq:filter_bank_PR_condition}式より，$\ve{R}(z)$を
-%     \begin{align*}
-%         \ve{R}(z) = a z^{-m_{0}} \ve{E}(z)^{-1}
-%     \end{align*}
-%     とすれば完全再構成．しかし$\ve{E}(z)^{-1}$の計算が数値計算の安定性などの問題を孕む．
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
-%     $\ve{E}(z)^{-1}$の代わりに，$\ve{E}(z)$に\structure{パラユニタリ性}
-%     \begin{align}
-%         \widetilde{\ve{E}}(z) \ve{E}(z) = d \ve{I} \quad d \neq 0
-%     \end{align}
-%     を求める方法がある\footnote{$\widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})$で，下付きの$\ast$は係数の複素共役}．$\ve{E}(z)$がパラユニタリであれば，
-%     \begin{align*}
-%         \ve{R}(z) = a z^{-m_{0}} \widetilde{\ve{E}}(z)
-%     \end{align*}
-%     とすると完全再構成になる．
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     \begin{block}{}
-%         式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
-%     \end{block}
-%     \scriptsize
-%     （証明）
-%     \begin{align*}
-%         F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} h_{k}[L - 1 - n] z^{-n} \\
-%         &= \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{-(L - 1 - n^{\prime})} = z^{-(L-1)} \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{n^{\prime}} \\
-%         &= z^{-(L-1)} H_{k}(z^{-1})
-%     \end{align*}
-%     $H_{k}(z)$の周波数特性を（極座標で）$H_{k}(\omega) = |H_{k}(\omega)| \exp[j \psi(\omega)]$と書くと，
-%     \begin{align*}
-%         F_{k}(\omega) &= \exp[-j(L - 1)\omega] H_{k}(-\omega) = \exp[-j(L - 1)\omega] |H_{k}(-\omega)| \exp[-j \psi(\omega)] \\
-%         &= \exp[-j(L - 1)\omega] |H_{k}(\omega)| \exp[-j \psi(\omega)] \quad \text{（$\because$ 実係数FIRの振幅特性は偶）}
-%     \end{align*}
-%     だから，$F_{k}(\omega) H_{k}(\omega) = \exp[-j(L - 1)\omega] |H_{k}(\omega)|^{2}$となって直線位相特性をもつ．
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$}より
-%     \scriptsize
-%     \begin{align*}
-%         &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \\
-%         &= \frac{1}{2} \left\{ \exp\left[ j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] + \exp\left[-j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] \right\} \\
-%         &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
-%     \end{align*}
-%     \normalsize
-%     これを\eqref{eq:cos_modulated_analysis_filter}式に代入すると，
-%     \scriptsize
-%     \begin{align*}
-%         H_{k}(z) &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{-\left(k + \frac{1}{2} \right)n} z^{-n} \\
-%         &\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{\left(k + \frac{1}{2} \right)n} z^{-n} \\
-%         &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{k + \frac{1}{2}} z \right) + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{-\left(k + \frac{1}{2}\right)} z \right)
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{$\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
-%     \scriptsize
-%     \begin{align*}
-%         &H_{k}(z) = \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{k + \frac{1}{2}} z \right)^{-l} G_{l}\left( \left( W_{2M}^{k + \frac{1}{2}} z \right)^{2M} \right) \\
-%         &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{-l} G_{l}\left( \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{2M} \right) \\
-%         &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{-l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
-%         &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
-%         &=
-%         \scalebox{0.97}{$\displaystyle\sum_{l = 0}^{2M - 1} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{-l\left( k + \frac{1}{2} \right)} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{l\left( k + \frac{1}{2} \right)} \right\} z^{-l} G_{l}(-z^{2M})$}
-%         \\
-%         &= \sum_{l = 0}^{2M - 1} 2 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] z^{-l} G_{l}(-z^{2M})
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     さらに変形すると
-%     \small
-%     \begin{align}
-%         H_{k}(z) &= \sum_{l = 0}^{M - 1} z^{-l} \left\{ t_{k,l} G_{l}(-z^{2M}) + z^{-M} t_{k,M + l} G_{M + l}(-z^{2M}) \right\} \label{eq:another_polyphase_representation} \\
-%         t_{k,l} &:= 2\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] \nonumber
-%     \end{align}
-%     \normalsize
-%     \eqref{eq:type1_polyphase_representation}式と\eqref{eq:another_polyphase_representation}式を見比べると，
-%     \begin{align}
-%         E_{k, l}(z) = t_{k,l} G_{l}(-z^{2}) + z^{-1} t_{k,M + l} G_{M + l}(-z^{2}) \label{eq:polyphase_representation_of_cos_modulated_filter_bank}
-%     \end{align}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     \eqref{eq:polyphase_representation_of_cos_modulated_filter_bank}式より，アナライザのポリフェーズ行列は，
-%     \footnotesize
-%     \begin{align}
-%         \ve{E}(z) &=
-%         \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             t_{0,0} & \Cdots &   t_{0,2M-1} \\
-%             t_{1,0} & \Cdots &   t_{1,2M-1} \\
-%             \Vdots & \Cdots &      \Vdots  \\
-%             t_{M-1,0} & \Cdots & t_{M-1,2M-1} \\
-%         \end{bNiceMatrix}}_{\ve{T}}
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             G_{0}(-z^{2}) &        &                         \\
-%             & \Ddots &                         \\
-%             &        &         G_{M-1}(-z^{2}) \\
-%             z^{-1}G_{M}(-z^{2}) &        &                         \\
-%             & \Ddots &                         \\
-%             &        & z^{-1} G_{2M-1}(-z^{2}) \\
-%         \end{bNiceMatrix}
-%         \nonumber \\
-%         &= \ve{T}
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             \ve{G}_{0}(z^{2}) \\
-%             z^{-1} \ve{G}_{1}(z^{2}) \\
-%         \end{bNiceMatrix} \label{eq:analyzer_matrix_of_cos_modulated_filter_bank} \\
-%         \ve{G}_{i}(z) &:=
-%         \diag \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             G_{Mi}(-z) & G_{Mi + 1}(-z) & \Cdots & G_{Mi + M - 1}(-z)
-%         \end{bNiceMatrix}
-%     \end{align}
-%     \normalsize
-%     と書ける
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     シンセサイザを構成する．フィルタ係数は実だから，
-%     \begin{align}
-%         \widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})^{\mathsf{T}} =
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
-%         \end{bNiceMatrix}
-%         \ve{T}^{\mathsf{T}}
-%     \end{align}
-%     $G_{l}(z)$の次数は$2K - 1$で，因果性のためには$2K - 1$の遅延がいるため
-%     \begin{align}
-%         \ve{R}(z) &= z^{-(2K-1)} \widetilde{\ve{E}}(z) \nonumber \\
-%         &=
-%         z^{-(2K-1)}
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
-%         \end{bNiceMatrix}
-%         \ve{T}^{\mathsf{T}} \label{eq:synthesizer_matrix_of_cos_modulated_filter_bank}
-%     \end{align}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     \begin{figure}
-%         \includegraphics[width=95mm]{./figs/cos_modulated_analysis_bank_filter.drawio.png}
-%         \caption*{アナライザの構成}
-%     \end{figure}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     \begin{figure}
-%         \includegraphics[width=115mm]{./figs/cos_modulated_synthesis_bank_filter.drawio.png}
-%         \caption*{シンセサイザの構成}
-%     \end{figure}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     完全再構成条件を導く．\eqref{eq:analyzer_matrix_of_cos_modulated_filter_bank}，\eqref{eq:synthesizer_matrix_of_cos_modulated_filter_bank}式より，
-%     \begin{align*}
-%         & \ve{R}(z)\ve{E}(z) = z^{-(2K - 1)} \widetilde{\ve{E}}(z) \ve{E}(z) \\
-%         &= z^{-(2K - 1)}
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
-%         \end{bNiceMatrix}
-%         \ve{T}^{\mathsf{T}} \ve{T}
-%         \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
-%             \ve{G}_{0}(z) \\
-%             z^{-1} \ve{G}_{1}(z)
-%         \end{bNiceMatrix} \\
-%         &= 2M z^{-(2K - 1)} \left\{ \ve{G}_{0}(z^{-1}) \ve{G}_{0}(z) + \ve{G}_{1}(z^{-1}) \ve{G}_{1}(z) \right\}
-%     \end{align*}
-%     ここで，$\ve{T}^{\mathsf{T}} \ve{T} = 2M \ve{I}$（後で示す）．$\ve{G}_{0}, \ve{G}_{1}$は対角行列だから，$k = 0, ..., M-1$に対し，
-%     \begin{align*}
-%         G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
-%     \end{align*}
-%     を満たせば完全再構成となる
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{コサイン変調フィルタバンク}
-%     \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
-%         $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
-%         \begin{align}
-%             G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
-%         \end{align}
-%         となること．ここで，
-%         \begin{align}
-%             G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + k] z^{-n} \label{eq:polyphase_representation_of_prototype}
-%         \end{align}
-%         $G_{k}(z)$は$p_{0}[n]$のポリフェーズ表現
-%     \end{block}
-%     本条件は\structure{電力相補条件}ともいう
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     $\left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = \sum_{k = 0}^{M - 1} t_{k,i} t_{k,j}$であり，
-%     \scriptsize
-%     \begin{align*}
-%         & t_{k,i} t_{k,j} \\
-%         &= 4 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( j - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \\
-%         &= 2 \left\{ \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left\{ i + j - (L - 1) \right\} + (-1)^{k} \frac{\pi}{2} \right] + \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] \right\}
-%     \end{align*}
-%     \normalsize
-%     $i + j - (L - 1) = A$とおくと，
-%     \scriptsize
-%     \begin{align*}
-%         & \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A + (-1)^{k}\frac{\pi}{2} \right] \\
-%         &= \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \cos\left[(-1)^{k}\frac{\pi}{2} \right] - \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \sin\left[(-1)^{k}\frac{\pi}{2} \right] \\
-%         &= -(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right]
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     ここで，
-%     \begin{align}
-%         \sum_{k = 0}^{M - 1}\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] &= M\delta_{ij} \label{eq:orthogonal_condition_cos} \\
-%         \sum_{k = 0}^{M - 1}(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] &= 0 \label{eq:orthogonal_condition_sin}
-%     \end{align}
-%     （$\delta_{ij}$：クロネッカーのデルタ）を示せば，
-%     \begin{align*}
-%         \left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = 2M \delta_{ij}
-%     \end{align*}
-%     となり命題が示せる．次ページから計算結果を載せる
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     \eqref{eq:orthogonal_condition_cos}式を示す．$i = j$のとき，
-%     \scriptsize
-%     $\sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] = M$．
-%     \normalsize
-%     $i \neq j$のとき，
-%     \scriptsize
-%     \begin{align*}
-%         & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
-%         &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ \exp\left[ j \frac{\pi}{M}  \left( k + \frac{1}{2} \right) (i - j) \right] + \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) (i - j) \right] \right\} \\
-%         &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ W_{2M}^{-\left( k + \frac{1}{2} \right)(i - j)} + W_{2M}^{\left( k + \frac{1}{2} \right)(i - j)} \right\} \nonumber \\
-%         &= \frac{1}{2} \left\{ W_{2M}^{-\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(i - j)k} + W_{2M}^{\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} \right\} \\
-%         &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right]
-%     \end{align*}
-%     最後の式変形で等比級数の和$\sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} = \frac{W_{2M}^{(i -j)M} - 1}{W_{2M}^{i - j} - 1} = \frac{(-1)^{i - j} - 1}{W_{2M}^{i - j} - 1}$を使用
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     さらに式変形すると，
-%     \scriptsize
-%     \begin{align*}
-%         & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
-%         &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right] \\
-%         &= \frac{W_{2M}^{-\frac{i - j}{2}} (W_{2M}^{i - j} - 1)\left\{ (-1)^{-(i - j)} - 1 \right\} + W_{2M}^{\frac{i - j}{2}} (W_{2M}^{-(i - j)} - 1)\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
-%         &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{-(i - j)} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
-%         &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
-%         &= 0
-%     \end{align*}
-%     \normalsize
-%     よって\eqref{eq:orthogonal_condition_cos}式が示された
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     \eqref{eq:orthogonal_condition_sin}式を示す．
-%     \scriptsize
-%     \begin{align*}
-%         & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \\
-%         &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] - \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \right\} \\
-%         &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ W_{2M}^{-A\left( k + \frac{1}{2} \right)} - W_{2M}^{A\left( k + \frac{1}{2} \right)} \right\} \\
-%         &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{-Ak} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{Ak} \right\} \\
-%         &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(M + A)k} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(M + A)k} \right\} \quad \text{（$\because$ $(-1)^{k} = W_{2M}^{M} = W_{2M}^{-M}$）} \\
-%         &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \frac{(-1)^{-(M + A)} - 1}{W_{2M}^{-(M + A)} - 1} - W_{2M}^{\frac{A}{2}} \frac{(-1)^{M + A} - 1}{W_{2M}^{M + A} - 1} \right\} \quad \text{（$\because$ 等比級数の和の公式）}
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
-%     さらに計算を進めると，
-%     \scriptsize
-%     \begin{align*}
-%         & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A \right] \\
-%         &= \frac{W_{2M}^{-\frac{A}{2}} \left\{ (-1)^{-(M + A)} - 1 \right\} (W_{2M}^{M + A} - 1) - W_{2M}^{\frac{A}{2}} \left\{ (-1)^{M + A} - 1 \right\} (W_{2M}^{-(M + A)} - 1)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-%         &= \frac{(-1)^{-(M + A)} W_{2M}^{M + \frac{A}{2}} - W_{2M}^{M + \frac{A}{2}} - (-1)^{M + A} W_{2M}^{-M - \frac{A}{2}} + W_{2M}^{-M - \frac{A}{2}}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-%         &= \frac{(-1)^{A}(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}}) - (-1)(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}})}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-%         &= \frac{-j2 (-1)^{A} \sin\left( \frac{\pi A}{2M} \right) -j2  \sin\left( \frac{\pi A}{2M} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} = -\frac{\sin\left( \frac{\pi A}{2M} \right) \left\{ (-1)^{A} + 1 \right\}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)}
-%     \end{align*}
-%     \normalsize
-%     最後の式の分子は，$A$の偶奇に関わらず$0$．よって，\eqref{eq:orthogonal_condition_sin}式が示された．
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{MP3のフィルタバンクの特性}
-%     \vspace{-5pt}
-%     \begin{figure}
-%         \includegraphics[width=100mm]{./figs/mp3_decoder_prototype_filter_coef.pdf}
-%     \end{figure}
-%     \vspace{-5pt}
-%     \begin{itemize}
-%         \item デコーダの係数．エンコーダの係数の$32$倍
-%     \end{itemize}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{電力相補条件の確認}
-%     MP3のフィルタバンクでは
-%     \scriptsize
-%     \begin{align*}
-%         G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
-%         G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
-%         G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
-%         G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
-%     \end{align*}
-%     \normalsize
-%     $k = 0, ..., 31$で実際に計算すると，
-%     \begin{align*}
-%         G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{電力相補条件の確認（計算結果）}
-%     \begin{figure}
-%         \includegraphics[width=105mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
-%     \end{figure}
-%    "ほぼ"完全再構成と言ってよい
-% \end{frame}
-% 
-% \subsection{MDCT} \label{sec:proofs_mdct}
-% 
-% \begin{frame}[c]
-%     \frametitle{MDCT・IMDCTによる再構成信号}
-%     式\eqref{eq:imdct}に式\eqref{eq:mdct}を代入すると，
-%     \scriptsize
-%     \begin{align*}
-%         y[n] &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( m + \frac{1}{2} + \frac{N}{2} \right) \right] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \\
-%         &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\} \\
-%         &= \frac{2}{N} \sum_{m = 0}^{2N - 1} x[m] \sum_{k = 0}^{N - 1} \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\}
-%     \end{align*}
-%     \normalsize
-%     ここで，
-%     \begin{align}
-%         I_{n} := \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right]
-%     \end{align}
-%     を計算していく
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{MDCT・IMDCTによる再構成信号}
-%     \scriptsize
-%     \begin{align*}
-%         I_{n} &= \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right] = \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{2N} ( 2k + 1 ) n \right] \\
-%         &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left\{ \exp\left[ j \frac{\pi}{2N} ( 2k + 1 )n \right] + \exp\left[-j \frac{\pi}{2N} ( 2k + 1 )n \right] \right\} \\
-%         &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left( W_{2N}^{-\frac{2k + 1}{2}n} + W_{2N}^{\frac{2k + 1}{2}n} \right) = \frac{1}{2} \left( W_{2N}^{-\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{-nk} + W_{2N}^{\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{nk} \right)
-%     \end{align*}
-%     ここで，
-%     \begin{align*}
-%         \sum_{k = 0}^{N - 1} W_{2N}^{nk} &= \sum_{k = 0}^{N - 1} \left( W_{2N}^{n} \right)^{k}
-%         = \left\{ \begin{array}{ll}
-%             \displaystyle \sum_{k = 0}^{N - 1} 1^{k} = N & \text{（$n$が$2N$の倍数）} \\
-%             \displaystyle \frac{1\left\{ \left( W_{2N}^{n} \right)^{N} - 1 \right\}}{W_{2N}^{n} - 1} = \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1} & \text{（$n$が$2N$の倍数ではない）}
-%         \end{array} \right.
-%     \end{align*}
-%     から，場合分けして考える
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{MDCT・IMDCTによる再構成信号}
-%     \scriptsize
-%     $n$が$2N$の倍数のとき，$n = 2Nm\ (m \in \mathbb{Z})$と書けて，
-%     \begin{align*}
-%         I_{n} &= \frac{N}{2} \left( W_{2N}^{-2Nm} + W_{2N}^{2Nm} \right) = \frac{N}{2} \left\{ (-1)^{-m} + (-1)^{m} \right\} \\
-%         &= \left\{ \begin{array}{ll}
-%             N & \text{（$m$：偶数 $\iff$ $n = 0, \pm 4N, \pm 8N$）} \\
-%             -N & \text{（$m$：奇数 $\iff$ $n = \pm 2N, \pm 6N, \pm 10N$）} \\
-%         \end{array} \right.
-%     \end{align*}
-%     $n$が$2N$の倍数ではないとき，
-%     \begin{align*}
-%         & I_{n} = \frac{1}{2}
-%         \left\{
-%         W_{2N}^{-\frac{n}{2}} \frac{(-1)^{-n} - 1}{W_{2N}^{-n} - 1} + W_{2N}^{\frac{n}{2}} \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1}
-%         \right\} \\
-%         &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} - 1 \right\} ( W_{2N}^{n} - 1 ) +  W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} - 1 \right\} ( W_{2N}^{-n} - 1 ) }{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
-%         &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} W_{2N}^{n} - (-1)^{-n} - W_{2N}^{n} + 1 \right\} + W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} W_{2N}^{-n} - (-1)^{n} - W_{2N}^{-n} + 1 \right\}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
-%         &= \frac{ (-1)^{-n} W_{2N}^{\frac{n}{2}} - (-1)^{-n} W_{2N}^{-\frac{n}{2}} - W_{2N}^{\frac{n}{2}} + W_{2N}^{-\frac{n}{2}} + (-1)^{n} W_{2N}^{-\frac{n}{2}} - (-1)^{n} W_{2N}^{\frac{n}{2}} - W_{2N}^{-\frac{n}{2}} + W_{2N}^{\frac{n}{2}}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
-%         &= 0
-%     \end{align*}
-% \end{frame}
-% 
-% \begin{frame}[c]
-%     \frametitle{MDCT・IMDCTによる再構成信号}
-%     \scriptsize
-%     まとめると，
-%     \begin{align}
-%         I_{n} = \left\{ \begin{array}{ll}
-%             N & (n = 0, \pm 4N, \pm 8N, ...) \\
-%             -N & (n = \pm 2N, \pm 6N, \pm 10N, ...) \\
-%             0 & (\text{otherwise})
-%         \end{array} \right. \label{eq:result_of_In}
-%     \end{align}
-%     となる．式\eqref{eq:result_of_In}を使えば，
-%     \begin{align*}
-%         \sum_{m = 0}^{2N - 1} x[m] I_{m - n} &= \left\{ \begin{array}{ll}
-%             x[n] I_{0} = N x[n] & (n = 0, ..., N - 1) \\
-%             x[n] I_{0} = N x[n] & (n = N, ..., 2N - 1)
-%         \end{array} \right. \\
-%         \sum_{m = 0}^{2N - 1} x[m] I_{n + m + 1 + N} &= \left\{ \begin{array}{ll}
-%             x[N - 1 - n] I_{2N} = -N x[N - 1 - n] & (n = 0, ..., N - 1) \\
-%             x[3N - 1 - n] I_{4N} = N x[3N - 1 - n] & (n = N, ..., 2N - 1)
-%         \end{array} \right.
-%     \end{align*}
-%     だから，
-%     \begin{align*}
-%         y[n] &= \frac{1}{N} \sum_{m = 0}^{2N - 1} x[m] ( I_{n + m + 1 + N} + I_{m - n} ) \\
-%         &= \left\{ \begin{array}{ll}
-%             x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
-%             x[n] + x[3N - 1 - n] & (n = 0, ..., N - 1)
-%         \end{array} \right.
-%     \end{align*}
-%     となる．
-% \end{frame}
+\section{証明}
+
+\subsection{フィルタバンク} \label{sec:proofs_filter_bank}
+
+\begin{frame}[c]
+    \frametitle{完全再構成}
+    遅延・定数倍を除き入出力が一致すること：
+    \begin{align}
+        \hat{x}[n] = c x[n - n_{0}] \quad c \neq 0
+    \end{align}
+    これは$z$領域で，
+    \begin{align}
+        \hat{X}(z) = c z^{-n_{0}} X(z)
+    \end{align}
+    となることと等価
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ表現}
+    $H_{k}(z)$のインパルス応答を$h_{k}[n]$と書くとき，
+    \small
+    \begin{align*}
+        H_{k}(z) &= \sum_{n = -\infty}^{\infty} h_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} h_{k}[nM + l] z^{-(nM+l)} \\
+        &= \sum_{l = 0}^{M - 1} z^{-l} \sum_{n = -\infty}^{\infty}h_{k}[nM + l] z^{-nM} \\
+        &= \sum_{l = 0}^{M - 1} E_{k,l}(z^{M}) z^{-l}
+    \end{align*}
+    \normalsize
+    \begin{block}{$h_{k}$の（タイプI）ポリフェーズ表現}
+        \vspace{-13pt}
+        \begin{align}
+            E_{k,l}(z) = \sum_{n = -\infty}^{\infty} h_{k}[nM + l] z^{-n} \label{eq:type1_polyphase_representation}
+        \end{align}
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ表現}
+    $F_{k}(z)$のインパルス応答を$f_{k}[n]$と書くとき，
+    \scriptsize
+    \begin{align*}
+        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} \sum_{l = 0}^{M - 1} f_{k}[nM + l] z^{-(nM+l)} \\
+        &= \sum_{n = -\infty}^{\infty} \sum_{l^{\prime} = 0}^{M - 1} f_{k}[nM + M - 1 - l^{\prime}] z^{-(nM + M - 1 - l^{\prime})} \\
+        &= \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l^{\prime}] z^{-nM} = \sum_{l^{\prime} = 0}^{M - 1} z^{-(M - 1 - l^{\prime})} R_{k,l}(z^{M})
+    \end{align*}
+    \normalsize
+    \begin{block}{$f_{k}$の（タイプII）ポリフェーズ表現}
+        \vspace{-13pt}
+        \begin{align}
+            R_{k,l}(z) = \sum_{n = -\infty}^{\infty} f_{k}[nM + M - 1 - l] z^{-n} \label{eq:type2_polyphase_representation}
+        \end{align}
+    \end{block}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    \eqref{eq:type1_polyphase_representation}式を$l$について並べ，行列表現すると
+    \scriptsize
+    \begin{align*}
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            H_{0}(z) \\
+            H_{1}(z) \\
+            \Vdots \\
+            H_{M-1}(z)
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{h}(z)$}}
+        =
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            E_{0,0}(z^{M}) &   E_{0,1}(z^{M}) & \Cdots &   E_{0,M-1}(z^{M}) \\
+            E_{1,0}(z^{M}) &   E_{1,1}(z^{M}) & \Cdots &   E_{1,M-1}(z^{M}) \\
+            \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            E_{M-1,0}(z^{M}) & E_{M-1,1}(z^{M}) & \Cdots & E_{M-1,M-1}(z^{M}) \\
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{E}(z)$}}
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            1 \\
+            z^{-1} \\
+            \Vdots \\
+            z^{-(M-1)}
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{e}(z)$}}
+    \end{align*}
+    \normalsize
+    \eqref{eq:type2_polyphase_representation}式も同様にして，以下のように書ける
+    \scriptsize
+    \begin{align*}
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            F_{0}(z) \\
+            F_{1}(z) \\
+            \Vdots \\
+            F_{M-1}(z)
+        \end{bNiceMatrix}}_{\text{\normalsize $\ve{f}(z)$}}
+        =
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            R_{0,0}(z^{M}) &   R_{0,1}(z^{M}) & \Cdots &   R_{0,M-1}(z^{M}) \\
+            R_{1,0}(z^{M}) &   R_{1,1}(z^{M}) & \Cdots &   R_{1,M-1}(z^{M}) \\
+            \Vdots &           \Vdots & \Ddots &            \Vdots  \\
+            R_{M-1,0}(z^{M}) & R_{M-1,1}(z^{M}) & \Cdots & R_{M-1,M-1}(z^{M}) \\
+        \end{bNiceMatrix}^{\mathsf{T}}}_{\text{\normalsize $\ve{R}(z)^{\mathsf{T}}$}}
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            z^{-(M-1)} \\
+            z^{-(M-1)+1} \\
+            \Vdots \\
+            1
+        \end{bNiceMatrix}}_{z^{-(M-1)}\ve{e}(z^{-1})}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    $\tilde{\ve{e}}(z) = \ve{e}(z^{-1})^{\mathsf{T}}$とすると行列表現は
+    \begin{align}
+        \ve{h}(z) &= \ve{E}(z) \ve{e}(z) \\
+        \ve{f}(z)^{\mathsf{T}} &= z^{-(M-1)} \tilde{\ve{e}}(z) \ve{R}(z)
+    \end{align}
+    とまとめられる．$\ve{E}(z), \ve{R}(z)$を\structure{ポリフェーズ行列}という
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    $\ve{E}(z), \ve{R}(z)$により，アナライザ・シンセサイザは以下のように変形できる
+    \begin{figure}
+        \includegraphics[width=118mm]{./figs/polyphase_representation_analyzer.drawio.png}
+    \end{figure}
+    \hrule
+    \begin{figure}
+        \includegraphics[width=118mm]{./figs/polyphase_representation_synthesizer.drawio.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ポリフェーズ行列表現}
+    $\ve{E}(z), \ve{R}(z)$により，$M$分割フィルタバンクは以下のように表せる
+    \vspace{-13pt}
+    \begin{figure}
+        \includegraphics[width=120mm]{./figs/polyphase_representation_filter_bank.drawio.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    \begin{block}{}
+        \vspace{-14pt}
+        \begin{align}
+            \ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I} \quad (a \neq 0,\ m_{0} \in \mathbb{N}) \label{eq:filter_bank_PR_condition}
+        \end{align}
+        ならば，$M$分割フィルタバンクは完全再構成\footnote{$\because$各バンドの遅延が$K$ならば，$\hat{X}(z) = aM z^{-(M - 1 + K)}X(z)$}
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=70mm]{./figs/perfect_reconstraction_filter_bank.drawio.png}
+        \caption*{$\ve{R}(z) \ve{E}(z) = a z^{-m_{0}} \ve{I}$を満たす$M$分割フィルタバンク}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    \eqref{eq:filter_bank_PR_condition}式より，$\ve{R}(z)$を
+    \begin{align*}
+        \ve{R}(z) = a z^{-m_{0}} \ve{E}(z)^{-1}
+    \end{align*}
+    とすれば完全再構成．しかし$\ve{E}(z)^{-1}$の計算が数値計算の安定性などの問題を孕む．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
+    $\ve{E}(z)^{-1}$の代わりに，$\ve{E}(z)$に\structure{パラユニタリ性}
+    \begin{align}
+        \widetilde{\ve{E}}(z) \ve{E}(z) = d \ve{I} \quad d \neq 0
+    \end{align}
+    を求める方法がある\footnote{$\widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})$で，下付きの$\ast$は係数の複素共役}．$\ve{E}(z)$がパラユニタリであれば，
+    \begin{align*}
+        \ve{R}(z) = a z^{-m_{0}} \widetilde{\ve{E}}(z)
+    \end{align*}
+    とすると完全再構成になる．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{}
+        式\eqref{eq:cos_modulated_synthesis_filter}より，分析合成フィルタ$F_{k}(z)H_{k}(z)$は直線位相特性をもつ
+    \end{block}
+    \scriptsize
+    （証明）
+    \begin{align*}
+        F_{k}(z) &= \sum_{n = -\infty}^{\infty} f_{k}[n] z^{-n} = \sum_{n = -\infty}^{\infty} h_{k}[L - 1 - n] z^{-n} \\
+        &= \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{-(L - 1 - n^{\prime})} = z^{-(L-1)} \sum_{n^{\prime} = -\infty}^{\infty} h_{k}[n^{\prime}] z^{n^{\prime}} \\
+        &= z^{-(L-1)} H_{k}(z^{-1})
+    \end{align*}
+    $H_{k}(z)$の周波数特性を（極座標で）$H_{k}(\omega) = |H_{k}(\omega)| \exp[j \psi(\omega)]$と書くと，
+    \begin{align*}
+        F_{k}(\omega) &= \exp[-j(L - 1)\omega] H_{k}(-\omega) = \exp[-j(L - 1)\omega] |H_{k}(-\omega)| \exp[-j \psi(\omega)] \\
+        &= \exp[-j(L - 1)\omega] |H_{k}(\omega)| \exp[-j \psi(\omega)] \quad \text{（$\because$ 実係数FIRの振幅特性は偶）}
+    \end{align*}
+    だから，$F_{k}(\omega) H_{k}(\omega) = \exp[-j(L - 1)\omega] |H_{k}(\omega)|^{2}$となって直線位相特性をもつ．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$}より
+    \scriptsize
+    \begin{align*}
+        &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \\
+        &= \frac{1}{2} \left\{ \exp\left[ j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] + \exp\left[-j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] \right\} \\
+        &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
+    \end{align*}
+    \normalsize
+    これを\eqref{eq:cos_modulated_analysis_filter}式に代入すると，
+    \scriptsize
+    \begin{align*}
+        H_{k}(z) &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{-\left(k + \frac{1}{2} \right)n} z^{-n} \\
+        &\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{n = -\infty}^{\infty} p_{0}[n] W_{2M}^{\left(k + \frac{1}{2} \right)n} z^{-n} \\
+        &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{k + \frac{1}{2}} z \right) + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} P_{0}\left(W_{2M}^{-\left(k + \frac{1}{2}\right)} z \right)
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{$\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
+    \scriptsize
+    \begin{align*}
+        &H_{k}(z) = \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{k + \frac{1}{2}} z \right)^{-l} G_{l}\left( \left( W_{2M}^{k + \frac{1}{2}} z \right)^{2M} \right) \\
+        &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{-l} G_{l}\left( \left( W_{2M}^{-\left( k + \frac{1}{2} \right)} z \right)^{2M} \right) \\
+        &= \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{-l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
+        &\quad\quad\quad + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} W_{2M}^{l\left( k + \frac{1}{2} \right)} z^{-l} G_{l}(-z^{2M}) \\
+        &=
+        \scalebox{0.97}{$\displaystyle\sum_{l = 0}^{2M - 1} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{-l\left( k + \frac{1}{2} \right)} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{l\left( k + \frac{1}{2} \right)} \right\} z^{-l} G_{l}(-z^{2M})$}
+        \\
+        &= \sum_{l = 0}^{2M - 1} 2 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] z^{-l} G_{l}(-z^{2M})
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    さらに変形すると
+    \small
+    \begin{align}
+        H_{k}(z) &= \sum_{l = 0}^{M - 1} z^{-l} \left\{ t_{k,l} G_{l}(-z^{2M}) + z^{-M} t_{k,M + l} G_{M + l}(-z^{2M}) \right\} \label{eq:another_polyphase_representation} \\
+        t_{k,l} &:= 2\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( l - \frac{L - 1}{2} \right) + \theta_{k} \right] \nonumber
+    \end{align}
+    \normalsize
+    \eqref{eq:type1_polyphase_representation}式と\eqref{eq:another_polyphase_representation}式を見比べると，
+    \begin{align}
+        E_{k, l}(z) = t_{k,l} G_{l}(-z^{2}) + z^{-1} t_{k,M + l} G_{M + l}(-z^{2}) \label{eq:polyphase_representation_of_cos_modulated_filter_bank}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \eqref{eq:polyphase_representation_of_cos_modulated_filter_bank}式より，アナライザのポリフェーズ行列は，
+    \footnotesize
+    \begin{align}
+        \ve{E}(z) &=
+        \underbrace{\begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            t_{0,0} & \Cdots &   t_{0,2M-1} \\
+            t_{1,0} & \Cdots &   t_{1,2M-1} \\
+            \Vdots & \Cdots &      \Vdots  \\
+            t_{M-1,0} & \Cdots & t_{M-1,2M-1} \\
+        \end{bNiceMatrix}}_{\ve{T}}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            G_{0}(-z^{2}) &        &                         \\
+            & \Ddots &                         \\
+            &        &         G_{M-1}(-z^{2}) \\
+            z^{-1}G_{M}(-z^{2}) &        &                         \\
+            & \Ddots &                         \\
+            &        & z^{-1} G_{2M-1}(-z^{2}) \\
+        \end{bNiceMatrix}
+        \nonumber \\
+        &= \ve{T}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{2}) \\
+            z^{-1} \ve{G}_{1}(z^{2}) \\
+        \end{bNiceMatrix} \label{eq:analyzer_matrix_of_cos_modulated_filter_bank} \\
+        \ve{G}_{i}(z) &:=
+        \diag \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            G_{Mi}(-z) & G_{Mi + 1}(-z) & \Cdots & G_{Mi + M - 1}(-z)
+        \end{bNiceMatrix}
+    \end{align}
+    \normalsize
+    と書ける
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    シンセサイザを構成する．フィルタ係数は実だから，
+    \begin{align}
+        \widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})^{\mathsf{T}} =
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}}
+    \end{align}
+    $G_{l}(z)$の次数は$2K - 1$で，因果性のためには$2K - 1$の遅延がいるため
+    \begin{align}
+        \ve{R}(z) &= z^{-(2K-1)} \widetilde{\ve{E}}(z) \nonumber \\
+        &=
+        z^{-(2K-1)}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}} \label{eq:synthesizer_matrix_of_cos_modulated_filter_bank}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{figure}
+        \includegraphics[width=95mm]{./figs/cos_modulated_analysis_bank_filter.drawio.png}
+        \caption*{アナライザの構成}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{figure}
+        \includegraphics[width=115mm]{./figs/cos_modulated_synthesis_bank_filter.drawio.png}
+        \caption*{シンセサイザの構成}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    完全再構成条件を導く．\eqref{eq:analyzer_matrix_of_cos_modulated_filter_bank}，\eqref{eq:synthesizer_matrix_of_cos_modulated_filter_bank}式より，
+    \begin{align*}
+        & \ve{R}(z)\ve{E}(z) = z^{-(2K - 1)} \widetilde{\ve{E}}(z) \ve{E}(z) \\
+        &= z^{-(2K - 1)}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z^{-1}) & z \ve{G}_{1}(z^{-1})
+        \end{bNiceMatrix}
+        \ve{T}^{\mathsf{T}} \ve{T}
+        \begin{bNiceMatrix}[margin, nullify-dots, xdots/shorten=0.5em]
+            \ve{G}_{0}(z) \\
+            z^{-1} \ve{G}_{1}(z)
+        \end{bNiceMatrix} \\
+        &= 2M z^{-(2K - 1)} \left\{ \ve{G}_{0}(z^{-1}) \ve{G}_{0}(z) + \ve{G}_{1}(z^{-1}) \ve{G}_{1}(z) \right\}
+    \end{align*}
+    ここで，$\ve{T}^{\mathsf{T}} \ve{T} = 2M \ve{I}$（後で示す）．$\ve{G}_{0}, \ve{G}_{1}$は対角行列だから，$k = 0, ..., M-1$に対し，
+    \begin{align*}
+        G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
+    \end{align*}
+    を満たせば完全再構成となる
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{コサイン変調フィルタバンク}
+    \begin{block}{コサイン変調フィルタバンクの完全再構成条件}
+        $k = 0, ..., M-1$に対し，定数$\alpha \in \mathbb{R}$があって
+        \begin{align}
+            G_{k}(z^{-1}) G_{k}(z) + G_{M + k}(z^{-1}) G_{M + k}(z) = \alpha
+        \end{align}
+        となること．ここで，
+        \begin{align}
+            G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2Mn + k] z^{-n} \label{eq:polyphase_representation_of_prototype}
+        \end{align}
+        $G_{k}(z)$は$p_{0}[n]$のポリフェーズ表現
+    \end{block}
+    本条件は\structure{電力相補条件}ともいう
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    $\left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = \sum_{k = 0}^{M - 1} t_{k,i} t_{k,j}$であり，
+    \scriptsize
+    \begin{align*}
+        & t_{k,i} t_{k,j} \\
+        &= 4 \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( j - \frac{L - 1}{2} \right) + (-1)^{k}\frac{\pi}{4} \right] \\
+        &= 2 \left\{ \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left\{ i + j - (L - 1) \right\} + (-1)^{k} \frac{\pi}{2} \right] + \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] \right\}
+    \end{align*}
+    \normalsize
+    $i + j - (L - 1) = A$とおくと，
+    \scriptsize
+    \begin{align*}
+        & \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A + (-1)^{k}\frac{\pi}{2} \right] \\
+        &= \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \cos\left[(-1)^{k}\frac{\pi}{2} \right] - \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] \sin\left[(-1)^{k}\frac{\pi}{2} \right] \\
+        &= -(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right]
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    ここで，
+    \begin{align}
+        \sum_{k = 0}^{M - 1}\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( i - j \right) \right] &= M\delta_{ij} \label{eq:orthogonal_condition_cos} \\
+        \sum_{k = 0}^{M - 1}(-1)^{k} \sin \left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right)A \right] &= 0 \label{eq:orthogonal_condition_sin}
+    \end{align}
+    （$\delta_{ij}$：クロネッカーのデルタ）を示せば，
+    \begin{align*}
+        \left( \ve{T}^{\mathsf{T}} \ve{T} \right)_{ij} = 2M \delta_{ij}
+    \end{align*}
+    となり命題が示せる．次ページから計算結果を載せる
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    \eqref{eq:orthogonal_condition_cos}式を示す．$i = j$のとき，
+    \scriptsize
+    $\sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] = M$．
+    \normalsize
+    $i \neq j$のとき，
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
+        &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ \exp\left[ j \frac{\pi}{M}  \left( k + \frac{1}{2} \right) (i - j) \right] + \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) (i - j) \right] \right\} \\
+        &= \frac{1}{2} \sum_{k = 0}^{M - 1} \left\{ W_{2M}^{-\left( k + \frac{1}{2} \right)(i - j)} + W_{2M}^{\left( k + \frac{1}{2} \right)(i - j)} \right\} \nonumber \\
+        &= \frac{1}{2} \left\{ W_{2M}^{-\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(i - j)k} + W_{2M}^{\frac{i - j}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} \right\} \\
+        &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right]
+    \end{align*}
+    最後の式変形で等比級数の和$\sum_{k = 0}^{M - 1} W_{2M}^{(i - j)k} = \frac{W_{2M}^{(i -j)M} - 1}{W_{2M}^{i - j} - 1} = \frac{(-1)^{i - j} - 1}{W_{2M}^{i - j} - 1}$を使用
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    さらに式変形すると，
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} \cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) ( i - j ) \right] \\
+        &= \frac{1}{2} \left[ \frac{W_{2M}^{-\frac{i - j}{2}}}{W_{2M}^{-(i - j)} - 1} \left\{ (-1)^{-(i - j)} - 1 \right\} + \frac{W_{2M}^{\frac{i - j}{2}}}{W_{2M}^{i - j} - 1} \left\{ (-1)^{i - j} - 1 \right\} \right] \\
+        &= \frac{W_{2M}^{-\frac{i - j}{2}} (W_{2M}^{i - j} - 1)\left\{ (-1)^{-(i - j)} - 1 \right\} + W_{2M}^{\frac{i - j}{2}} (W_{2M}^{-(i - j)} - 1)\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{-(i - j)} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= \frac{(W_{2M}^{\frac{i - j}{2}} - W_{2M}^{-\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\} + (W_{2M}^{-\frac{i - j}{2}} - W_{2M}^{\frac{i - j}{2}})\left\{ (-1)^{i - j} - 1 \right\}}{2(W_{2M}^{-(i - j)} - 1)(W_{2M}^{i - j} - 1)} \\
+        &= 0
+    \end{align*}
+    \normalsize
+    よって\eqref{eq:orthogonal_condition_cos}式が示された
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    \eqref{eq:orthogonal_condition_sin}式を示す．
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \\
+        &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ \exp\left[ j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] - \exp\left[ -j \frac{\pi}{M} \left( k + \frac{1}{2} \right) A  \right] \right\} \\
+        &= \frac{1}{j2} \sum_{k = 0}^{M - 1} (-1)^{k} \left\{ W_{2M}^{-A\left( k + \frac{1}{2} \right)} - W_{2M}^{A\left( k + \frac{1}{2} \right)} \right\} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{-Ak} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} (-1)^{k} W_{2M}^{Ak} \right\} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{-(M + A)k} - W_{2M}^{\frac{A}{2}} \sum_{k = 0}^{M - 1} W_{2M}^{(M + A)k} \right\} \quad \text{（$\because$ $(-1)^{k} = W_{2M}^{M} = W_{2M}^{-M}$）} \\
+        &= \frac{1}{j2} \left\{ W_{2M}^{-\frac{A}{2}} \frac{(-1)^{-(M + A)} - 1}{W_{2M}^{-(M + A)} - 1} - W_{2M}^{\frac{A}{2}} \frac{(-1)^{M + A} - 1}{W_{2M}^{M + A} - 1} \right\} \quad \text{（$\because$ 等比級数の和の公式）}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$\ve{T}^{\mathsf{T}} \ve{T} = 2M\ve{I}$の証明}
+    さらに計算を進めると，
+    \scriptsize
+    \begin{align*}
+        & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A \right] \\
+        &= \frac{W_{2M}^{-\frac{A}{2}} \left\{ (-1)^{-(M + A)} - 1 \right\} (W_{2M}^{M + A} - 1) - W_{2M}^{\frac{A}{2}} \left\{ (-1)^{M + A} - 1 \right\} (W_{2M}^{-(M + A)} - 1)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{(-1)^{-(M + A)} W_{2M}^{M + \frac{A}{2}} - W_{2M}^{M + \frac{A}{2}} - (-1)^{M + A} W_{2M}^{-M - \frac{A}{2}} + W_{2M}^{-M - \frac{A}{2}}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{(-1)^{A}(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}}) - (-1)(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}})}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{-j2 (-1)^{A} \sin\left( \frac{\pi A}{2M} \right) -j2  \sin\left( \frac{\pi A}{2M} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} = -\frac{\sin\left( \frac{\pi A}{2M} \right) \left\{ (-1)^{A} + 1 \right\}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)}
+    \end{align*}
+    \normalsize
+    最後の式の分子は，$A$の偶奇に関わらず$0$．よって，\eqref{eq:orthogonal_condition_sin}式が示された．
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3のフィルタバンクの特性}
+    \vspace{-5pt}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/mp3_decoder_prototype_filter_coef.pdf}
+    \end{figure}
+    \vspace{-5pt}
+    \begin{itemize}
+        \item デコーダの係数．エンコーダの係数の$32$倍
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認}
+    MP3のフィルタバンクでは
+    \scriptsize
+    \begin{align*}
+        G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
+        G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
+        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
+        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
+    \end{align*}
+    \normalsize
+    $k = 0, ..., 31$で実際に計算すると，
+    \begin{align*}
+        G_{k}(z^{-1})G_{k}(z) + G_{M+k}(z^{-1})G_{M+k}(z) \approx \frac{1}{512}
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{電力相補条件の確認（計算結果）}
+    \begin{figure}
+        \includegraphics[width=105mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
+    \end{figure}
+   "ほぼ"完全再構成と言ってよい
+\end{frame}
+
+\subsection{MDCT} \label{sec:proofs_mdct}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    式\eqref{eq:imdct}に式\eqref{eq:mdct}を代入すると，
+    \scriptsize
+    \begin{align*}
+        y[n] &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( m + \frac{1}{2} + \frac{N}{2} \right) \right] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \\
+        &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\} \\
+        &= \frac{2}{N} \sum_{m = 0}^{2N - 1} x[m] \sum_{k = 0}^{N - 1} \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\}
+    \end{align*}
+    \normalsize
+    ここで，
+    \begin{align}
+        I_{n} := \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right]
+    \end{align}
+    を計算していく
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    \begin{align*}
+        I_{n} &= \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) n \right] = \sum_{k = 0}^{N - 1} \cos \left[ \frac{\pi}{2N} ( 2k + 1 ) n \right] \\
+        &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left\{ \exp\left[ j \frac{\pi}{2N} ( 2k + 1 )n \right] + \exp\left[-j \frac{\pi}{2N} ( 2k + 1 )n \right] \right\} \\
+        &= \frac{1}{2} \sum_{k = 0}^{N - 1} \left( W_{2N}^{-\frac{2k + 1}{2}n} + W_{2N}^{\frac{2k + 1}{2}n} \right) = \frac{1}{2} \left( W_{2N}^{-\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{-nk} + W_{2N}^{\frac{n}{2}} \sum_{k = 0}^{N - 1} W_{2N}^{nk} \right)
+    \end{align*}
+    ここで，
+    \begin{align*}
+        \sum_{k = 0}^{N - 1} W_{2N}^{nk} &= \sum_{k = 0}^{N - 1} \left( W_{2N}^{n} \right)^{k}
+        = \left\{ \begin{array}{ll}
+            \displaystyle \sum_{k = 0}^{N - 1} 1^{k} = N & \text{（$n$が$2N$の倍数）} \\
+            \displaystyle \frac{1\left\{ \left( W_{2N}^{n} \right)^{N} - 1 \right\}}{W_{2N}^{n} - 1} = \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1} & \text{（$n$が$2N$の倍数ではない）}
+        \end{array} \right.
+    \end{align*}
+    から，場合分けして考える
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    $n$が$2N$の倍数のとき，$n = 2Nm\ (m \in \mathbb{Z})$と書けて，
+    \begin{align*}
+        I_{n} &= \frac{N}{2} \left( W_{2N}^{-2Nm} + W_{2N}^{2Nm} \right) = \frac{N}{2} \left\{ (-1)^{-m} + (-1)^{m} \right\} \\
+        &= \left\{ \begin{array}{ll}
+            N & \text{（$m$：偶数 $\iff$ $n = 0, \pm 4N, \pm 8N$）} \\
+            -N & \text{（$m$：奇数 $\iff$ $n = \pm 2N, \pm 6N, \pm 10N$）} \\
+        \end{array} \right.
+    \end{align*}
+    $n$が$2N$の倍数ではないとき，
+    \begin{align*}
+        & I_{n} = \frac{1}{2}
+        \left\{
+        W_{2N}^{-\frac{n}{2}} \frac{(-1)^{-n} - 1}{W_{2N}^{-n} - 1} + W_{2N}^{\frac{n}{2}} \frac{(-1)^{n} - 1}{W_{2N}^{n} - 1}
+        \right\} \\
+        &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} - 1 \right\} ( W_{2N}^{n} - 1 ) +  W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} - 1 \right\} ( W_{2N}^{-n} - 1 ) }{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} W_{2N}^{n} - (-1)^{-n} - W_{2N}^{n} + 1 \right\} + W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} W_{2N}^{-n} - (-1)^{n} - W_{2N}^{-n} + 1 \right\}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= \frac{ (-1)^{-n} W_{2N}^{\frac{n}{2}} - (-1)^{-n} W_{2N}^{-\frac{n}{2}} - W_{2N}^{\frac{n}{2}} + W_{2N}^{-\frac{n}{2}} + (-1)^{n} W_{2N}^{-\frac{n}{2}} - (-1)^{n} W_{2N}^{\frac{n}{2}} - W_{2N}^{-\frac{n}{2}} + W_{2N}^{\frac{n}{2}}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= 0
+    \end{align*}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MDCT・IMDCTによる再構成信号}
+    \scriptsize
+    まとめると，
+    \begin{align}
+        I_{n} = \left\{ \begin{array}{ll}
+            N & (n = 0, \pm 4N, \pm 8N, ...) \\
+            -N & (n = \pm 2N, \pm 6N, \pm 10N, ...) \\
+            0 & (\text{otherwise})
+        \end{array} \right. \label{eq:result_of_In}
+    \end{align}
+    となる．式\eqref{eq:result_of_In}を使えば，
+    \begin{align*}
+        \sum_{m = 0}^{2N - 1} x[m] I_{m - n} &= \left\{ \begin{array}{ll}
+            x[n] I_{0} = N x[n] & (n = 0, ..., N - 1) \\
+            x[n] I_{0} = N x[n] & (n = N, ..., 2N - 1)
+        \end{array} \right. \\
+        \sum_{m = 0}^{2N - 1} x[m] I_{n + m + 1 + N} &= \left\{ \begin{array}{ll}
+            x[N - 1 - n] I_{2N} = -N x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[3N - 1 - n] I_{4N} = N x[3N - 1 - n] & (n = N, ..., 2N - 1)
+        \end{array} \right.
+    \end{align*}
+    だから，
+    \begin{align*}
+        y[n] &= \frac{1}{N} \sum_{m = 0}^{2N - 1} x[m] ( I_{n + m + 1 + N} + I_{m - n} ) \\
+        &= \left\{ \begin{array}{ll}
+            x[n] - x[N - 1 - n] & (n = 0, ..., N - 1) \\
+            x[n] + x[3N - 1 - n] & (n = 0, ..., N - 1)
+        \end{array} \right.
+    \end{align*}
+    となる．
+\end{frame}
 
 \end{document}
