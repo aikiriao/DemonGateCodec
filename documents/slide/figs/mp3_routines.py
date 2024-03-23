@@ -647,6 +647,7 @@ def plot_window_functions():
     plt.grid()
     plt.title('long to start window')
     plt.legend()
+    plt.tight_layout()
     plt.savefig('long_to_start_window.pdf')
     plt.close()
 
@@ -680,6 +681,7 @@ def plot_window_functions():
     plt.grid()
     plt.title('start to short window')
     plt.legend()
+    plt.tight_layout()
     plt.savefig('start_to_short_window.pdf')
     plt.close()
 
