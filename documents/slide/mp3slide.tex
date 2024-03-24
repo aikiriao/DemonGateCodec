@@ -22,6 +22,7 @@
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{dashrule}
+\usepackage{ulem}
 
 \newcommand{\comment}[2]{\textcolor{green!35!black}{#1 \fbox{\scalebox{0.4}{#2}}}}
 
@@ -34,9 +35,9 @@
 \renewcommand*{\footcite}[1]{\footnote{\mycite{#1}}}
 \AtBeginBibliography{\scriptsize}
 
-\title{MP3 (aka MPEG1-LayerIII)}
-\author[aikiriao]{aikiriao}
-\date{2024.3.XX}
+\title{MP3 (aka MPEG1-LayerIII)の\\要素技術}
+\author[]{}
+\date{2024.3-}
 
 \begin{document}
 \maketitle
@@ -72,7 +73,7 @@
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{itemize}
-                \item レイヤI,II,IIIの順に圧縮率・複雑度向上
+                \item レイヤI,II,IIIの順に圧縮率向上
                 \item レイヤI,IIはサブバンド符号化がメイン
                 \item 聴覚心理モデルはI,IIとIIIで異なる
             \end{itemize}
@@ -124,7 +125,7 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{コサイン変調フィルタバンク\cite{vaidyanathan2002}}
+    \frametitle{コサイン変調フィルタバンク\cite{kiya1995,vaidyanathan2002}}
     \begin{block}{コサイン変調フィルタバンク}
         1つの実係数・直線位相\structure{プロトタイプフィルタ}$p_{0}[n]$から，分析フィルタ$h_{k}$と合成フィルタ$f_{k}$を次で設定：
         \begin{align}
@@ -182,7 +183,7 @@
 
 \begin{frame}[c]
     \frametitle{フィルタバンクの実装}
-    プログラムでは，入力$x[t]$へのバンド$k$の出力$y_{k}[t]$を
+    プログラムでは，入力$x[t]$からバンド$k$の出力$y_{k}[t]$を
     \begin{align*}
         y_{k}[t] &= \sum_{s = 0}^{63} t_{k,s} \sum_{u = 0}^{7} x[t - s - 64u] C_{s + 64u} \\
         t_{k,s} &:= \cos\left[ \frac{\pi}{32}\left( k + \frac{1}{2} \right) \left( s - 16 \right) \right]
@@ -220,7 +221,7 @@
 \begin{frame}[c]
     \frametitle{フィルタバンクは完全再構成か？}
     \begin{itemize}
-        \item $C_{n}$の導出方法が不明のため，厳密に完全再構成性を示せない
+        \item $C_{n}$の導出方法が不明．厳密に完全再構成性を示せない
         \item 再構成信号$\hat{x}[n]$が入力信号の遅延+定数倍になるか観察
             \small
             \begin{align*}
@@ -301,7 +302,7 @@
         \end{align}
     \end{block}
     \begin{itemize}
-        \item $k = 0, ..., N$のため，時間領域は$2N$点，周波数領域は$N$点の変換
+        \item 時間領域は$2N$点，周波数領域は$N$点の変換（$k = 0, ..., N-1$）
     \end{itemize}
 \end{frame}
 
@@ -350,7 +351,6 @@
 
 \begin{frame}[c]
     \frametitle{MDCTと完全再構成条件}
-    完全再構成条件は，窓関数への要件として得られる：
     \begin{block}{Princen--Bradley条件（完全再構成条件）\cite{princen1986analysis}}
         長さ$2N$の分析窓を$w_{a}$，合成窓を$w_{s}$としたとき，
         \begin{align}
@@ -358,7 +358,7 @@
             w_{a}[n + N] w_{s}[2N - 1 - n] = w_{a}[n]w_{s}[N - 1 - n] & \label{eq:princen_bradley_conditon_2} \\
             n = 0,...,N-1 & \nonumber
         \end{align}
-        ならば，MDCT・IMDCTは完全再構成
+        ならば，MDCT・IMDCTによるハーフオーバーラップアドは完全再構成
     \end{block}
 \end{frame}
 
@@ -408,7 +408,8 @@
         分析・合成窓が同じ$w[n] = w_{a}[n] = w_{s}[n]$とき，
         \begin{align}
             w[n]^{2} + w[n + N]^{2} = 1 & \label{eq:another_princen_bradley_conditon_1} \\
-            w[n + N] w[2N - 1 - n] = w[n]w[N - 1 - n] & \label{eq:another_princen_bradley_conditon_2}
+            w[n + N] w[2N - 1 - n] = w[n]w[N - 1 - n] & \label{eq:another_princen_bradley_conditon_2} \\
+            n = 0,...,N-1 & \nonumber
         \end{align}
     \end{block}
     とくに\structure{窓関数が対称 $w[n] = w[2N - 1 - n]$}であれば，
@@ -446,6 +447,10 @@
             \end{array}\right.$ \\[5ex] \hline
         \end{tabular}
     \end{table}
+    \normalsize
+    \begin{itemize}
+        \item \underline{shortの窓長は$12$，それ以外は$36$}
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
@@ -856,11 +861,15 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{\pi}{M}\right)$}より
+    $h_{k}[n]$の伝達関数を変形する．回転因子$W_{2M}$\footnote{$W_{2M} = \exp\left(-j\frac{2\pi}{2M}\right) = \exp\left(-j\frac{\pi}{M}\right)$}より
     \scriptsize
     \begin{align*}
         &\cos\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right] \\
-        &= \frac{1}{2} \left\{ \exp\left[ j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] + \exp\left[-j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] \right\} \\
+        &= 
+        \resizebox{\hsize}{!}{$\displaystyle
+        \frac{1}{2} \left\{ \exp\left[ j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] + \exp\left[-j \left\{ \frac{\pi}{M} \left( k + \frac{1}{2} \right) \left( n - \frac{L - 1}{2} \right) + \theta_{k} \right\} \right] \right\}
+        $}
+        \\
         &= \frac{1}{2} \left\{ \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}}W_{2M}^{-\left( k + \frac{1}{2} \right)n} + \exp(-j\theta_{k}) W_{2M}^{-\left( k + \frac{1}{2} \right)\frac{L-1}{2}} W_{2M}^{\left( k + \frac{1}{2} \right)n} \right\}
     \end{align*}
     \normalsize
@@ -875,7 +884,7 @@
 
 \begin{frame}[c]
     \frametitle{コサイン変調フィルタバンク}
-    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{$\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$ を使用}
+    さらに\eqref{eq:polyphase_representation_of_prototype}式を代入すると\footnote{$\left( W_{2M}^{\pm \left( k + \frac{1}{2} \right) }\right)^{2M} = \exp\left[ \mp j \frac{\pi}{M} \left( k + \frac{1}{2} \right) 2M \right] = \exp[\mp j \pi(2k + 1)] = -1$を使用}
     \scriptsize
     \begin{align*}
         &H_{k}(z) = \exp(j\theta_{k}) W_{2M}^{\left( k + \frac{1}{2} \right)\frac{L-1}{2}} \sum_{l = 0}^{2M - 1} \left( W_{2M}^{k + \frac{1}{2}} z \right)^{-l} G_{l}\left( \left( W_{2M}^{k + \frac{1}{2}} z \right)^{2M} \right) \\
@@ -1146,6 +1155,7 @@
     \begin{figure}
         \includegraphics[width=100mm]{./figs/mp3_encoder_prototype_filter_power_complementary_condition.pdf}
     \end{figure}
+    \vspace{-10pt}
     "ほぼ"完全再構成と言ってよい
 \end{frame}
 
