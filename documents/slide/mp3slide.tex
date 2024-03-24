@@ -260,9 +260,9 @@
             \end{itemize}
         \end{column}
         \begin{column}{0.65\textwidth}
-            \vspace*{-10pt}
+            \vspace*{-13pt}
             \begin{figure}
-                \includegraphics[width=66mm]{./figs/impluse_responce_of_MP3_analysis_synthesis_filter.pdf}
+                \includegraphics[width=65mm]{./figs/impluse_responce_of_MP3_analysis_synthesis_filter.pdf}
             \end{figure}
         \end{column}
     \end{columns}
@@ -277,7 +277,7 @@
             \begin{itemize}
                 \item 出力：$32 \times 18 = 576$点のスペクトルデータ
             \end{itemize}
-        \item MDCTの実行前には窓関数を適用
+        \item MDCTの前・IMDCTの後で窓関数を適用
             \begin{itemize}
                 \item MP3では4種類の窓関数を使用
                 \item 窓関数は完全再構成条件を満たす
@@ -1157,8 +1157,8 @@
     \scriptsize
     \begin{align*}
         y[n] &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( m + \frac{1}{2} + \frac{N}{2} \right) \right] \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + \frac{1}{2} + \frac{N}{2} \right) \right] \\
-        &= \frac{2}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\} \\
-        &= \frac{2}{N} \sum_{m = 0}^{2N - 1} x[m] \sum_{k = 0}^{N - 1} \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\}
+        &= \frac{1}{N} \sum_{k = 0}^{N - 1} \sum_{m = 0}^{2N - 1} x[m] \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\} \\
+        &= \frac{1}{N} \sum_{m = 0}^{2N - 1} x[m] \sum_{k = 0}^{N - 1} \left\{ \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n + m + 1 + N \right) \right] + \cos \left[ \frac{\pi}{N} \left( k + \frac{1}{2} \right) \left( n - m \right) \right] \right\}
     \end{align*}
     \normalsize
     ここで，
