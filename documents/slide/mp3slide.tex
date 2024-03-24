@@ -675,7 +675,7 @@
     \frametitle{完全再構成}
     遅延・定数倍を除き入出力が一致すること：
     \begin{align}
-        \hat{x}[n] = c x[n - n_{0}] \quad c \neq 0
+        \hat{x}[n] = c x[n - n_{0}], \quad c \neq 0
     \end{align}
     これは$z$領域で，
     \begin{align}
@@ -819,24 +819,19 @@
 
 \begin{frame}[c]
     \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
-    \eqref{eq:filter_bank_PR_condition}式より，$\ve{R}(z)$を
-    \begin{align*}
-        \ve{R}(z) = a z^{-m_{0}} \ve{E}(z)^{-1}
-    \end{align*}
-    とすれば完全再構成．しかし$\ve{E}(z)^{-1}$の計算が数値計算の安定性などの問題を孕む．
-\end{frame}
-
-\begin{frame}[c]
-    \frametitle{\scalebox{0.95}{完全再構成$M$分割フィルタバンク}}
-    $\ve{E}(z)^{-1}$の代わりに，$\ve{E}(z)$に\structure{パラユニタリ性}
+    \eqref{eq:filter_bank_PR_condition}式より，$\ve{R}(z) = a z^{-m_{0}} \ve{E}(z)^{-1}$ならば完全再構成．
+    \begin{itemize}
+        \item しかし，$\ve{E}(z)^{-1}$の計算に問題を孕む．
+    \end{itemize}
+    代わりに，$\ve{E}(z)$が\structure{パラユニタリ}\footnote{$\widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})$で，下付きの$\ast$は係数の複素共役}
     \begin{align}
-        \widetilde{\ve{E}}(z) \ve{E}(z) = d \ve{I} \quad d \neq 0
+        \widetilde{\ve{E}}(z) \ve{E}(z) = d \ve{I}, \quad d \neq 0
     \end{align}
-    を求める方法がある\footnote{$\widetilde{\ve{E}}(z) = \ve{E}_{\ast}(z^{-1})$で，下付きの$\ast$は係数の複素共役}．$\ve{E}(z)$がパラユニタリであれば，
+    ならば，
     \begin{align*}
         \ve{R}(z) = a z^{-m_{0}} \widetilde{\ve{E}}(z)
     \end{align*}
-    とすると完全再構成になる．
+    とするとフィルタバンクは完全再構成．
 \end{frame}
 
 \begin{frame}[c]
