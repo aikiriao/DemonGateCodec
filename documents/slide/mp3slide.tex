@@ -1108,12 +1108,13 @@
     \begin{align*}
         & \sum_{k = 0}^{M - 1} (-1)^{k} \sin\left[ \frac{\pi}{M} \left( k + \frac{1}{2} \right) A \right] \\
         &= \frac{W_{2M}^{-\frac{A}{2}} \left\{ (-1)^{-(M + A)} - 1 \right\} (W_{2M}^{M + A} - 1) - W_{2M}^{\frac{A}{2}} \left\{ (-1)^{M + A} - 1 \right\} (W_{2M}^{-(M + A)} - 1)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-        &= \frac{(-1)^{-(M + A)} W_{2M}^{M + \frac{A}{2}} - W_{2M}^{M + \frac{A}{2}} - (-1)^{M + A} W_{2M}^{-M - \frac{A}{2}} + W_{2M}^{-M - \frac{A}{2}}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-        &= \frac{(-1)^{A}(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}}) - (-1)(W_{2M}^{-\frac{A}{2}} - W_{2M}^{\frac{A}{2}})}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
-        &= \frac{-j2 (-1)^{A} \sin\left( \frac{\pi A}{2M} \right) -j2  \sin\left( \frac{\pi A}{2M} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} = -\frac{\sin\left( \frac{\pi A}{2M} \right) \left\{ (-1)^{A} + 1 \right\}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)}
+        &= \frac{\left\{(-1)^{M + A} - 1 \right\}\left\{ W_{2M}^{-\frac{A}{2}} ( W_{2M}^{M + A} - 1 ) - W_{2M}^{\frac{A}{2}} ( W_{2M}^{-(M + A)} - 1 )\right\}}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{\left\{(-1)^{M + A} - 1 \right\}\left( W_{2M}^{M + \frac{A}{2}} - W_{2M}^{-\frac{A}{2}} - W_{2M}^{-M - \frac{A}{2}} + W_{2M}^{\frac{A}{2}} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= \frac{\left\{(-1)^{M + A} - 1 \right\}\left( -W_{2M}^{\frac{A}{2}} - W_{2M}^{-\frac{A}{2}} + W_{2M}^{-\frac{A}{2}} + W_{2M}^{\frac{A}{2}} \right)}{j2(W_{2M}^{-(M + A)} - 1)(W_{2M}^{(M + A)} - 1)} \\
+        &= 0
     \end{align*}
     \normalsize
-    最後の式の分子は，$A$の偶奇に関わらず$0$．よって，\eqref{eq:orthogonal_condition_sin}式が示された．
+    よって，\eqref{eq:orthogonal_condition_sin}式が示された．
 \end{frame}
 
 \begin{frame}[c]
@@ -1133,10 +1134,10 @@
     MP3のフィルタバンクでは
     \scriptsize
     \begin{align*}
-        G_{k}(z) &= \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
-        G_{M+k}(z) &= \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
-        G_{k}(z^{-1}) &= \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
-        G_{M+k}(z^{-1}) &= \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
+        & G_{k}(z) = \sum_{n = -\infty}^{\infty} p_{0}[2nM + k] z^{-n} = \sum_{n = 0}^{7} p_{0}[64n + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64 + k} z^{-n} \\
+        & G_{M+k}(z) = \sum_{n = 0}^{7} p_{0}[64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{64n + 32 + k} z^{-n} \\
+        & G_{k}(z^{-1}) = \sum_{n = -\infty}^{\infty} p_{0}[64n + k] (z^{-1})^{-n} = \sum_{n = -\infty}^{\infty} p_{0}[-64n + k] z^{-n} = \sum_{n = -7}^{0} (-1)^{n} C_{-64n + k} z^{-n} \\
+        & G_{M+k}(z^{-1}) = \sum_{n = 0}^{7} p_{0}[-64n + 32 + k] z^{-n} = \sum_{n = 0}^{7} (-1)^{n} C_{-64n + 32 + k} z^{-n}
     \end{align*}
     \normalsize
     $k = 0, ..., 31$で実際に計算すると，
@@ -1211,7 +1212,9 @@
         \right\} \\
         &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} - 1 \right\} ( W_{2N}^{n} - 1 ) +  W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} - 1 \right\} ( W_{2N}^{-n} - 1 ) }{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
         &= \frac{ W_{2N}^{-\frac{n}{2}} \left\{ (-1)^{-n} W_{2N}^{n} - (-1)^{-n} - W_{2N}^{n} + 1 \right\} + W_{2N}^{\frac{n}{2}} \left\{ (-1)^{n} W_{2N}^{-n} - (-1)^{n} - W_{2N}^{-n} + 1 \right\}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
-        &= \frac{ (-1)^{-n} W_{2N}^{\frac{n}{2}} - (-1)^{-n} W_{2N}^{-\frac{n}{2}} - W_{2N}^{\frac{n}{2}} + W_{2N}^{-\frac{n}{2}} + (-1)^{n} W_{2N}^{-\frac{n}{2}} - (-1)^{n} W_{2N}^{\frac{n}{2}} - W_{2N}^{-\frac{n}{2}} + W_{2N}^{\frac{n}{2}}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )} \\
+        &= \resizebox{\hsize}{!}{$\displaystyle
+            \frac{ (-1)^{-n} W_{2N}^{\frac{n}{2}} - (-1)^{-n} W_{2N}^{-\frac{n}{2}} - W_{2N}^{\frac{n}{2}} + W_{2N}^{-\frac{n}{2}} + (-1)^{n} W_{2N}^{-\frac{n}{2}} - (-1)^{n} W_{2N}^{\frac{n}{2}} - W_{2N}^{-\frac{n}{2}} + W_{2N}^{\frac{n}{2}}}{2( W_{2N}^{-l} - 1 )( W_{2N}^{n} - 1 )}
+            $}\\
         &= 0
     \end{align*}
 \end{frame}
