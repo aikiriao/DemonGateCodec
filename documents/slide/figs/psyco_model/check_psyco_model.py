@@ -489,11 +489,30 @@ if __name__ == '__main__':
     # print(PARTITION_DATA)
     # print(PSYCO_DATA)
 
+    NUM_CRITICAL_BANDS = 63
+
     sf, data = wavfile.read('repeat.wav')
     NUM_CHANNELS = data.shape[1]
 
     LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / 1024)) for i in range(1024)]
     SHORT_WINDOW =[0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / 256)) for i in range(256)]
+
+    PARTITION_LONG = PARTITION_DATA[f'long{sf}']
+    PARTITION_SHORT = PARTITION_DATA[f'short{sf}']
+
+    # 分割インデックス作成
+    PARTITION_LONG_INDEX = np.zeros(512, dtype=int)
+    index = 0
+    for part_index, part in enumerate(PARTITION_LONG):
+        for _ in range(part['#lines']):
+            PARTITION_LONG_INDEX[index] = part_index
+            index += 1
+    PARTITION_SHORT_INDEX = np.zeros(128, dtype=int)
+    index = 0
+    for part_index, part in enumerate(PARTITION_SHORT):
+        for _ in range(part['#lines']):
+            PARTITION_SHORT_INDEX[index] = part_index
+            index += 1
 
     prev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
     prevprev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
@@ -516,7 +535,18 @@ if __name__ == '__main__':
             prevprev_wl[ch] = prev_wl[ch]
             prev_wl[ch] = wl
 
-            print(cw)
+            # パーティションごとのエネルギー計算
+            energy = np.abs(wl) ** 2
+            eb = np.zeros(NUM_CRITICAL_BANDS)
+            cb = np.zeros(NUM_CRITICAL_BANDS)
+            for j in range(512):
+                tp = PARTITION_LONG_INDEX[j]
+                if tp >= 0:
+                    # BUG?: tp==0に過剰に加算される dist10でも同様
+                    eb[tp] += energy[j]
+                    cb[tp] += cw[j] * energy[j]
+            # print(eb)
+            # print(cb)
             # plt.plot(cw)
             # plt.show()
 
