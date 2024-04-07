@@ -454,6 +454,37 @@ def dist10fft(data):
     spec = np.where(np.abs(spec) <= 0.0005, 0.0005, spec)
     return spec
 
+def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
+    '''
+    Unpredictability cwの計算
+    '''
+    cw = np.zeros(512)
+    # 振幅・位相の直線予測結果
+    wlprimeabs = 2.0 * np.abs(prev_wl) - np.abs(prevprev_wl)
+    wlprimearg = 2.0 * np.angle(prev_wl) - np.angle(prevprev_wl)
+    wlprime = wlprimeabs * np.exp(1j * wlprimearg)
+    # 直線予測との差
+    diffwl = wl - wlprime
+    for j in range(6):
+        numer = np.abs(wl[j]) + np.abs(wlprime[j])
+        if numer > 0.0:
+            cw[j] = np.abs(diffwl[j]) / numer
+    predwsabs = 2.0 * np.abs(ws[0]) - np.abs(ws[2])
+    predwsarg = 2.0 * np.angle(ws[0]) - np.angle(ws[2])
+    predws = predwsabs * np.exp(1j * predwsarg)
+    diffws = ws[1] - predws
+    for j in np.arange(6, 206, 4):
+        k = (j + 2) // 4
+        numer = np.abs(ws[1][k]) + np.abs(predws[k])
+        if numer > 0.0:
+            cw[j] = np.abs(diffws[k]) / numer
+            cw[j + 1] = cw[j + 2] = cw[j + 3] = cw[j]
+    # 残りは0.4で埋める
+    for j in np.arange(206, 512):
+        cw[j] = 0.4
+
+    return cw
+
 if __name__ == '__main__':
     # print(PARTITION_DATA)
     # print(PSYCO_DATA)
@@ -469,40 +500,24 @@ if __name__ == '__main__':
 
     for gr in range(2):
         for ch in range(NUM_CHANNELS):
+            # フレーム取得
             frame = get_frame(data.T[ch], gr)
+
             # FFT
             wl = dist10fft(frame * LONG_WINDOW)
             ws = []
             for b in range(3):
                 short_frame = frame[128 * b + 256 + np.arange(256)].copy()
                 ws.append(dist10fft(short_frame * SHORT_WINDOW))
-            # Unpredictability
-            cw = np.zeros(512)
-            wlprimeabs = 2.0 * np.abs(prev_wl[ch]) - np.abs(prevprev_wl[ch])
-            wlprimearg = 2.0 * np.angle(prev_wl[ch]) - np.angle(prevprev_wl[ch])
-            wlprime = wlprimeabs * np.exp(1j * wlprimearg)
-            diffwl = wl - wlprime
-            for j in range(6):
-                numer = np.abs(wl[j]) + np.abs(wlprime[j])
-                if numer > 0.0:
-                    cw[j] = np.abs(diffwl[j]) / numer
-            # predws = 2.0 * ws[0] - ws[2]
-            predwsabs = 2.0 * np.abs(ws[0]) - np.abs(ws[2])
-            predwsarg = 2.0 * np.angle(ws[0]) - np.angle(ws[2])
-            predws = predwsabs * np.exp(1j * predwsarg)
-            diffws = ws[1] - predws
-            for j in np.arange(6, 206, 4):
-                k = (j + 2) // 4
-                numer = np.abs(ws[1][k]) + np.abs(predws[k])
-                if numer > 0.0:
-                    cw[j] = np.abs(diffws[k]) / numer
-                    cw[j + 1] = cw[j + 2] = cw[j + 3] = cw[j]
-            for j in np.arange(206, 512):
-                cw[j] = 0.4
+
+            # Unpredictability計算
+            cw = compute_unpredictability(wl, ws, prev_wl[ch], prevprev_wl[ch])
+            # 状態更新
+            prevprev_wl[ch] = prev_wl[ch]
+            prev_wl[ch] = wl
+
             print(cw)
             # plt.plot(cw)
             # plt.show()
 
-            prevprev_wl[ch] = prev_wl[ch]
-            prev_wl[ch] = wl
 
