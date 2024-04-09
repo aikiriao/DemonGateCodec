@@ -449,16 +449,32 @@ def get_frame(data, gr):
     return frame
 
 def dist10fft(data):
+    MIN_ABS = 0.0005 ** 0.5
     spec = np.fft.fft(data)
     spec = np.where(np.abs(spec) <= np.finfo(np.float64).min, 0.0, spec)
-    spec = np.where(np.abs(spec) <= 0.0005, 0.0005, spec)
+    spec = np.where(np.abs(spec) <= MIN_ABS, MIN_ABS, spec)
     return spec
+
+def compute_spreading_function(partition):
+    '''
+    Spreading functionの計算
+    '''
+    part_max = len(partition)
+    sfunc = np.zeros((part_max, part_max))
+    for i in range(part_max):
+        for j in range(part_max):
+            tx = partition[i]['bval'] - partition[j]['bval']
+            tx = 3.0 * tx if i <= j else 1.5 * tx
+            xij = 8.0 * min((tx - 0.5) ** 2.0 - 2.0 * (tx - 0.5), 0.0)
+            ty = 15.811389 + 7.5 * (tx + 0.474) - 17.5 * (1.0 + (tx + 0.474) ** 2.0) ** 0.5
+            sfunc[i][j] = 10.0 ** ((xij + ty) / 10) if ty >= -60 else 0.0 # 本とdist10で異なる
+    return sfunc
 
 def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     '''
     Unpredictability cwの計算
     '''
-    cw = np.zeros(512)
+    cw = np.zeros(513)
     # 振幅・位相の直線予測結果
     wlprimeabs = 2.0 * np.abs(prev_wl) - np.abs(prevprev_wl)
     wlprimearg = 2.0 * np.angle(prev_wl) - np.angle(prevprev_wl)
@@ -480,7 +496,7 @@ def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
             cw[j] = np.abs(diffws[k]) / numer
             cw[j + 1] = cw[j + 2] = cw[j + 3] = cw[j]
     # 残りは0.4で埋める
-    for j in np.arange(206, 512):
+    for j in np.arange(206, len(cw)):
         cw[j] = 0.4
 
     return cw
@@ -501,13 +517,13 @@ if __name__ == '__main__':
     PARTITION_SHORT = PARTITION_DATA[f'short{sf}']
 
     # 分割インデックス作成
-    PARTITION_LONG_INDEX = np.zeros(512, dtype=int)
+    PARTITION_LONG_INDEX = np.zeros(513, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_LONG):
         for _ in range(part['#lines']):
             PARTITION_LONG_INDEX[index] = part_index
             index += 1
-    PARTITION_SHORT_INDEX = np.zeros(128, dtype=int)
+    PARTITION_SHORT_INDEX = np.zeros(129, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_SHORT):
         for _ in range(part['#lines']):
@@ -516,6 +532,8 @@ if __name__ == '__main__':
 
     prev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
     prevprev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
+
+    SPREADING_FUNCTION = compute_spreading_function(PARTITION_LONG)
 
     for gr in range(2):
         for ch in range(NUM_CHANNELS):
@@ -539,15 +557,18 @@ if __name__ == '__main__':
             energy = np.abs(wl) ** 2
             eb = np.zeros(NUM_CRITICAL_BANDS)
             cb = np.zeros(NUM_CRITICAL_BANDS)
-            for j in range(512):
+            for j in range(513):
                 tp = PARTITION_LONG_INDEX[j]
                 if tp >= 0:
-                    # BUG?: tp==0に過剰に加算される dist10でも同様
+                    # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
                     eb[tp] += energy[j]
                     cb[tp] += cw[j] * energy[j]
-            # print(eb)
-            # print(cb)
-            # plt.plot(cw)
-            # plt.show()
 
+            # 広がり関数(Spreading Function)と畳み込み
+            ecb = np.zeros(NUM_CRITICAL_BANDS)
+            etb = np.zeros(NUM_CRITICAL_BANDS)
+            for b in range(NUM_CRITICAL_BANDS):
+                for k in range(NUM_CRITICAL_BANDS):
+                    ecb[b] += SPREADING_FUNCTION[b][k] * eb[k]
+                    etb[b] += SPREADING_FUNCTION[b][k] * cb[k]
 
