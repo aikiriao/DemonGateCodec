@@ -566,9 +566,19 @@ if __name__ == '__main__':
 
             # 広がり関数(Spreading Function)と畳み込み
             ecb = np.zeros(NUM_CRITICAL_BANDS)
-            etb = np.zeros(NUM_CRITICAL_BANDS)
+            ctb = np.zeros(NUM_CRITICAL_BANDS)
             for b in range(NUM_CRITICAL_BANDS):
                 for k in range(NUM_CRITICAL_BANDS):
                     ecb[b] += SPREADING_FUNCTION[b][k] * eb[k]
-                    etb[b] += SPREADING_FUNCTION[b][k] * cb[k]
-
+                    ctb[b] += SPREADING_FUNCTION[b][k] * cb[k]
+            
+            # 信号対ノイズ比（SNR）の計算
+            snr = np.zeros(NUM_CRITICAL_BANDS)
+            nb = np.zeros(NUM_CRITICAL_BANDS)
+            for b in range(NUM_CRITICAL_BANDS):
+                cbb = 0.0
+                if ecb[b] != 0.0:
+                    cbb = np.log(max(ctb[b] / ecb[b], 0.01))
+                tbb = min(1.0, max(0.0, - 0.299 - 0.43 * cbb))
+                snr[b] = max(PARTITION_LONG[b]['minval'], 29.0 * tbb + 6.0 * (1.0 - tbb))
+                nb[b] = PARTITION_LONG[b]['norm'] * ecb[b] * 10.0 ** (-snr[b] / 10.0)
