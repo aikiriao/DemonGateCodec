@@ -533,9 +533,12 @@ if __name__ == '__main__':
     prev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
     prevprev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
 
+    prev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
+    prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
+
     SPREADING_FUNCTION = compute_spreading_function(PARTITION_LONG)
 
-    for gr in range(2):
+    for gr in range(5):
         for ch in range(NUM_CHANNELS):
             # フレーム取得
             frame = get_frame(data.T[ch], gr)
@@ -582,3 +585,24 @@ if __name__ == '__main__':
                 tbb = min(1.0, max(0.0, - 0.299 - 0.43 * cbb))
                 snr[b] = max(PARTITION_LONG[b]['minval'], 29.0 * tbb + 6.0 * (1.0 - tbb))
                 nb[b] = PARTITION_LONG[b]['norm'] * ecb[b] * 10.0 ** (-snr[b] / 10.0)
+
+            # 各パーティションの聴覚閾値を計算
+            thr = np.zeros(NUM_CRITICAL_BANDS)
+            for b in range(NUM_CRITICAL_BANDS):
+                thr[b] = min(nb[b], min(2.0 * prev_nb[ch][b], 16.0 * prevprev_nb[ch][b]))
+                thr[b] = max(thr[b], PARTITION_LONG[b]['qthr'])
+            prevprev_nb[ch] = prev_nb[ch]
+            prev_nb[ch] = nb
+
+            # 知覚エントロピー(percetual entropy)の計算
+            pe = 0.0
+            for b in range(NUM_CRITICAL_BANDS):
+                # BUG: numlinesの先頭部分がショートブロックの値になっている。
+                # L3para_readのバグ。一度ロングブロックで読み込ませて、同一の領域にショートブロックの値を読み込ませている
+                bug_lines = PARTITION_LONG[b]['#lines']
+                if b < len(PARTITION_SHORT):
+                    bug_lines = PARTITION_SHORT[b]['#lines']
+                tp = min(0.0, np.log((thr[b] + 1.0) / (eb[b] + 1.0)))
+                pe -= bug_lines * tp
+                # 正しくは以下の計算式のはず
+                # pe -= PARTITION_LONG[b]['#lines'] * tp
