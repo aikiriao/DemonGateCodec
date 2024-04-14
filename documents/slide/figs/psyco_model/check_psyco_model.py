@@ -506,6 +506,7 @@ if __name__ == '__main__':
     # print(PSYCO_DATA)
 
     NUM_CRITICAL_BANDS = 63
+    PERCETUAL_ENTROPY_THRESHOLD = 1800.0
 
     sf, data = wavfile.read('repeat.wav')
     NUM_CHANNELS = data.shape[1]
@@ -515,6 +516,8 @@ if __name__ == '__main__':
 
     PARTITION_LONG = PARTITION_DATA[f'long{sf}']
     PARTITION_SHORT = PARTITION_DATA[f'short{sf}']
+    PSYCO_LONG = PSYCO_DATA[f'long{sf}']
+    PSYCO_SHORT = PSYCO_DATA[f'short{sf}']
 
     # 分割インデックス作成
     PARTITION_LONG_INDEX = np.zeros(513, dtype=int)
@@ -535,6 +538,8 @@ if __name__ == '__main__':
 
     prev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
     prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
+
+    prev_block_type = [ 'NORMAL', 'NORMAL' ]
 
     SPREADING_FUNCTION = compute_spreading_function(PARTITION_LONG)
 
@@ -606,3 +611,20 @@ if __name__ == '__main__':
                 pe -= bug_lines * tp
                 # 正しくは以下の計算式のはず
                 # pe -= PARTITION_LONG[b]['#lines'] * tp
+
+            # ブロックタイプ確定・スケールファクタバンドの聴覚閾値計算
+            if pe < PERCETUAL_ENTROPY_THRESHOLD:
+                if prev_block_type[ch] == 'NORMAL' or prev_block_type[ch] == 'STOP':
+                    block_type = 'NORMAL'
+                elif prev_block_type[ch] == 'SHORT':
+                    block_type = 'STOP'
+                else:
+                    assert(0)
+            else:
+                block_type = 'SHORT'
+                if prev_block_type[ch] == 'NORMAL':
+                    prev_block_type[ch] = 'START'
+                elif prev_block_type[ch] == 'STOP':
+                    prev_block_type[ch] = 'SHORT'
+            print(block_type)
+            prev_block_type[ch] = block_type
