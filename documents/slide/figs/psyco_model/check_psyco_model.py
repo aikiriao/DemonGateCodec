@@ -196,7 +196,7 @@ PARTITION_DATA = {
         { '#lines': 37, 'minval':  0.0, 'qthr': 33.458, 'norm': 0.458, 'bval': 23.656 },
         { '#lines': 12, 'minval':  0.0, 'qthr': 10.851, 'norm': 0.500, 'bval': 23.937 },
     ],
-'short48000': [
+    'short48000': [
         { '#lines':  1, 'qthr':   4.532, 'norm': 1.000, 'SNR': -8.240, 'bval':  0.000 },
         { '#lines':  1, 'qthr':   0.904, 'norm': 0.989, 'SNR': -8.240, 'bval':  1.875 },
         { '#lines':  1, 'qthr':   0.029, 'norm': 0.989, 'SNR': -8.240, 'bval':  3.750 },
@@ -506,6 +506,7 @@ if __name__ == '__main__':
     # print(PSYCO_DATA)
 
     NUM_CRITICAL_BANDS = 63
+    NUM_CRITICAL_BANDS_SHORT = 42
     PERCETUAL_ENTROPY_THRESHOLD = 1800.0
 
     sf, data = wavfile.read('repeat.wav')
@@ -540,10 +541,12 @@ if __name__ == '__main__':
     prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
 
     ratio_long = np.zeros((NUM_CHANNELS, len(PSYCO_LONG)))
+    ratio_short = np.zeros((NUM_CHANNELS, len(PSYCO_SHORT), 3))
 
     prev_block_type = [ 'NORMAL', 'NORMAL' ]
 
-    SPREADING_FUNCTION = compute_spreading_function(PARTITION_LONG)
+    SPREADING_FUNCTION_LONG = compute_spreading_function(PARTITION_LONG)
+    SPREADING_FUNCTION_SHORT = compute_spreading_function(PARTITION_SHORT)
 
     for gr in range(5):
         for ch in range(NUM_CHANNELS):
@@ -564,23 +567,26 @@ if __name__ == '__main__':
             prev_wl[ch] = wl
 
             # パーティションごとのエネルギー計算
-            energy = np.abs(wl) ** 2
+            energy_long = np.abs(wl) ** 2
+            energy_short = []
+            for sblock in range(3):
+                energy_short.append(np.abs(ws[sblock]) ** 2)
             eb = np.zeros(NUM_CRITICAL_BANDS)
             cb = np.zeros(NUM_CRITICAL_BANDS)
             for j in range(513):
                 tp = PARTITION_LONG_INDEX[j]
                 if tp >= 0:
                     # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
-                    eb[tp] += energy[j]
-                    cb[tp] += cw[j] * energy[j]
+                    eb[tp] += energy_long[j]
+                    cb[tp] += cw[j] * energy_long[j]
 
             # 広がり関数(Spreading Function)と畳み込み
             ecb = np.zeros(NUM_CRITICAL_BANDS)
             ctb = np.zeros(NUM_CRITICAL_BANDS)
             for b in range(NUM_CRITICAL_BANDS):
                 for k in range(NUM_CRITICAL_BANDS):
-                    ecb[b] += SPREADING_FUNCTION[b][k] * eb[k]
-                    ctb[b] += SPREADING_FUNCTION[b][k] * cb[k]
+                    ecb[b] += SPREADING_FUNCTION_LONG[b][k] * eb[k]
+                    ctb[b] += SPREADING_FUNCTION_LONG[b][k] * cb[k]
             
             # 信号対ノイズ比（SNR）の計算
             snr = np.zeros(NUM_CRITICAL_BANDS)
@@ -637,4 +643,25 @@ if __name__ == '__main__':
                     prev_block_type[ch] = 'START'
                 elif prev_block_type[ch] == 'STOP':
                     prev_block_type[ch] = 'SHORT'
+                for sblock in range(3):
+                    eb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
+                    ecb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
+                    for j in range(129):
+                        eb[PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
+                    for b in range(NUM_CRITICAL_BANDS_SHORT):
+                        for k in range(NUM_CRITICAL_BANDS_SHORT):
+                            ecb[b] += SPREADING_FUNCTION_SHORT[b][k] * eb[k]
+                    for b in range(NUM_CRITICAL_BANDS_SHORT):
+                        # longパーティション使ってるのバグでは？
+                        nb[b] = ecb[b] * PARTITION_LONG[b]['norm'] * 10.0 ** (PARTITION_SHORT[b]['SNR'] / 10.0)
+                        thr[b] = max(PARTITION_SHORT[b]['qthr'], nb[b])
+                    for sb, psy in enumerate(PSYCO_SHORT):
+                        bu = psy['bu']
+                        bo = psy['bo']
+                        en = psy['w1'] * eb[bu] + psy['w2'] * eb[bo]
+                        thm = psy['w1'] * thr[bu] + psy['w2'] * thr[bo]
+                        for b in np.arange(bu + 1, bo):
+                            en += eb[b]
+                            thm += thr[b]
+                        ratio_short[ch][sb][sblock] = thm / en if en != 0.0 else 0.0
             prev_block_type[ch] = block_type
