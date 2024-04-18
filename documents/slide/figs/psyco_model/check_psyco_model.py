@@ -643,6 +643,11 @@ if __name__ == '__main__':
                     prev_block_type[ch] = 'START'
                 elif prev_block_type[ch] == 'STOP':
                     prev_block_type[ch] = 'SHORT'
+                snr_short = np.zeros(NUM_CRITICAL_BANDS_SHORT)
+                qthr_short = np.zeros(NUM_CRITICAL_BANDS_SHORT)
+                for b in range(len(PARTITION_SHORT)):
+                    snr_short[b] = PARTITION_SHORT[b]['SNR']
+                    qthr_short[b] = PARTITION_SHORT[b]['qthr']
                 for sblock in range(3):
                     eb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
                     ecb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
@@ -650,11 +655,12 @@ if __name__ == '__main__':
                         eb[PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
                     for b in range(NUM_CRITICAL_BANDS_SHORT):
                         for k in range(NUM_CRITICAL_BANDS_SHORT):
-                            ecb[b] += SPREADING_FUNCTION_SHORT[b][k] * eb[k]
+                            # longパーティション使ってるのバグでは？
+                            ecb[b] += SPREADING_FUNCTION_LONG[b][k] * eb[k]
                     for b in range(NUM_CRITICAL_BANDS_SHORT):
                         # longパーティション使ってるのバグでは？
-                        nb[b] = ecb[b] * PARTITION_LONG[b]['norm'] * 10.0 ** (PARTITION_SHORT[b]['SNR'] / 10.0)
-                        thr[b] = max(PARTITION_SHORT[b]['qthr'], nb[b])
+                        nb[b] = ecb[b] * PARTITION_LONG[b]['norm'] * 10.0 ** (snr_short[b] / 10.0)
+                        thr[b] = max(qthr_short[b], nb[b])
                     for sb, psy in enumerate(PSYCO_SHORT):
                         bu = psy['bu']
                         bo = psy['bo']
