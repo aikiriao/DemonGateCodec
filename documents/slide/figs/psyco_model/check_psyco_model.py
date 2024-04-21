@@ -438,7 +438,7 @@ PSYCO_DATA = {
     ]
 }
 
-def get_frame(data, gr):
+def _get_frame(data, gr):
     '''
     グラニュールインデックスに対応する1024サンプルフレームの取得
     '''
@@ -449,12 +449,20 @@ def get_frame(data, gr):
             frame[i] = data[index]
     return frame
 
-def dist10fft(data):
+def _dist10fft(data):
     MIN_ABS = 0.0005 ** 0.5
     spec = np.fft.fft(data)
     spec = np.where(np.abs(spec) <= np.finfo(np.float64).min, 0.0, spec)
     spec = np.where(np.abs(spec) <= MIN_ABS, MIN_ABS, spec)
     return spec
+
+def _compute_fft(frame):
+    wl = _dist10fft(frame * LONG_WINDOW)
+    ws = []
+    for b in range(3):
+        short_frame = frame[128 * b + 256 + np.arange(256)].copy()
+        ws.append(_dist10fft(short_frame * SHORT_WINDOW))
+    return wl, ws
 
 def compute_spreading_function(partition):
     '''
@@ -471,7 +479,7 @@ def compute_spreading_function(partition):
             sfunc[i][j] = 10.0 ** ((xij + ty) / 10) if ty >= -60 else 0.0 # 本とdist10で異なる
     return sfunc
 
-def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
+def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     '''
     Unpredictability cwの計算
     '''
@@ -502,8 +510,32 @@ def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
 
     return cw
 
+def _compute_energey_per_partition(cw, energy_long, energy_short):
+    '''
+    パーティション毎のエネルギー計算
+    '''
+    eb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
+    cb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
+    eb_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
+    ecb_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
+
+    for j in range(513):
+        tp = PARTITION_LONG_INDEX[j]
+        if tp >= 0:
+            # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
+            eb_long[tp] += energy_long[j]
+            cb_long[tp] += cw[j] * energy_long[j]
+    for sblock in range(3):
+        for j in range(129):
+            eb_short[sblock][PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
+        for b in range(NUM_CRITICAL_BANDS_SHORT):
+            for k in range(NUM_CRITICAL_BANDS_SHORT):
+                # BUG?: longパーティション使ってるのバグでは？
+                ecb_short[sblock][b] += SPREADING_FUNCTION_LONG[b][k] * eb_short[sblock][k]
+    return eb_long, cb_long, eb_short, ecb_short
+
 if __name__ == '__main__':
-    NUM_CRITICAL_BANDS = 63
+    NUM_CRITICAL_BANDS_LONG = 63
     NUM_CRITICAL_BANDS_SHORT = 42
     PERCETUAL_ENTROPY_THRESHOLD = 1800.0
 
@@ -536,8 +568,8 @@ if __name__ == '__main__':
     prev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
     prevprev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
 
-    prev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
-    prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS))
+    prev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS_LONG))
+    prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS_LONG))
 
     ratio_long = np.zeros((NUM_CHANNELS, len(PSYCO_LONG)))
     ratio_short = np.zeros((NUM_CHANNELS, len(PSYCO_SHORT), 3))
@@ -549,50 +581,41 @@ if __name__ == '__main__':
 
     count = 0
 
-    for gr in range(NUM_SAMPLES // 576):
+    # for gr in range(NUM_SAMPLES // 576):
+    for gr in range(100):
         for ch in range(NUM_CHANNELS):
             # フレーム取得
-            frame = get_frame(data.T[ch], gr)
+            frame = _get_frame(data.T[ch], gr)
 
             # FFT
-            wl = dist10fft(frame * LONG_WINDOW)
-            ws = []
-            for b in range(3):
-                short_frame = frame[128 * b + 256 + np.arange(256)].copy()
-                ws.append(dist10fft(short_frame * SHORT_WINDOW))
+            w_long, w_short = _compute_fft(frame)
 
             # Unpredictability計算
-            cw = compute_unpredictability(wl, ws, prev_wl[ch], prevprev_wl[ch])
-            # 状態更新
+            cw = _compute_unpredictability(w_long, w_short, prev_wl[ch], prevprev_wl[ch])
             prevprev_wl[ch] = prev_wl[ch]
-            prev_wl[ch] = wl
+            prev_wl[ch] = w_long
 
-            # パーティションごとのエネルギー計算
-            energy_long = np.abs(wl) ** 2
+            # エネルギー（パワー）計算
+            energy_long = np.abs(w_long) ** 2
             energy_short = []
             for sblock in range(3):
-                energy_short.append(np.abs(ws[sblock]) ** 2)
-            eb = np.zeros(NUM_CRITICAL_BANDS)
-            cb = np.zeros(NUM_CRITICAL_BANDS)
-            for j in range(513):
-                tp = PARTITION_LONG_INDEX[j]
-                if tp >= 0:
-                    # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
-                    eb[tp] += energy_long[j]
-                    cb[tp] += cw[j] * energy_long[j]
+                energy_short.append(np.abs(w_short[sblock]) ** 2)
+
+            # パーティションごとのエネルギー計算
+            eb_long, cb_long, eb_short, ecb_short = _compute_energey_per_partition(cw, energy_long, energy_short)
 
             # 広がり関数(Spreading Function)と畳み込み
-            ecb = np.zeros(NUM_CRITICAL_BANDS)
-            ctb = np.zeros(NUM_CRITICAL_BANDS)
-            for b in range(NUM_CRITICAL_BANDS):
-                for k in range(NUM_CRITICAL_BANDS):
-                    ecb[b] += SPREADING_FUNCTION_LONG[b][k] * eb[k]
-                    ctb[b] += SPREADING_FUNCTION_LONG[b][k] * cb[k]
+            ecb = np.zeros(NUM_CRITICAL_BANDS_LONG)
+            ctb = np.zeros(NUM_CRITICAL_BANDS_LONG)
+            for b in range(NUM_CRITICAL_BANDS_LONG):
+                for k in range(NUM_CRITICAL_BANDS_LONG):
+                    ecb[b] += SPREADING_FUNCTION_LONG[b][k] * eb_long[k]
+                    ctb[b] += SPREADING_FUNCTION_LONG[b][k] * cb_long[k]
             
             # 信号対ノイズ比（SNR）の計算
-            snr = np.zeros(NUM_CRITICAL_BANDS)
-            nb = np.zeros(NUM_CRITICAL_BANDS)
-            for b in range(NUM_CRITICAL_BANDS):
+            snr = np.zeros(NUM_CRITICAL_BANDS_LONG)
+            nb = np.zeros(NUM_CRITICAL_BANDS_LONG)
+            for b in range(NUM_CRITICAL_BANDS_LONG):
                 cbb = 0.0
                 if ecb[b] != 0.0:
                     cbb = np.log(max(ctb[b] / ecb[b], 0.01))
@@ -601,22 +624,22 @@ if __name__ == '__main__':
                 nb[b] = PARTITION_LONG[b]['norm'] * ecb[b] * 10.0 ** (-snr[b] / 10.0)
 
             # 各パーティションの聴覚閾値を計算
-            thr = np.zeros(NUM_CRITICAL_BANDS)
-            for b in range(NUM_CRITICAL_BANDS):
-                thr[b] = min(nb[b], min(2.0 * prev_nb[ch][b], 16.0 * prevprev_nb[ch][b]))
-                thr[b] = max(thr[b], PARTITION_LONG[b]['qthr'])
+            thr_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
+            for b in range(NUM_CRITICAL_BANDS_LONG):
+                thr_long[b] = min(nb[b], min(2.0 * prev_nb[ch][b], 16.0 * prevprev_nb[ch][b]))
+                thr_long[b] = max(thr_long[b], PARTITION_LONG[b]['qthr'])
             prevprev_nb[ch] = prev_nb[ch]
             prev_nb[ch] = nb
 
             # 知覚エントロピー(percetual entropy)の計算
             pe = 0.0
-            for b in range(NUM_CRITICAL_BANDS):
+            for b in range(NUM_CRITICAL_BANDS_LONG):
                 # BUG: numlinesの先頭部分がショートブロックの値になっている。
                 # L3para_readのバグ。一度ロングブロックで読み込ませて、同一の領域にショートブロックの値を読み込ませている
                 bug_lines = PARTITION_LONG[b]['#lines']
                 if b < len(PARTITION_SHORT):
                     bug_lines = PARTITION_SHORT[b]['#lines']
-                tp = min(0.0, np.log((thr[b] + 1.0) / (eb[b] + 1.0)))
+                tp = min(0.0, np.log((thr_long[b] + 1.0) / (eb_long[b] + 1.0)))
                 pe -= bug_lines * tp
                 # 正しくは以下の計算式のはず
                 # pe -= PARTITION_LONG[b]['#lines'] * tp
@@ -632,11 +655,11 @@ if __name__ == '__main__':
                 for sb, psy in enumerate(PSYCO_LONG):
                     bu = psy['bu']
                     bo = psy['bo']
-                    en = psy['w1'] * eb[bu] + psy['w2'] * eb[bo]
-                    thm = psy['w1'] * thr[bu] + psy['w2'] * thr[bo]
+                    en = psy['w1'] * eb_long[bu] + psy['w2'] * eb_long[bo]
+                    thm = psy['w1'] * thr_long[bu] + psy['w2'] * thr_long[bo]
                     for b in np.arange(bu + 1, bo):
-                        en += eb[b]
-                        thm += thr[b]
+                        en += eb_long[b]
+                        thm += thr_long[b]
                     ratio_long[ch][sb] = thm / en if en != 0.0 else 0.0
             else:
                 block_type = 'SHORT'
@@ -650,34 +673,24 @@ if __name__ == '__main__':
                     snr_short[b] = PARTITION_SHORT[b]['SNR']
                     qthr_short[b] = PARTITION_SHORT[b]['qthr']
                 for sblock in range(3):
-                    eb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
-                    ecb = np.zeros(NUM_CRITICAL_BANDS_SHORT)
-                    for j in range(129):
-                        eb[PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
-                    for b in range(NUM_CRITICAL_BANDS_SHORT):
-                        for k in range(NUM_CRITICAL_BANDS_SHORT):
-                            # longパーティション使ってるのバグでは？
-                            ecb[b] += SPREADING_FUNCTION_LONG[b][k] * eb[k]
+                    thr_short = np.zeros(NUM_CRITICAL_BANDS_SHORT)
                     for b in range(NUM_CRITICAL_BANDS_SHORT):
                         # longパーティション使ってるのバグでは？
-                        nb[b] = ecb[b] * PARTITION_LONG[b]['norm'] * 10.0 ** (snr_short[b] / 10.0)
-                        thr[b] = max(qthr_short[b], nb[b])
+                        nb[b] = ecb_short[sblock][b] * PARTITION_LONG[b]['norm'] * 10.0 ** (snr_short[b] / 10.0)
+                        thr_short[b] = max(qthr_short[b], nb[b])
                     for sb, psy in enumerate(PSYCO_SHORT):
                         bu = psy['bu']
                         bo = psy['bo']
-                        en = psy['w1'] * eb[bu] + psy['w2'] * eb[bo]
-                        thm = psy['w1'] * thr[bu] + psy['w2'] * thr[bo]
+                        en = psy['w1'] * eb_short[sblock][bu] + psy['w2'] * eb_short[sblock][bo]
+                        thm = psy['w1'] * thr_short[bu] + psy['w2'] * thr_short[bo]
                         for b in np.arange(bu + 1, bo):
-                            en += eb[b]
-                            thm += thr[b]
+                            en += eb_short[sblock][b]
+                            thm += thr_short[b]
                         ratio_short[ch][sb][sblock] = thm / en if en != 0.0 else 0.0
             
             print(count)
             print(prev_block_type[ch])
             print(f'{pe:.3f}')
-            for b in range(NUM_CRITICAL_BANDS):
-                print(f'{thr[b]:.3f} ', end='')
-            print('')
             if prev_block_type[ch] != 'SHORT':
                 for sb in range(len(PSYCO_LONG)):
                     print(f'{ratio_long[ch][sb]:.3f} ', end='')
