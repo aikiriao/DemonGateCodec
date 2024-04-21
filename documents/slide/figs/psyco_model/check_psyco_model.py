@@ -597,7 +597,7 @@ def _compute_percetual_entropy(eb_long, thr_long):
         # pe -= PARTITION_LONG[b]['#lines'] * tp
     return pe
 
-def _compute_percetual_threshold_ratio_core(psyco_data, eb, thr):
+def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     '''
     聴覚しきい値比の計算コア処理
     '''
@@ -612,16 +612,6 @@ def _compute_percetual_threshold_ratio_core(psyco_data, eb, thr):
             thm += thr[b]
         ratio[sb] = thm / en if en != 0.0 else 0.0
     return ratio
-
-def _compute_percetual_threshold_ratio(eb_long, thr_long, eb_short, thr_short):
-    '''
-    聴覚しきい値比の計算
-    '''
-    ratio_long = _compute_percetual_threshold_ratio_core(PSYCO_LONG, eb_long, thr_long)
-    ratio_short = []
-    for sblock in range(3):
-        ratio_short.append(_compute_percetual_threshold_ratio_core(PSYCO_SHORT, eb_short[sblock], thr_short[sblock]))
-    return ratio_long, ratio_short
 
 if __name__ == '__main__':
     NUM_CRITICAL_BANDS_LONG = 63
@@ -673,10 +663,10 @@ if __name__ == '__main__':
     SPREADING_FUNCTION_LONG = _compute_spreading_function(PARTITION_LONG)
     SPREADING_FUNCTION_SHORT = _compute_spreading_function(PARTITION_SHORT)
 
-    count = 0
+    ratio_long = np.zeros((NUM_CHANNELS, len(PSYCO_LONG)))
+    ratio_short = np.zeros((NUM_CHANNELS, 3, len(PSYCO_SHORT)))
 
-    # ratio_long = np.zeros((NUM_CHANNELS, len(PSYCO_LONG)))
-    # ratio_short = np.zeros((NUM_CHANNELS, 3, len(PSYCO_SHORT)))
+    count = 0
 
     # for gr in range(NUM_SAMPLES // 576):
     for gr in range(100):
@@ -711,10 +701,7 @@ if __name__ == '__main__':
             # 知覚エントロピー(percetual entropy)の計算
             pe = _compute_percetual_entropy(eb_long, thr_long)
             
-            # 聴覚しきい値比の計算
-            ratio_long, ratio_short = _compute_percetual_threshold_ratio(eb_long, thr_long, eb_short, thr_short)
-
-            # ブロックタイプ確定・スケールファクタバンドの聴覚閾値計算
+            # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比計算
             if pe < PERCETUAL_ENTROPY_THRESHOLD:
                 if prev_block_type[ch] == 'NORMAL' or prev_block_type[ch] == 'STOP':
                     block_type = 'NORMAL'
@@ -722,47 +709,33 @@ if __name__ == '__main__':
                     block_type = 'STOP'
                 else:
                     assert(0)
-#               ratio_long = np.zeros(len(PSYCO_LONG))
-#               for sb, psy in enumerate(PSYCO_LONG):
-#                   bu = psy['bu']
-#                   bo = psy['bo']
-#                   en = psy['w1'] * eb_long[bu] + psy['w2'] * eb_long[bo]
-#                   thm = psy['w1'] * thr_long[bu] + psy['w2'] * thr_long[bo]
-#                   for b in np.arange(bu + 1, bo):
-#                       en += eb_long[b]
-#                       thm += thr_long[b]
-#                   # ratio_long[ch][sb] = thm / en if en != 0.0 else 0.0
-#                   ratio_long[sb] = thm / en if en != 0.0 else 0.0
+                # BUG?:
+                # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われる
+                # 毎ブロックで計算しているとリファレンスと一致しない
+                ratio_long[ch] = _compute_percetual_threshold_ratio(PSYCO_LONG, eb_long, thr_long)
             else:
                 block_type = 'SHORT'
                 if prev_block_type[ch] == 'NORMAL':
                     prev_block_type[ch] = 'START'
                 elif prev_block_type[ch] == 'STOP':
                     prev_block_type[ch] = 'SHORT'
-#               ratio_short = np.zeros((3, len(PSYCO_SHORT)))
-#               for sblock in range(3):
-#                   for sb, psy in enumerate(PSYCO_SHORT):
-#                       bu = psy['bu']
-#                       bo = psy['bo']
-#                       en = psy['w1'] * eb_short[sblock][bu] + psy['w2'] * eb_short[sblock][bo]
-#                       thm = psy['w1'] * thr_short[sblock][bu] + psy['w2'] * thr_short[sblock][bo]
-#                       for b in np.arange(bu + 1, bo):
-#                           en += eb_short[sblock][b]
-#                           thm += thr_short[sblock][b]
-#                       # ratio_short[ch][sblock][sb] = thm / en if en != 0.0 else 0.0
-#                       ratio_short[sblock][sb] = thm / en if en != 0.0 else 0.0
+                # BUG?:
+                # ブロックタイプがSHORTになったときに、前の計算結果が使われる
+                # 毎ブロックで計算しているとリファレンスと一致しない
+                for sblock in range(3):
+                    ratio_short[ch][sblock] = _compute_percetual_threshold_ratio(PSYCO_SHORT, eb_short[sblock], thr_short[sblock])
             
             print(count)
             print(prev_block_type[ch])
             print(f'{pe:.3f}')
             if prev_block_type[ch] != 'SHORT':
                 for sb in range(len(PSYCO_LONG)):
-                    print(f'{ratio_long[sb]:.3f} ', end='')
+                    print(f'{ratio_long[ch][sb]:.3f} ', end='')
                 print('')
             else:
                 for sblock in range(3):
                     for sb in range(len(PSYCO_SHORT)):
-                        print(f'{ratio_short[sblock][sb]:.3f} ', end='')
+                        print(f'{ratio_short[ch][sblock][sb]:.3f} ', end='')
                     print('')
             count += 1
 
