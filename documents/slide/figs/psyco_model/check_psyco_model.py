@@ -1,6 +1,7 @@
 '''
 聴覚心理モデルIIのチェック
 '''
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
@@ -502,14 +503,12 @@ def compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     return cw
 
 if __name__ == '__main__':
-    # print(PARTITION_DATA)
-    # print(PSYCO_DATA)
-
     NUM_CRITICAL_BANDS = 63
     NUM_CRITICAL_BANDS_SHORT = 42
     PERCETUAL_ENTROPY_THRESHOLD = 1800.0
 
-    sf, data = wavfile.read('repeat.wav')
+    sf, data = wavfile.read(sys.argv[1])
+    NUM_SAMPLES = data.shape[0]
     NUM_CHANNELS = data.shape[1]
 
     LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / 1024)) for i in range(1024)]
@@ -548,7 +547,9 @@ if __name__ == '__main__':
     SPREADING_FUNCTION_LONG = compute_spreading_function(PARTITION_LONG)
     SPREADING_FUNCTION_SHORT = compute_spreading_function(PARTITION_SHORT)
 
-    for gr in range(5):
+    count = 0
+
+    for gr in range(NUM_SAMPLES // 576):
         for ch in range(NUM_CHANNELS):
             # フレーム取得
             frame = get_frame(data.T[ch], gr)
@@ -670,4 +671,22 @@ if __name__ == '__main__':
                             en += eb[b]
                             thm += thr[b]
                         ratio_short[ch][sb][sblock] = thm / en if en != 0.0 else 0.0
+            
+            print(count)
+            print(prev_block_type[ch])
+            print(f'{pe:.3f}')
+            for b in range(NUM_CRITICAL_BANDS):
+                print(f'{thr[b]:.3f} ', end='')
+            print('')
+            if prev_block_type[ch] != 'SHORT':
+                for sb in range(len(PSYCO_LONG)):
+                    print(f'{ratio_long[ch][sb]:.3f} ', end='')
+                print('')
+            else:
+                for sblock in range(3):
+                    for sb in range(len(PSYCO_SHORT)):
+                        print(f'{ratio_short[ch][sb][sblock]:.3f} ', end='')
+                    print('')
+            count += 1
+
             prev_block_type[ch] = block_type
