@@ -440,11 +440,11 @@ PSYCO_DATA = {
 
 def _get_frame(data, gr):
     '''
-    グラニュールインデックスに対応する1024サンプルフレームの取得
+    グラニュールインデックスに対応するサンプルフレームの取得
     '''
-    frame = np.zeros(1024)
-    for i in range(1024):
-        index = 576 * gr - 768 + i
+    frame = np.zeros(LONG_WINDOW_SIZE)
+    for i in range(LONG_WINDOW_SIZE):
+        index = NUM_GRANULE_SAMPLES * gr - 768 + i
         if index >= 0:
             frame[i] = data[index]
     return frame
@@ -460,7 +460,7 @@ def _compute_fft(frame):
     wl = _dist10fft(frame * LONG_WINDOW)
     ws = []
     for b in range(3):
-        short_frame = frame[128 * b + 256 + np.arange(256)].copy()
+        short_frame = frame[128 * b + SHORT_WINDOW_SIZE + np.arange(SHORT_WINDOW_SIZE)].copy()
         ws.append(_dist10fft(short_frame * SHORT_WINDOW))
     return wl, ws
 
@@ -483,7 +483,7 @@ def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     '''
     Unpredictability cwの計算
     '''
-    cw = np.zeros(513)
+    cw = np.zeros(LONG_WINDOW_SIZE // 2 + 1)
     # 振幅・位相の直線予測結果
     wlprimeabs = 2.0 * np.abs(prev_wl) - np.abs(prevprev_wl)
     wlprimearg = 2.0 * np.angle(prev_wl) - np.angle(prevprev_wl)
@@ -518,14 +518,14 @@ def _compute_energey_per_partition(cw, energy_long, energy_short):
     cb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     eb_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
 
-    for j in range(513):
+    for j in range(LONG_WINDOW_SIZE // 2 + 1):
         tp = PARTITION_LONG_INDEX[j]
         if tp >= 0:
             # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
             eb_long[tp] += energy_long[j]
             cb_long[tp] += cw[j] * energy_long[j]
     for sblock in range(3):
-        for j in range(129):
+        for j in range(SHORT_WINDOW_SIZE // 2 + 1):
             eb_short[sblock][PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
     return eb_long, cb_long, eb_short
 
@@ -614,30 +614,40 @@ def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     return ratio
 
 if __name__ == '__main__':
+    # 定数定義
     NUM_CRITICAL_BANDS_LONG = 63
     NUM_CRITICAL_BANDS_SHORT = 42
     PERCETUAL_ENTROPY_THRESHOLD = 1800.0
+    LONG_WINDOW_SIZE = 1024
+    SHORT_WINDOW_SIZE = 256
+    NUM_GRANULE_SAMPLES = 576
 
     sf, data = wavfile.read(sys.argv[1])
     NUM_SAMPLES = data.shape[0]
     NUM_CHANNELS = data.shape[1]
 
-    LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / 1024)) for i in range(1024)]
-    SHORT_WINDOW =[0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / 256)) for i in range(256)]
+    # 窓関数計算
+    LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / LONG_WINDOW_SIZE)) for i in range(LONG_WINDOW_SIZE)]
+    SHORT_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / SHORT_WINDOW_SIZE)) for i in range(SHORT_WINDOW_SIZE)]
 
+    # 聴覚データ取得
     PARTITION_LONG = PARTITION_DATA[f'long{sf}']
     PARTITION_SHORT = PARTITION_DATA[f'short{sf}']
     PSYCO_LONG = PSYCO_DATA[f'long{sf}']
     PSYCO_SHORT = PSYCO_DATA[f'short{sf}']
 
+    # 広がり関数計算
+    SPREADING_FUNCTION_LONG = _compute_spreading_function(PARTITION_LONG)
+    SPREADING_FUNCTION_SHORT = _compute_spreading_function(PARTITION_SHORT)
+
     # 分割インデックス作成
-    PARTITION_LONG_INDEX = np.zeros(513, dtype=int)
+    PARTITION_LONG_INDEX = np.zeros(LONG_WINDOW_SIZE // 2 + 1, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_LONG):
         for _ in range(part['#lines']):
             PARTITION_LONG_INDEX[index] = part_index
             index += 1
-    PARTITION_SHORT_INDEX = np.zeros(129, dtype=int)
+    PARTITION_SHORT_INDEX = np.zeros(SHORT_WINDOW_SIZE // 2 + 1, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_SHORT):
         for _ in range(part['#lines']):
@@ -652,24 +662,20 @@ if __name__ == '__main__':
         SNR_SHORT[b] = PARTITION_SHORT[b]['SNR']
         QTHR_SHORT[b] = PARTITION_SHORT[b]['qthr']
 
-    prev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
-    prevprev_wl = np.zeros((NUM_CHANNELS, 1024), dtype=complex)
+    prev_wl = np.zeros((NUM_CHANNELS, LONG_WINDOW_SIZE), dtype=complex)
+    prevprev_wl = np.zeros((NUM_CHANNELS, LONG_WINDOW_SIZE), dtype=complex)
 
     prev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS_LONG))
     prevprev_nb = np.zeros((NUM_CHANNELS, NUM_CRITICAL_BANDS_LONG))
 
     prev_block_type = [ 'NORMAL', 'NORMAL' ]
 
-    SPREADING_FUNCTION_LONG = _compute_spreading_function(PARTITION_LONG)
-    SPREADING_FUNCTION_SHORT = _compute_spreading_function(PARTITION_SHORT)
-
     ratio_long = np.zeros((NUM_CHANNELS, len(PSYCO_LONG)))
     ratio_short = np.zeros((NUM_CHANNELS, 3, len(PSYCO_SHORT)))
 
     count = 0
 
-    # for gr in range(NUM_SAMPLES // 576):
-    for gr in range(100):
+    for gr in range(NUM_SAMPLES // NUM_GRANULE_SAMPLES):
         for ch in range(NUM_CHANNELS):
             # フレーム取得
             frame = _get_frame(data.T[ch], gr)
@@ -710,7 +716,7 @@ if __name__ == '__main__':
                 else:
                     assert(0)
                 # BUG?:
-                # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われる
+                # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われるため、ブロックタイプ判定後に計算
                 # 毎ブロックで計算しているとリファレンスと一致しない
                 ratio_long[ch] = _compute_percetual_threshold_ratio(PSYCO_LONG, eb_long, thr_long)
             else:
@@ -720,7 +726,7 @@ if __name__ == '__main__':
                 elif prev_block_type[ch] == 'STOP':
                     prev_block_type[ch] = 'SHORT'
                 # BUG?:
-                # ブロックタイプがSHORTになったときに、前の計算結果が使われる
+                # ブロックタイプがSHORTになったときに、前の計算結果が使われるため、ブロックタイプ判定後に計算
                 # 毎ブロックで計算しているとリファレンスと一致しない
                 for sblock in range(3):
                     ratio_short[ch][sblock] = _compute_percetual_threshold_ratio(PSYCO_SHORT, eb_short[sblock], thr_short[sblock])
