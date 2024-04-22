@@ -622,7 +622,7 @@ if __name__ == '__main__':
     SHORT_WINDOW_SIZE = 256
     NUM_GRANULE_SAMPLES = 576
 
-    sf, data = wavfile.read(sys.argv[1])
+    SAMPLING_FREQUENCY, data = wavfile.read(sys.argv[1])
     NUM_SAMPLES = data.shape[0]
     NUM_CHANNELS = data.shape[1]
 
@@ -631,10 +631,10 @@ if __name__ == '__main__':
     SHORT_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / SHORT_WINDOW_SIZE)) for i in range(SHORT_WINDOW_SIZE)]
 
     # 聴覚データ取得
-    PARTITION_LONG = PARTITION_DATA[f'long{sf}']
-    PARTITION_SHORT = PARTITION_DATA[f'short{sf}']
-    PSYCO_LONG = PSYCO_DATA[f'long{sf}']
-    PSYCO_SHORT = PSYCO_DATA[f'short{sf}']
+    PARTITION_LONG = PARTITION_DATA[f'long{SAMPLING_FREQUENCY}']
+    PARTITION_SHORT = PARTITION_DATA[f'short{SAMPLING_FREQUENCY}']
+    PSYCO_LONG = PSYCO_DATA[f'long{SAMPLING_FREQUENCY}']
+    PSYCO_SHORT = PSYCO_DATA[f'short{SAMPLING_FREQUENCY}']
 
     # 広がり関数計算
     SPREADING_FUNCTION_LONG = _compute_spreading_function(PARTITION_LONG)
@@ -653,6 +653,19 @@ if __name__ == '__main__':
         for _ in range(part['#lines']):
             PARTITION_SHORT_INDEX[index] = part_index
             index += 1
+
+    def _compute_partition_center_frequencies(partition, window_size):
+        center_freqs = np.zeros(len(partition))
+        index = 0
+        for part_index, part in enumerate(partition):
+            center_bin = (index + part['#lines']) / 2.0
+            center_freqs[part_index] = 2 * center_bin / window_size * SAMPLING_FREQUENCY
+            index += part['#lines']
+        return center_freqs
+
+    # （デバッグ用）パーティションの中心周波数計算
+    center_freq_long = _compute_partition_center_frequencies(PARTITION_LONG, LONG_WINDOW_SIZE)
+    center_freq_short = _compute_partition_center_frequencies(PARTITION_SHORT, SHORT_WINDOW_SIZE)
 
     # ショートブロックのSNRと閾値作成
     # パーティション個数以降は0初期化されている
