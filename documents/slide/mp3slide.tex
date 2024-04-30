@@ -628,16 +628,17 @@
 
 \begin{frame}[c]
     \frametitle{非線形量子化}
-    ブロック長が32（long, start, stop）のとき，量子化スペクトル$X_{i}^{q}$，逆量子化スペクトル$\hat{X}_{i}$は
+    ブロック長が36(long, start, stop)のとき，量子化スペクトル$X_{i}^{q}$，逆量子化スペクトル$\hat{X}_{i}$は
     \footnote{
-        $\mathrm{round}$を除けば，以下で一致確認できる
+        $\mathrm{round}$を除けば，逆量子により元に戻る
+        \vspace{-5pt}
         \begin{align*}
-            \hat{X}_{i} = \mathrm{sign}(X_{i}) |X_{i}^{q}|^{\frac{4}{3}} G = \mathrm{sign}(X_{i}) \left| | X_{i} G^{-1} |^{\frac{3}{4}} \right|^{\frac{4}{3}} G = X_{i} G^{-1} G = X_{i}
+            \hat{X}_{i} = \mathrm{sign}(X_{i}) |X_{i}^{q}|^{\frac{4}{3}} G^{l}_{i} = \mathrm{sign}(X_{i}) \left| | X_{i} (G_{i}^{l})^{-1} |^{\frac{3}{4}} \right|^{\frac{4}{3}} G_{i}^{l} = X_{i} (G_{i}^{l})^{-1} G_{i}^{l} = X_{i}
         \end{align*}}
     \begin{align}
-        X_{i}^{q} &= \mathrm{round}\left[ \mathrm{sign}(X_{i}) \left| X_{i} G^{-1} \right|^{\frac{3}{4}} \right] \\
-        \hat{X}_{i} &= \mathrm{sign}(X_{i}^{q}) |X_{i}^{q}|^{\frac{4}{3}} G \\
-        G &= 2^{\frac{1}{4}g} 2^{-\frac{1}{2} (1 + \mathrm{scale})(\mathrm{sl}_{i} + p_{i})}
+        X_{i}^{q} &= \mathrm{round}\left[ \mathrm{sign}(X_{i}) \left| X_{i} (G^{l}_{i})^{-1} \right|^{\frac{3}{4}} \right] \\
+        \hat{X}_{i} &= \mathrm{sign}(X_{i}^{q}) |X_{i}^{q}|^{\frac{4}{3}} G^{l}_{i} \\
+        G^{l}_{i} &= 2^{\frac{1}{4}g} 2^{-\frac{1}{2} (1 + \mathrm{scale})(\mathrm{sl}_{i} + p_{i})}
     \end{align}
     \vspace{-20pt}
     \small
@@ -650,11 +651,28 @@
 \end{frame}
 
 \begin{frame}[c]
+    \frametitle{非線形量子化}
+    ブロック長が12(short)のとき，
+    \begin{align}
+        X_{i}^{q} &= \mathrm{round}\left[ \mathrm{sign}(X_{i}) \left| X_{i} (G_{i}^{s})^{-1} \right|^{\frac{3}{4}} \right] \\
+        \hat{X}_{i} &= \mathrm{sign}(X_{i}^{q}) |X_{i}^{q}|^{\frac{4}{3}} G_{i}^{s} \\
+        G^{s}_{i} &= 2^{\frac{1}{4}g} 2^{2\mathrm{sbgain}_{b}} 2^{-\frac{1}{2} (1 + \mathrm{scale})\mathrm{ss}_{i}}
+    \end{align}
+    \vspace{-20pt}
+    \small
+    \begin{itemize}
+        \item $\mathrm{sbgain}_{b}$：サブブロックのゲイン{\scriptsize（dist10エンコーダーでは常に0）}
+        \item $\mathrm{ss}_{i}$：ショートブロックのスケールファクタ
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
     \frametitle{$3/4$乗の効果}
-    平均0，分散0.1のLaplace分布の絶対値の分布
+    平均0分散0.1のLaplace分布の絶対値$|x|$と$|x|^{\frac{3}{4}}$の分布
     \begin{figure}
         \includegraphics[width=90mm]{./figs/powered_distribution.pdf}
     \end{figure}
+    \vspace{-10pt}
     $3/4$乗により，$0$近傍が一様に近づき量子化精度向上
 \end{frame}
 
@@ -662,6 +680,48 @@
 
 \begin{frame}[c]
     \frametitle{ハフマン符号}
+    TODO
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3の符号化}
+    量子化スペクトルを，区分に分けて符号化
+    \begin{figure}
+        \includegraphics[width=115mm]{./figs/huffman_coding_region_division.png}
+    \end{figure}
+    \begin{description}
+        \item[big value] 大きい値は線形量子化
+            \begin{itemize}
+                \item region0,1,2で異なるハフマンテーブルを使用
+            \end{itemize}
+        \item[count1 data] $\{ -1, 0, 1 \}$のみで符号化
+            \begin{itemize}
+                \item 1つのハフマンテーブルを使用
+            \end{itemize}
+        \item[zero] $0$のみ（符号化しない）
+    \end{description}
+    % MDCTは低域に成分集中するため，妥当な符号化
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3の符号化（詳細）}
+    \structure{big valueの符号化}
+    \begin{itemize} 
+        \item 数値2つ組$X_{i}^{q}, X_{i+1}^{q}$を
+            \begin{align}
+                X = 16 |X_{i}^{q}| + |X_{i+1}^{q}|
+            \end{align}
+            として符号化．符号は2bitで出力
+        \item 線形符号化するかの閾値はテーブル毎に設定
+    \end{itemize}
+    \structure{count1 dataの符号化}
+    \begin{itemize} 
+        \item 数値4つ組$X_{i}^{q}, X_{i+1}^{q}, X_{i+2}^{q}, X_{i+3}^{q}$を
+            \begin{align}
+                X = 8 s(X_{i+2}^{q}) + 4 s(X_{i+3}^{q}) + 2 s(X_{i}^{q}) + s(X_{i+1}^{q})
+            \end{align}
+            として符号化（$s(x)$：$x\neq 0$なら$1$，$x=0$なら$0$）．符号は4bitで出力
+    \end{itemize}
 \end{frame}
 
 \section{聴覚心理モデル}
