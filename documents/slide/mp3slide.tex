@@ -631,9 +631,9 @@
     ブロック長が32（long, start, stop）のとき，量子化スペクトル$X_{i}^{q}$，逆量子化スペクトル$\hat{X}_{i}$は
     \footnote{
         $\mathrm{round}$を除けば，以下で一致確認できる
-        \begin{align}
+        \begin{align*}
             \hat{X}_{i} = \mathrm{sign}(X_{i}) |X_{i}^{q}|^{\frac{4}{3}} G = \mathrm{sign}(X_{i}) \left| | X_{i} G^{-1} |^{\frac{3}{4}} \right|^{\frac{4}{3}} G = X_{i} G^{-1} G = X_{i}
-        \end{align}}
+        \end{align*}}
     \begin{align}
         X_{i}^{q} &= \mathrm{round}\left[ \mathrm{sign}(X_{i}) \left| X_{i} G^{-1} \right|^{\frac{3}{4}} \right] \\
         \hat{X}_{i} &= \mathrm{sign}(X_{i}^{q}) |X_{i}^{q}|^{\frac{4}{3}} G \\
@@ -647,6 +647,15 @@
         \item $\mathrm{sl}_{i}$：スケールファクタ
         \item $p_{i}$：プリエンファシス増幅値{\scriptsize（dist10エンコーダーでは常に0）}
     \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{$3/4$乗の効果}
+    平均0，分散0.1のLaplace分布の絶対値の分布
+    \begin{figure}
+        \includegraphics[width=90mm]{./figs/powered_distribution.pdf}
+    \end{figure}
+    $3/4$乗により，$0$近傍が一様に近づき量子化精度向上
 \end{frame}
 
 \section{符号化}
