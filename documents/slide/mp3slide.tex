@@ -628,6 +628,25 @@
 
 \begin{frame}[c]
     \frametitle{非線形量子化}
+    ブロック長が32（long, start, stop）のとき，量子化スペクトル$X_{i}^{q}$，逆量子化スペクトル$\hat{X}_{i}$は
+    \footnote{
+        $\mathrm{round}$を除けば，以下で一致確認できる
+        \begin{align}
+            \hat{X}_{i} = \mathrm{sign}(X_{i}) |X_{i}^{q}|^{\frac{4}{3}} G = \mathrm{sign}(X_{i}) \left| | X_{i} G^{-1} |^{\frac{3}{4}} \right|^{\frac{4}{3}} G = X_{i} G^{-1} G = X_{i}
+        \end{align}}
+    \begin{align}
+        X_{i}^{q} &= \mathrm{round}\left[ \mathrm{sign}(X_{i}) \left| X_{i} G^{-1} \right|^{\frac{3}{4}} \right] \\
+        \hat{X}_{i} &= \mathrm{sign}(X_{i}^{q}) |X_{i}^{q}|^{\frac{4}{3}} G \\
+        G &= 2^{\frac{1}{4}g} 2^{-\frac{1}{2} (1 + \mathrm{scale})(\mathrm{sl}_{i} + p_{i})}
+    \end{align}
+    \vspace{-20pt}
+    \small
+    \begin{itemize}
+        \item $g$：グローバルゲイン
+        \item $\mathrm{scale}$：スケールファクタのスケール{\scriptsize（dist10エンコーダーでは常に0）}
+        \item $\mathrm{sl}_{i}$：スケールファクタ
+        \item $p_{i}$：プリエンファシス増幅値{\scriptsize（dist10エンコーダーでは常に0）}
+    \end{itemize}
 \end{frame}
 
 \section{符号化}
