@@ -22,7 +22,7 @@
 \usepackage{booktabs}
 \usepackage{caption}
 \usepackage{dashrule}
-\usepackage{ulem}
+\usepackage[normalem]{ulem}
 
 \newcommand{\comment}[2]{\textcolor{green!35!black}{#1 \fbox{\scalebox{0.4}{#2}}}}
 
@@ -679,11 +679,6 @@
 \section{符号化}
 
 \begin{frame}[c]
-    \frametitle{ハフマン符号}
-    TODO
-\end{frame}
-
-\begin{frame}[c]
     \frametitle{MP3の符号化}
     量子化スペクトルを，区分に分けて符号化
     \begin{figure}
@@ -724,10 +719,10 @@
     \end{itemize}
 \end{frame}
 
-\section{聴覚心理モデル}
+\section{聴覚心理モデルII}
 
 \begin{frame}[c]
-    \frametitle{聴覚心理モデル}
+    \frametitle{聴覚心理モデルII}
 \end{frame}
 
 \appendix
@@ -746,12 +741,11 @@
         \item \cite{vaidyanathan2002}：フィルタバンクに関する詳細書
         \item \cite{kiya1997}：DCTに関する詳しい解説
         \item \cite{kosugi200108,kosugi200109,kosugi200111,kosugi200201,kosugi200202}：技術解説と簡易MP3コーデックの実装例
-        \item \cite{urata1999}：MP3のソース(dist10)の解説．ただし木を見て森を見ずな印象
+        \item \cite{urata1999}：MP3のソース(dist10)の解説．ただし木を見て森を見ずな印象．実装の補足説明としては優秀だが，コードを数式に直訳した書き方のため，理解しずらい．
     \end{itemize}
 \end{frame}
 
 \begin{frame}[allowframebreaks]{参考文献}
-    \scriptsize
     \printbibliography[heading=none]
 \end{frame}
 
