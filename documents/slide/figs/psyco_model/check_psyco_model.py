@@ -482,6 +482,8 @@ def _compute_spreading_function(partition):
 def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     '''
     Unpredictability cwの計算
+    大雑把に言って，cw[bin] = |予測の差| / (|真値| + |予測|)
+    予測が当たっていれば0に近く，外れていれば1に近くなる
     '''
     cw = np.zeros(LONG_WINDOW_SIZE // 2 + 1)
     # 振幅・位相の直線予測結果
@@ -494,9 +496,11 @@ def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
         numer = np.abs(wl[j]) + np.abs(wlprime[j])
         if numer > 0.0:
             cw[j] = np.abs(diffwl[j]) / numer
+    # ショートブロックの振幅・位相の直線予測結果
     predwsabs = 2.0 * np.abs(ws[0]) - np.abs(ws[2])
     predwsarg = 2.0 * np.angle(ws[0]) - np.angle(ws[2])
     predws = predwsabs * np.exp(1j * predwsarg)
+    # 中央ブロックとの差
     diffws = ws[1] - predws
     for j in np.arange(6, 206, 4):
         k = (j + 2) // 4
@@ -710,7 +714,7 @@ if __name__ == '__main__':
 
             # 広がり関数(Spreading Function)と畳み込み
             ecb_long, ctb_long, ecb_short = _convolve_with_spreading_function(eb_long, cb_long, eb_short)
-            
+
             # ノイズ許容レベルの計算
             nb_long, nb_short = _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short)
 
