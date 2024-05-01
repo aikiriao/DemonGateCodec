@@ -466,7 +466,17 @@ def _compute_fft(frame):
 
 def _compute_spreading_function(partition):
     '''
-    Spreading functionの計算
+    Spreading function（広がり関数）の計算
+
+    Parameters
+    ----------
+    partition : list
+        パーティション
+
+    Returns
+    -------
+    sfunc : ndarray
+        Spreading function
     '''
     part_max = len(partition)
     sfunc = np.zeros((part_max, part_max))
@@ -484,6 +494,22 @@ def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     Unpredictability cwの計算
     大雑把に言って，cw[bin] = |予測の差| / (|真値| + |予測|)
     予測が当たっていれば0に近く，外れていれば1に近くなる
+
+    Parameters
+    ----------
+    wl : ndarray
+        FFT結果（ロングブロック）
+    ws : ndarray
+        FFT結果（ショートブロック）
+    prev_wl : ndarray
+        前フレームのFFT結果（ロングブロック）
+    prevprev_wl : ndarray
+        前々フレームのFFT結果（ロングブロック）
+
+    Returns
+    -------
+    cw : ndarray
+        Unpredictability
     '''
     cw = np.zeros(LONG_WINDOW_SIZE // 2 + 1)
     # 振幅・位相の直線予測結果
@@ -517,6 +543,22 @@ def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
 def _compute_energey_per_partition(cw, energy_long, energy_short):
     '''
     パーティション毎のエネルギー計算
+
+    Parameters
+    ----------
+    cw : ndarray
+        Unpredictability
+    energy_long : ndarray
+        ロングブロックの各binのエネルギー（パワー）
+
+    Returns
+    -------
+    eb_long : ndarray
+        パーティションごとのエネルギー（ロングブロック）
+    cb_long : ndarray
+        Unpredictabilityで重みづけした，パーティションごとのエネルギー（ロングブロック）
+    eb_short : ndarray
+        パーティションごとのエネルギー（ショートブロック）
     '''
     eb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     cb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
@@ -533,9 +575,27 @@ def _compute_energey_per_partition(cw, energy_long, energy_short):
             eb_short[sblock][PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
     return eb_long, cb_long, eb_short
 
-def _convolve_with_spreading_function(eb_long, ctb_long, eb_short):
+def _convolve_with_spreading_function(eb_long, cb_long, eb_short):
     '''
     広がり関数(Spreading function)と畳み込み
+
+    Parameters
+    ----------
+    eb_long : ndarray
+        パーティションごとのエネルギー（ロングブロック）
+    cb_long : ndarray
+        Unpredictabilityで重みづけした，パーティションごとのエネルギー（ロングブロック）
+    eb_short : ndarray
+        パーティションごとのエネルギー（ショートブロック）
+
+    Returns
+    -------
+    ecb_long : ndarray
+        広がり関数を畳みこんだeb_long
+    ctb_long : ndarray
+        広がり関数を畳みこんだcb_long
+    ecb_short : ndarray
+        広がり関数を畳みこんだeb_short
     '''
     ecb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     ctb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
@@ -551,9 +611,25 @@ def _convolve_with_spreading_function(eb_long, ctb_long, eb_short):
                 ecb_short[sblock][b] += SPREADING_FUNCTION_LONG[b][k] * eb_short[sblock][k]
     return ecb_long, ctb_long, ecb_short
 
-def _compute_permissive_noise_level(eb_long, ctb_long, ecb_short):
+def _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short):
     '''
     許容ノイズレベルの計算
+
+    Parameters
+    ----------
+    ecb_long : ndarray
+        パーティションごとのエネルギー（ロングブロック）
+    ctb_long : ndarray
+        Unpredictabilityで重みづけした，パーティションごとのエネルギー（ロングブロック）
+    ecb_short : ndarray
+        パーティションごとのエネルギー（ショートブロック）
+
+    Returns
+    -------
+    nb_long : ndarray
+        許容ノイズレベル（ロングブロック）
+    nb_short : ndarray
+        許容ノイズレベル（ショートブロック）
     '''
     nb_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     nb_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
@@ -572,6 +648,24 @@ def _compute_permissive_noise_level(eb_long, ctb_long, ecb_short):
 def _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short):
     '''
     聴覚しきい値の計算
+
+    Parameters
+    ----------
+    nb_long : ndarray
+        許容ノイズレベル（ロングブロック）
+    prev_nb : ndarray
+        前フレームの許容ノイズレベル（ロングブロック）
+    prev_nb : ndarray
+        前々フレームの許容ノイズレベル（ロングブロック）
+    nb_short : ndarray
+        許容ノイズレベル（ショートブロック）
+
+    Returns
+    -------
+    thr_long : ndarray
+        聴覚しきい値（ロングブロック）
+    thr_short : ndarray
+        聴覚しきい値（ショートブロック）
     '''
     thr_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     thr_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
@@ -587,6 +681,18 @@ def _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short):
 def _compute_percetual_entropy(eb_long, thr_long):
     '''
     知覚エントロピーの計算
+
+    Parameters
+    ----------
+    eb_long : ndarray
+        パーティションごとのエネルギー（ロングブロック）
+    thr_long : ndarray
+        聴覚しきい値（ロングブロック）
+
+    Returns
+    -------
+    pe : float
+        知覚エントロピー
     '''
     pe = 0.0
     for b in range(NUM_CRITICAL_BANDS_LONG):
@@ -604,6 +710,20 @@ def _compute_percetual_entropy(eb_long, thr_long):
 def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     '''
     聴覚しきい値比の計算コア処理
+
+    Parameters
+    ----------
+    psyco_data : list of dict
+        聴覚心理データ
+    eb : ndarray
+        パーティションごとのエネルギー
+    thr : ndarray
+        聴覚しきい値
+
+    Returns
+    -------
+    ratio : ndarray
+        聴覚しきい値
     '''
     ratio = np.zeros(len(psyco_data))
     for sb, psy in enumerate(psyco_data):
