@@ -502,8 +502,8 @@ def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
         k = (j + 2) // 4
         numer = np.abs(ws[1][k]) + np.abs(predws[k])
         if numer > 0.0:
-            cw[j] = np.abs(diffws[k]) / numer
-            cw[j + 1] = cw[j + 2] = cw[j + 3] = cw[j]
+            cw[j] = cw[j + 1] = cw[j + 2] = cw[j + 3]\
+                = np.abs(diffws[k]) / numer
     # 残りは0.4で埋める
     for j in np.arange(206, len(cw)):
         cw[j] = 0.4
