@@ -565,14 +565,14 @@ def _compute_energey_per_partition(cw, energy_long, energy_short):
     eb_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
 
     for j in range(LONG_WINDOW_SIZE // 2 + 1):
-        tp = PARTITION_LONG_INDEX[j]
+        tp = PARTITION_INDEX_LONG[j]
         if tp >= 0:
-            # BUG?: PARTITION_LONG_INDEXの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
+            # BUG?: PARTITION_INDEX_LONGの63以降で0となっておりtp==0が過剰に加算される dist10でも同様
             eb_long[tp] += energy_long[j]
             cb_long[tp] += cw[j] * energy_long[j]
     for sblock in range(3):
         for j in range(SHORT_WINDOW_SIZE // 2 + 1):
-            eb_short[sblock][PARTITION_SHORT_INDEX[j]] += energy_short[sblock][j]
+            eb_short[sblock][PARTITION_INDEX_SHORT[j]] += energy_short[sblock][j]
     return eb_long, cb_long, eb_short
 
 def _convolve_with_spreading_function(eb_long, cb_long, eb_short):
@@ -723,7 +723,7 @@ def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     Returns
     -------
     ratio : ndarray
-        聴覚しきい値
+        聴覚しきい値比
     '''
     ratio = np.zeros(len(psyco_data))
     for sb, psy in enumerate(psyco_data):
@@ -736,6 +736,84 @@ def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
             thm += thr[b]
         ratio[sb] = thm / en if en != 0.0 else 0.0
     return ratio
+
+def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, prev_block_type):
+    '''
+    聴覚心理モデルIIの計算処理
+
+    Parameters
+    ----------
+    frame : ndarray
+        信号フレーム
+    prev_wl : ndarray
+        前のFFT結果
+    prevprev_wl : ndarray
+        前々のFFT結果
+    prev_nb : ndarray
+        前の許容ノイズレベル
+    prevprev_nb : ndarray
+        前々の許容ノイズレベル
+    prev_block_type : string
+        前のブロックタイプ
+
+    Returns
+    -------
+    pe : float
+        知覚エントロピー
+    block_type : string
+        ブロックタイプ
+    ratio : ndarray
+        聴覚しきい値比
+    '''
+    # FFT
+    w_long, w_short = _compute_fft(frame)
+    
+    # Unpredictability計算
+    cw = _compute_unpredictability(w_long, w_short, prev_wl, prevprev_wl)
+    
+    # エネルギー（パワー）計算
+    energy_long = np.abs(w_long) ** 2
+    energy_short = []
+    for sblock in range(3):
+        energy_short.append(np.abs(w_short[sblock]) ** 2)
+    
+    # パーティションごとのエネルギー計算
+    eb_long, cb_long, eb_short = _compute_energey_per_partition(cw, energy_long, energy_short)
+    
+    # 広がり関数(Spreading Function)と畳み込み
+    ecb_long, ctb_long, ecb_short = _convolve_with_spreading_function(eb_long, cb_long, eb_short)
+    
+    # ノイズ許容レベルの計算
+    nb_long, nb_short = _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short)
+    
+    # 各パーティションの聴覚閾値を計算
+    thr_long, thr_short = _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short)
+    
+    # 知覚エントロピー(percetual entropy)の計算
+    pe = _compute_percetual_entropy(eb_long, thr_long)
+    
+    # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比計算
+    if pe < PERCETUAL_ENTROPY_THRESHOLD:
+        if prev_block_type == 'NORMAL' or prev_block_type == 'STOP':
+            block_type = 'NORMAL'
+        elif prev_block_type == 'SHORT':
+            block_type = 'STOP'
+        else:
+            assert(0)
+        # BUG?:
+        # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われるため、ブロックタイプ判定後に計算
+        # 毎ブロックで計算しているとリファレンスと一致しない
+        ratio = _compute_percetual_threshold_ratio(PSYCO_LONG, eb_long, thr_long)
+    else:
+        block_type = 'SHORT'
+        # BUG?:
+        # ブロックタイプがSHORTになったときに、前の計算結果が使われるため、ブロックタイプ判定後に計算
+        # 毎ブロックで計算しているとリファレンスと一致しない
+        ratio = []
+        for sblock in range(3):
+            ratio.append(_compute_percetual_threshold_ratio(PSYCO_SHORT, eb_short[sblock], thr_short[sblock]))
+
+    return w_long, nb_long, pe, block_type, ratio
 
 if __name__ == '__main__':
     # 定数定義
@@ -765,17 +843,17 @@ if __name__ == '__main__':
     SPREADING_FUNCTION_SHORT = _compute_spreading_function(PARTITION_SHORT)
 
     # 分割インデックス作成
-    PARTITION_LONG_INDEX = np.zeros(LONG_WINDOW_SIZE // 2 + 1, dtype=int)
+    PARTITION_INDEX_LONG = np.zeros(LONG_WINDOW_SIZE // 2 + 1, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_LONG):
         for _ in range(part['#lines']):
-            PARTITION_LONG_INDEX[index] = part_index
+            PARTITION_INDEX_LONG[index] = part_index
             index += 1
-    PARTITION_SHORT_INDEX = np.zeros(SHORT_WINDOW_SIZE // 2 + 1, dtype=int)
+    PARTITION_INDEX_SHORT = np.zeros(SHORT_WINDOW_SIZE // 2 + 1, dtype=int)
     index = 0
     for part_index, part in enumerate(PARTITION_SHORT):
         for _ in range(part['#lines']):
-            PARTITION_SHORT_INDEX[index] = part_index
+            PARTITION_INDEX_SHORT[index] = part_index
             index += 1
 
     def _compute_partition_center_frequencies(partition, window_size):
@@ -817,57 +895,24 @@ if __name__ == '__main__':
             # フレーム取得
             frame = _get_frame(data.T[ch], gr)
 
-            # FFT
-            w_long, w_short = _compute_fft(frame)
+            # 聴覚心理モデルII計算
+            w_long, nb_long, pe, block_type, ratio = compute_psyco_model_II(frame,\
+                    prev_wl[ch], prevprev_wl[ch], prev_nb[ch], prevprev_nb[ch], prev_block_type[ch])
 
-            # Unpredictability計算
-            cw = _compute_unpredictability(w_long, w_short, prev_wl[ch], prevprev_wl[ch])
-
-            # エネルギー（パワー）計算
-            energy_long = np.abs(w_long) ** 2
-            energy_short = []
-            for sblock in range(3):
-                energy_short.append(np.abs(w_short[sblock]) ** 2)
-
-            # パーティションごとのエネルギー計算
-            eb_long, cb_long, eb_short = _compute_energey_per_partition(cw, energy_long, energy_short)
-
-            # 広がり関数(Spreading Function)と畳み込み
-            ecb_long, ctb_long, ecb_short = _convolve_with_spreading_function(eb_long, cb_long, eb_short)
-
-            # ノイズ許容レベルの計算
-            nb_long, nb_short = _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short)
-
-            # 各パーティションの聴覚閾値を計算
-            thr_long, thr_short = _compute_percetual_threshold(nb_long, prev_nb[ch], prevprev_nb[ch], nb_short)
-
-            # 知覚エントロピー(percetual entropy)の計算
-            pe = _compute_percetual_entropy(eb_long, thr_long)
-            
-            # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比計算
-            if pe < PERCETUAL_ENTROPY_THRESHOLD:
-                if prev_block_type[ch] == 'NORMAL' or prev_block_type[ch] == 'STOP':
-                    block_type = 'NORMAL'
-                elif prev_block_type[ch] == 'SHORT':
-                    block_type = 'STOP'
-                else:
-                    assert(0)
-                # BUG?:
-                # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われるため、ブロックタイプ判定後に計算
-                # 毎ブロックで計算しているとリファレンスと一致しない
-                ratio_long[ch] = _compute_percetual_threshold_ratio(PSYCO_LONG, eb_long, thr_long)
-            else:
-                block_type = 'SHORT'
+            if block_type == 'SHORT':
+                # ブロックタイプの読み替え
+                # ショートブロックにつなげるために前のタイプを切り替える
                 if prev_block_type[ch] == 'NORMAL':
                     prev_block_type[ch] = 'START'
                 elif prev_block_type[ch] == 'STOP':
                     prev_block_type[ch] = 'SHORT'
-                # BUG?:
-                # ブロックタイプがSHORTになったときに、前の計算結果が使われるため、ブロックタイプ判定後に計算
-                # 毎ブロックで計算しているとリファレンスと一致しない
+                # しきい値比の更新
                 for sblock in range(3):
-                    ratio_short[ch][sblock] = _compute_percetual_threshold_ratio(PSYCO_SHORT, eb_short[sblock], thr_short[sblock])
-            
+                    ratio_short[ch][sblock] = ratio[sblock]
+            else:
+                # しきい値比の更新
+                ratio_long[ch] = ratio
+
             print(count)
             print(prev_block_type[ch])
             print(f'{pe:.3f}')
@@ -880,6 +925,7 @@ if __name__ == '__main__':
                     for sb in range(len(PSYCO_SHORT)):
                         print(f'{ratio_short[ch][sblock][sb]:.3f} ', end='')
                     print('')
+
             count += 1
 
             # 状態更新
