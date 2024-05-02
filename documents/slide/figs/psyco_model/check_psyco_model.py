@@ -636,9 +636,19 @@ def _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short):
     for b in range(NUM_CRITICAL_BANDS_LONG):
         cbb = 0.0
         if ecb_long[b] != 0.0:
+            # ctb_longはUnpredictabilityで重みづけされているため，
+            # ctb_long[b] / ecb_long[b]は予測通りの信号ならば0に近くなり，予測から離れた信号は1に近くなる
             cbb = np.log(max(ctb_long[b] / ecb_long[b], 0.01))
+        # [0,1]に範囲制限: cbbを符号反転しているため，予測しやすければ1, しにくければ0
         tbb = min(1.0, max(0.0, - 0.299 - 0.43 * cbb))
+        # オフセットエネルギー(dB)の計算 以下2つのマスキング結果をtbbで重みづけ
+        #  * 29.0(dB): おそらくtone-masking-noise（純音によるノイズのマスク）
+        #  * 6.0(dB): おそらくnoise-masking-tone（ノイズによる純音のマスク）
+        # minvalは高域にいくほど減少
         snr = max(PARTITION_LONG[b]['minval'], 29.0 * tbb + 6.0 * (1.0 - tbb))
+        # normにより正規化・オフセットをエネルギーに戻して乗算
+        # normは畳み込みにより増えたエネルギーを補正するためのゲイン
+        # 1.0 / np.sum(SPREADING_FUNCTION_LONG[b]) で計算できる
         nb_long[b] = PARTITION_LONG[b]['norm'] * ecb_long[b] * 10.0 ** (-snr / 10.0)
     for sblock in range(3):
         for b in range(NUM_CRITICAL_BANDS_SHORT):
@@ -670,6 +680,7 @@ def _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short):
     thr_long = np.zeros(NUM_CRITICAL_BANDS_LONG)
     thr_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
     for b in range(NUM_CRITICAL_BANDS_LONG):
+        # プリエコーコントロール（前のノイズレベルを考慮？）
         thr_long[b] = min(nb_long[b], min(2.0 * prev_nb[b], 16.0 * prevprev_nb[b]))
         thr_long[b] = max(thr_long[b], PARTITION_LONG[b]['qthr'])
     for sblock in range(3):
@@ -762,8 +773,8 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
         知覚エントロピー
     block_type : string
         ブロックタイプ
-    ratio : ndarray
-        聴覚しきい値比
+    ratio : ndarray or list of ndarray
+        聴覚しきい値比（block_type=='SHORT'のときはlist of ndarray）
     '''
     # FFT
     w_long, w_short = _compute_fft(frame)
