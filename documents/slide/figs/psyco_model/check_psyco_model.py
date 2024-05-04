@@ -482,6 +482,7 @@ def _compute_spreading_function(partition):
     sfunc = np.zeros((part_max, part_max))
     for i in range(part_max):
         for j in range(part_max):
+            # bvalはパーティションのBarkスケール中央値
             tx = partition[i]['bval'] - partition[j]['bval']
             tx = 3.0 * tx if i <= j else 1.5 * tx
             xij = 8.0 * min((tx - 0.5) ** 2.0 - 2.0 * (tx - 0.5), 0.0)
@@ -807,7 +808,7 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
     # 知覚エントロピー(percetual entropy)の計算
     pe = _compute_percetual_entropy(eb_long, thr_long)
     
-    # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比計算
+    # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比(SMR)計算
     if pe < PERCETUAL_ENTROPY_THRESHOLD:
         if prev_block_type == 'NORMAL' or prev_block_type == 'STOP':
             block_type = 'NORMAL'
