@@ -682,6 +682,7 @@ def _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short):
     for b in range(NUM_CRITICAL_BANDS_LONG):
         # プリエコーコントロール（前のノイズレベルを考慮？）
         thr_long[b] = min(nb_long[b], min(2.0 * prev_nb[b], 16.0 * prevprev_nb[b]))
+        # qthrで下限制限 qthrはおそらく最小可聴域（4kHz付近で底を打ってないので怪しい）
         thr_long[b] = max(thr_long[b], PARTITION_LONG[b]['qthr'])
     for sblock in range(3):
         for b in range(NUM_CRITICAL_BANDS_SHORT):
@@ -720,7 +721,7 @@ def _compute_percetual_entropy(eb_long, thr_long):
 
 def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     '''
-    聴覚しきい値比の計算コア処理
+    聴覚しきい値比(SMR, Signal-to-Masking Ratio)の計算コア処理
 
     Parameters
     ----------
@@ -738,6 +739,10 @@ def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     '''
     ratio = np.zeros(len(psyco_data))
     for sb, psy in enumerate(psyco_data):
+        # w1, w2は隣接するバンドにどの程度割り振るかの比
+        # 前バンドのw2 + w1 = 1.0
+        # w2 + 次バンドのw1 = 1.0
+        # が成立
         bu = psy['bu']
         bo = psy['bo']
         en = psy['w1'] * eb[bu] + psy['w2'] * eb[bo]
