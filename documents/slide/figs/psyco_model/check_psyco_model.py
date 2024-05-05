@@ -438,16 +438,28 @@ PSYCO_DATA = {
     ]
 }
 
-def _get_frame(data, gr):
+def _get_frame(data, gr_index):
     '''
     グラニュールインデックスに対応するサンプルフレームの取得
+
+    Parameters
+    ----------
+    data : ndarray
+        入力信号データ
+    gr_index : int
+        グラニュールインデックス
+
+    Returns
+    -------
+    new_frame : ndarray
+        信号フレーム
     '''
-    frame = np.zeros(LONG_WINDOW_SIZE)
+    new_frame = np.zeros(LONG_WINDOW_SIZE)
     for i in range(LONG_WINDOW_SIZE):
-        index = NUM_GRANULE_SAMPLES * gr - 768 + i
-        if index >= 0:
-            frame[i] = data[index]
-    return frame
+        smpl = NUM_GRANULE_SAMPLES * gr_index - 768 + i
+        if smpl >= 0:
+            new_frame[i] = data[smpl]
+    return new_frame
 
 def _dist10fft(data):
     min_abs = 0.0005 ** 0.5
@@ -456,13 +468,28 @@ def _dist10fft(data):
     spec = np.where(np.abs(spec) <= min_abs, min_abs, spec)
     return spec
 
-def _compute_fft(frame):
-    wl = _dist10fft(frame * LONG_WINDOW)
-    ws = []
-    for b in range(3):
-        short_frame = frame[128 * b + SHORT_WINDOW_SIZE + np.arange(SHORT_WINDOW_SIZE)].copy()
-        ws.append(_dist10fft(short_frame * SHORT_WINDOW))
-    return wl, ws
+def _compute_fft(analyze_frame):
+    '''
+    FFT計算
+
+    Parameters
+    ----------
+    analyze_frame : ndarray
+        分析対象のフレーム
+
+    Returns
+    -------
+    spec_long : ndarray 
+        FFT結果（ロングブロック）
+    spec_short : list of ndarray
+        FFT結果（ショートブロック）
+    '''
+    spec_long = _dist10fft(analyze_frame * LONG_WINDOW)
+    spec_short = []
+    for i in range(3):
+        short_frame = analyze_frame[128 * i + SHORT_WINDOW_SIZE + np.arange(SHORT_WINDOW_SIZE)].copy()
+        spec_short.append(_dist10fft(short_frame * SHORT_WINDOW))
+    return spec_long, spec_short
 
 def _compute_spreading_function(partition):
     '''
@@ -483,11 +510,11 @@ def _compute_spreading_function(partition):
     for i in range(part_max):
         for j in range(part_max):
             # bvalはパーティションのBarkスケール中央値
-            tx = partition[i]['bval'] - partition[j]['bval']
-            tx = 3.0 * tx if i <= j else 1.5 * tx
-            xij = 8.0 * min((tx - 0.5) ** 2.0 - 2.0 * (tx - 0.5), 0.0)
-            ty = 15.811389 + 7.5 * (tx + 0.474) - 17.5 * (1.0 + (tx + 0.474) ** 2.0) ** 0.5
-            sfunc[i][j] = 10.0 ** ((xij + ty) / 10) if ty >= -60 else 0.0 # 本とdist10で異なる
+            t_x = partition[i]['bval'] - partition[j]['bval']
+            t_x = 3.0 * t_x if i <= j else 1.5 * t_x
+            x_ij = 8.0 * min((t_x - 0.5) ** 2.0 - 2.0 * (t_x - 0.5), 0.0)
+            t_y = 15.811389 + 7.5 * (t_x + 0.474) - 17.5 * (1.0 + (t_x + 0.474) ** 2.0) ** 0.5
+            sfunc[i][j] = 10.0 ** ((x_ij + t_y) / 10) if t_y >= -60 else 0.0 # 本とdist10で異なる
     return sfunc
 
 def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
@@ -961,10 +988,10 @@ if __name__ == '__main__':
     SHORT_WINDOW_SIZE = 256
     NUM_GRANULE_SAMPLES = 576
 
-    SAMPLING_FREQUENCY, data = wavfile.read(sys.argv[1])
-    NUM_SAMPLES = data.shape[0]
-    data = data.reshape((NUM_SAMPLES, -1))
-    NUM_CHANNELS = data.shape[1]
+    SAMPLING_FREQUENCY, indata = wavfile.read(sys.argv[1])
+    NUM_SAMPLES = indata.shape[0]
+    indata = indata.reshape((NUM_SAMPLES, -1))
+    NUM_CHANNELS = indata.shape[1]
 
     # 窓関数計算
     LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / LONG_WINDOW_SIZE)) for i in range(LONG_WINDOW_SIZE)]
@@ -998,9 +1025,9 @@ if __name__ == '__main__':
     # パーティション個数以降は0初期化されている
     SNR_SHORT = np.zeros(NUM_CRITICAL_BANDS_SHORT)
     QTHR_SHORT = np.zeros(NUM_CRITICAL_BANDS_SHORT)
-    for b in range(len(PARTITION_SHORT)):
-        SNR_SHORT[b] = PARTITION_SHORT[b]['SNR']
-        QTHR_SHORT[b] = PARTITION_SHORT[b]['qthr']
+    for b, part in enumerate(PARTITION_SHORT):
+        SNR_SHORT[b] = part['SNR']
+        QTHR_SHORT[b] = part['qthr']
 
     prev_wl = np.zeros((NUM_CHANNELS, LONG_WINDOW_SIZE), dtype=complex)
     prevprev_wl = np.zeros((NUM_CHANNELS, LONG_WINDOW_SIZE), dtype=complex)
@@ -1018,7 +1045,7 @@ if __name__ == '__main__':
     for gr in range(NUM_SAMPLES // NUM_GRANULE_SAMPLES):
         for ch in range(NUM_CHANNELS):
             # フレーム取得
-            frame = _get_frame(data.T[ch], gr)
+            frame = _get_frame(indata.T[ch], gr)
 
             # 聴覚心理モデルII計算
             w_long, nb_long, pe, block_type, ratio = compute_psyco_model_II(frame,\
