@@ -742,7 +742,7 @@ def _compute_percetual_threshold_ratio(psyco_data, eb, thr):
     for sb, psy in enumerate(psyco_data):
         # w1, w2は隣接するバンドにどの程度割り振るかの比
         # 前バンドのw2 + w1 = 1.0
-        # が成立
+        # が成立。TODO: どのように導かれたか？
         bu = psy['bu']
         bo = psy['bo']
         en = psy['w1'] * eb[bu] + psy['w2'] * eb[bo]
