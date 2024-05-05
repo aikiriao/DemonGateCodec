@@ -1391,6 +1391,60 @@
     となる．
 \end{frame}
 
-\subsection{知覚エントロピー} \label{sec:proofs_perceptual_entropy}
+\subsection{知覚エントロピー導出} \label{sec:proofs_perceptual_entropy}
+
+\begin{frame}[c]
+    \frametitle{知覚エントロピー導出}
+    聴覚しきい値$T_{b}$に量子化分散（パワー）を合わせる
+    \begin{itemize}
+        \item 各周波数ビンを量子化ステップ幅$\Delta_{b}$で一様量子化 $\Rightarrow$ 量子化誤差が一様に生起するなら，量子化誤差分散はビンあたり$\frac{\Delta_{b}^{2}}{12}$
+        \item パーティション$b$に含まれるビン数を$n_{b}$とすると，ビンあたりの聴覚しきい値は$\frac{T_{b}}{n_{b}}$
+    \end{itemize}
+    これらを等しいとすると，
+    \begin{align}
+        \frac{T_{b}}{n_{b}} = \frac{\Delta_{b}^{2}}{12} \implies \Delta_{b} = \sqrt{\frac{12T_{b}}{n_{b}}}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{知覚エントロピー導出}
+    振幅スペクトル（$\approx$ DCTスペクトル）の符号化に必要なビット数を考える
+    \begin{itemize}
+        \item ビンあたりの平均振幅スペクトルは$\sqrt{I_{b} / n_{b}}$
+        \item 平均振幅スペクトルを整数量子化．振幅スペクトルは$[- \lceil \sqrt{I_{b} / n_{b}} \rceil, \lceil \sqrt{I_{b} / n_{b}} \rceil]$にある整数 $\Rightarrow$ 整数個数は高々$2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1$（$+1$は$0$）
+    \end{itemize}
+    整数個数をステップ幅$\Delta_{b}$で割ることで符号化シンボル個数になる．符号化に必要なビット幅(bit)は，
+    \begin{align}
+        \log_{2} \frac{2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1}{\Delta_{b}} \label{eq:mass_of_information_per_bin}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{知覚エントロピー導出}
+    \eqref{eq:mass_of_information_per_bin}式を変形
+    \begin{align*}
+        \log_{2} \frac{2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1}{\Delta_{b}} &\approx \log_{2} \frac{2 \sqrt{I_{b} / n_{b}}}{\Delta_{b}} \ \ \text{（$I_{b}$は大と仮定）} \\
+        &= \frac{1}{2} \log_{2} \frac{4 I_{b}}{n_{b} \Delta_{b}^{2}} = \frac{1}{2} \log_{2} \frac{I_{b}}{3T_{b}} \\
+        &\propto \frac{1}{2} \log \frac{I_{b}}{3T_{b}} = \frac{1}{2} \log \frac{I_{b}}{T_{b}} + \mathrm{const.}
+    \end{align*}
+    全周波数ビンの符号化に必要なビット数は
+    \begin{align}
+        \sum_{b} n_{b} \log \frac{I_{b}}{T_{b}} + \mathrm{const.} 
+    \end{align}
+    に比例
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{知覚エントロピー導出}
+    規格では知覚エントロピー$\mathrm{PE}$を
+    \begin{align}
+        \mathrm{PE} = \sum_{b} n_{n} \log \frac{I_{b} + 1}{T_{b}}
+    \end{align}
+    で定義．dist10では無音領域で$T_{b} = 0$となるため，
+    \begin{align}
+        \mathrm{PE} = \sum_{b} n_{n} \log \frac{I_{b} + 1}{T_{b} + 1}
+    \end{align}
+    で計算\footnote{有音区間で$I_{b}, T_{b}$は大きいので，近似としては問題ない想定}
+\end{frame}
 
 \end{document}
