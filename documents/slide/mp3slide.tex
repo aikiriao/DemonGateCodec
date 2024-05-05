@@ -690,7 +690,7 @@
 
 \begin{frame}[c]
     \frametitle{MP3の符号化}
-    量子化スペクトルを，区分に分けて符号化
+    量子化スペクトルを区分に分けて符号化
     \begin{figure}
         \includegraphics[width=115mm]{./figs/huffman_coding_region_division.png}
     \end{figure}
@@ -741,10 +741,10 @@
                 \item フレーム切り出し・窓かけ・FFT
                 \item Unpredictability計算
                 \item パーティションごとのエネルギー計算
-                \item 広がり関数(Spreading Function)の畳み込み
+                \item 広がり関数(Spreading function)の畳み込み
                 \item ノイズ許容レベル計算
                 \item 聴覚しきい値計算
-                \item 知覚エントロピー計算
+                \item 知覚エントロピー(Psychoacoustic entropy)計算
                 \item ブロックタイプ判定・信号対マスク比(SMR)計算
             \end{enumerate}
     \end{itemize}
@@ -752,14 +752,80 @@
 
 \begin{frame}[c]
     \frametitle{フレーム切り出し・窓かけ・FFT}
+    \begin{itemize}
+        \item longとshortの2つを計算
+            \begin{itemize}
+                \item longはサイズ1024
+                \item shortはサイズ256を3つ．信号$s[n]$の$s[128b + n]\ b = 1,2,3$を使用
+            \end{itemize}
+        \item Hanning窓を適用
+        \item スライド(hop)サイズは576（$=$DCTスペクトルサイズ）
+    \end{itemize}
+    FFT係数を$w^{l}$(long)，$w^{s_{b}}$(short, $b=1,2,3$)と表記
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{フレーム切り出し・窓かけ・FFT}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_energy.pdf}
+        \caption*{ピアノ(F0=220)のlongのエネルギー（パワースペクトル）}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{Unpredictability計算}
+    Unpredictability = 予測しずらさの尺度
+    \begin{itemize}
+        \item 振幅・位相スペクトルを直線予測した複素数を予測とし，誤差絶対値を正規化して評価
+        \item 予測が当っていれば$0$，外れていれば$1$
+        \item long, shortの直線予測（$w^{l\prime}$は前フレームの$w^{l}$）：
+            \footnotesize
+            \begin{align}
+                w^{l\ast}[n] &= (2|w^{l\prime}[n]| - |w^{l\prime\prime}[n]|) \exp[j (2\arg(w^{l\prime}[n]) - \arg(w^{l\prime\prime}[n]))] \\
+                w^{s\ast}[n] &= (2|w^{s_{1}}[n]| - |w^{s_{3}}[n]|) \exp[j (2\arg(w^{s_{1}}[n]) - \arg(w^{s_{3}}[n]))]
+            \end{align}
+    \end{itemize}
+    Unpredictability $cw$の計算式：
+    \small
+    \begin{align}
+        cw[n] = \left\{ \begin{array}{cl}
+            \frac{|w^{l}[n] - w^{l\ast}[n]|}{|w^{l}[n]| + |w^{l\ast}[n]|} & 0 \leq n \leq 5 \\
+            \frac{|w^{s}[j] - w^{s\ast}[j]|}{|w^{s}[j]| + |w^{s\ast}[j]|} & j = \lfloor (n + 2)/4 \rfloor,\ 6 \leq n \leq 205 \\
+            0.4 & 206 \leq n \leq 512
+        \end{array} \right.
+    \end{align}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{パーティションごとのエネルギー計算}
+    周波数ビンを"パーティション(partition)"単位に分割
+    \begin{itemize}
+        \item パーティション内のエネルギーを合算
+        \item 同時にUnpredictabilityで重みづけしたエネルギーも合算
+    \end{itemize}
+    long, shortのパーティション$b$を$P^{l}_{b}, P^{s}_{b}$と書くと，
+    \small
+    \begin{align}
+        eb^{l}[b] &= \sum_{n = \min P^{l}_{b}}^{\max P^{l}_{b} - 1} |w^{l}[n]|^{2} \\
+        cb^{l}[b] &= \sum_{n = \min P^{l}_{b}}^{\max P^{l}_{b} - 1} cw[n] |w^{l}[n]|^{2} \\
+        eb^{s}[b] &= \sum_{n = \min P^{s}_{b}}^{\max P^{s}_{b} - 1} |w^{s}[n]|^{2}
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{パーティションごとのエネルギー計算}
+    \begin{figure}
+        \includegraphics[width=95mm]{./figs/partion_frequency_long44100Hz.pdf}
+        \caption*{サンプリング周波数44.1kHzのlongのパーティション．Barkスケールを細かくしたものとみなせる}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{パーティションごとのエネルギー計算}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_partitioned_energy.pdf}
+        \caption*{ピアノ(F0=220)のlongパーティション分割後のエネルギー$eb^{l}$}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
