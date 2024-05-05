@@ -450,10 +450,10 @@ def _get_frame(data, gr):
     return frame
 
 def _dist10fft(data):
-    MIN_ABS = 0.0005 ** 0.5
+    min_abs = 0.0005 ** 0.5
     spec = np.fft.fft(data)
     spec = np.where(np.abs(spec) <= np.finfo(np.float64).min, 0.0, spec)
-    spec = np.where(np.abs(spec) <= MIN_ABS, MIN_ABS, spec)
+    spec = np.where(np.abs(spec) <= min_abs, min_abs, spec)
     return spec
 
 def _compute_fft(frame):
@@ -682,7 +682,7 @@ def _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short):
     thr_short = np.zeros((3, NUM_CRITICAL_BANDS_SHORT))
     for b in range(NUM_CRITICAL_BANDS_LONG):
         # プリエコーコントロール（前のノイズレベルを考慮？）
-        thr_long[b] = min(nb_long[b], min(2.0 * prev_nb[b], 16.0 * prevprev_nb[b]))
+        thr_long[b] = min(nb_long[b], 2.0 * prev_nb[b], 16.0 * prevprev_nb[b])
         # qthrで下限制限 qthrはおそらく最小可聴域（4kHz付近で底を打ってないので怪しい）
         thr_long[b] = max(thr_long[b], PARTITION_LONG[b]['qthr'])
     for sblock in range(3):
@@ -834,7 +834,7 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
 
     # パーティションごとのエネルギー計算
     eb_long, cb_long, eb_short = _compute_energey_per_partition(cw, energy_long, energy_short)
-   
+
     # 広がり関数(Spreading Function)と畳み込み
     ecb_long, ctb_long, ecb_short = _convolve_with_spreading_function(eb_long, cb_long, eb_short)
 
@@ -849,12 +849,12 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
 
     # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比(SMR)計算
     if pe < PERCETUAL_ENTROPY_THRESHOLD:
-        if prev_block_type == 'NORMAL' or prev_block_type == 'STOP':
+        if prev_block_type in ('NORMAL', 'STOP'):
             block_type = 'NORMAL'
         elif prev_block_type == 'SHORT':
             block_type = 'STOP'
         else:
-            assert(0)
+            assert 0
         # BUG?:
         # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われるため、ブロックタイプ判定後に計算
         # 毎ブロックで計算しているとリファレンスと一致しない
