@@ -831,6 +831,20 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
 
     return w_long, nb_long, pe, block_type, ratio
 
+def _print_result(count, pe, block_type, ratio):
+    print(count)
+    print(block_type)
+    print(f'{pe:.3f}')
+    if block_type != 'SHORT':
+        for sb in range(len(PSYCO_LONG)):
+            print(f'{ratio_long[ch][sb]:.3f} ', end='')
+        print('')
+    else:
+        for sblock in range(3):
+            for sb in range(len(PSYCO_SHORT)):
+                print(f'{ratio_short[ch][sblock][sb]:.3f} ', end='')
+            print('')
+
 if __name__ == '__main__':
     # 定数定義
     NUM_CRITICAL_BANDS_LONG = 63
@@ -929,18 +943,8 @@ if __name__ == '__main__':
                 # しきい値比の更新
                 ratio_long[ch] = ratio
 
-            print(count)
-            print(prev_block_type[ch])
-            print(f'{pe:.3f}')
-            if prev_block_type[ch] != 'SHORT':
-                for sb in range(len(PSYCO_LONG)):
-                    print(f'{ratio_long[ch][sb]:.3f} ', end='')
-                print('')
-            else:
-                for sblock in range(3):
-                    for sb in range(len(PSYCO_SHORT)):
-                        print(f'{ratio_short[ch][sblock][sb]:.3f} ', end='')
-                    print('')
+            # 結果出力
+            _print_result(count, pe, prev_block_type[ch], ratio)
 
             count += 1
 
