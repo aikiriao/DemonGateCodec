@@ -479,7 +479,7 @@ def _compute_fft(analyze_frame):
 
     Returns
     -------
-    spec_long : ndarray 
+    spec_long : ndarray
         FFT結果（ロングブロック）
     spec_short : list of ndarray
         FFT結果（ショートブロック）
@@ -1066,7 +1066,7 @@ if __name__ == '__main__':
                 ratio_long[ch] = ratio
 
             # 結果出力
-            # _print_result(count, pe, prev_block_type[ch], ratio_long[ch], ratio_short[ch])
+            _print_result(count, pe, prev_block_type[ch], ratio_long[ch], ratio_short[ch])
 
             count += 1
 
