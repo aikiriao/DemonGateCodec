@@ -831,7 +831,45 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
 
     return w_long, nb_long, pe, block_type, ratio
 
+def _compute_partition_center_frequencies(partition, window_size):
+    '''
+    パーティションの中心周波数を計算
+
+    Parameters
+    ----------
+    partition : list of dict
+        パーティション
+    window_size : int
+        フレーム窓サイズ
+
+    Returns
+    -------
+    center_freqs : ndarray
+        パーティションの中心周波数
+    '''
+    center_freqs = np.zeros(len(partition))
+    index = 0
+    for part_index, part in enumerate(partition):
+        center_bin = (index + part['#lines']) / 2.0
+        center_freqs[part_index] = 2 * center_bin / window_size * SAMPLING_FREQUENCY
+        index += part['#lines']
+    return center_freqs
+
 def _print_result(count, pe, block_type, ratio):
+    '''
+    分析結果のデバッグ表示
+
+    Parameters
+    ----------
+    count : int
+        処理フレームカウント
+    pe : float
+        知覚エントロピー
+    block_type : string
+        ブロックタイプ
+    ratio : ndarray or list of ndarray
+        聴覚しきい値比（block_type=='SHORT'のときはlist of ndarray）
+    '''
     print(count)
     print(block_type)
     print(f'{pe:.3f}')
@@ -885,19 +923,6 @@ if __name__ == '__main__':
         for _ in range(part['#lines']):
             PARTITION_INDEX_SHORT[index] = part_index
             index += 1
-
-    def _compute_partition_center_frequencies(partition, window_size):
-        center_freqs = np.zeros(len(partition))
-        index = 0
-        for part_index, part in enumerate(partition):
-            center_bin = (index + part['#lines']) / 2.0
-            center_freqs[part_index] = 2 * center_bin / window_size * SAMPLING_FREQUENCY
-            index += part['#lines']
-        return center_freqs
-
-    # （デバッグ用）パーティションの中心周波数計算
-    center_freq_long = _compute_partition_center_frequencies(PARTITION_LONG, LONG_WINDOW_SIZE)
-    center_freq_short = _compute_partition_center_frequencies(PARTITION_SHORT, SHORT_WINDOW_SIZE)
 
     # ショートブロックのSNRと閾値作成
     # パーティション個数以降は0初期化されている
