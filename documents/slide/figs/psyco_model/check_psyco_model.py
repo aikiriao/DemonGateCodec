@@ -822,31 +822,31 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
     '''
     # FFT
     w_long, w_short = _compute_fft(frame)
-    
+
     # Unpredictability計算
     cw = _compute_unpredictability(w_long, w_short, prev_wl, prevprev_wl)
-    
+
     # エネルギー（パワー）計算
     energy_long = np.abs(w_long) ** 2
     energy_short = []
     for sblock in range(3):
         energy_short.append(np.abs(w_short[sblock]) ** 2)
-    
+
     # パーティションごとのエネルギー計算
     eb_long, cb_long, eb_short = _compute_energey_per_partition(cw, energy_long, energy_short)
-    
+   
     # 広がり関数(Spreading Function)と畳み込み
     ecb_long, ctb_long, ecb_short = _convolve_with_spreading_function(eb_long, cb_long, eb_short)
-    
+
     # ノイズ許容レベルの計算
     nb_long, nb_short = _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short)
-    
+
     # 各パーティションの聴覚閾値を計算
     thr_long, thr_short = _compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short)
-    
+
     # 知覚エントロピー(percetual entropy)の計算
     pe = _compute_percetual_entropy(eb_long, thr_long)
-    
+
     # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比(SMR)計算
     if pe < PERCETUAL_ENTROPY_THRESHOLD:
         if prev_block_type == 'NORMAL' or prev_block_type == 'STOP':
