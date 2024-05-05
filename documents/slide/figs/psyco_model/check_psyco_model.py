@@ -897,7 +897,7 @@ def _compute_partition_center_frequencies(partition, window_size):
         index += part['#lines']
     return center_freqs
 
-def _print_result(count, pe, block_type, ratio):
+def _print_result(count, pe, block_type, ratio_long, ratio_short):
     '''
     分析結果のデバッグ表示
 
@@ -909,20 +909,22 @@ def _print_result(count, pe, block_type, ratio):
         知覚エントロピー
     block_type : string
         ブロックタイプ
-    ratio : ndarray or list of ndarray
-        聴覚しきい値比（block_type=='SHORT'のときはlist of ndarray）
+    ratio_long : ndarray
+        聴覚しきい値比（ロングブロック）
+    ratio_short : list of ndarray
+        聴覚しきい値比（ショートブロック）
     '''
     print(count)
     print(block_type)
     print(f'{pe:.3f}')
     if block_type != 'SHORT':
         for sb in range(len(PSYCO_LONG)):
-            print(f'{ratio_long[ch][sb]:.3f} ', end='')
+            print(f'{ratio_long[sb]:.3f} ', end='')
         print('')
     else:
         for sblock in range(3):
             for sb in range(len(PSYCO_SHORT)):
-                print(f'{ratio_short[ch][sblock][sb]:.3f} ', end='')
+                print(f'{ratio_short[sblock][sb]:.3f} ', end='')
             print('')
 
 if __name__ == '__main__':
@@ -1012,7 +1014,7 @@ if __name__ == '__main__':
                 ratio_long[ch] = ratio
 
             # 結果出力
-            # _print_result(count, pe, prev_block_type[ch], ratio)
+            # _print_result(count, pe, prev_block_type[ch], ratio_long[ch], ratio_short[ch])
 
             count += 1
 
