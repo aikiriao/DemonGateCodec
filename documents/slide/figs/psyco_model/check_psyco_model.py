@@ -894,6 +894,7 @@ if __name__ == '__main__':
 
     SAMPLING_FREQUENCY, data = wavfile.read(sys.argv[1])
     NUM_SAMPLES = data.shape[0]
+    data = data.reshape((NUM_SAMPLES, -1))
     NUM_CHANNELS = data.shape[1]
 
     # 窓関数計算
