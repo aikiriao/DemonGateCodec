@@ -732,7 +732,54 @@
 \section{聴覚心理モデルII}
 
 \begin{frame}[c]
-    \frametitle{聴覚心理モデルII}
+    \frametitle{聴覚心理モデルIIの概要}
+    \begin{itemize}
+        \item LayerIIIの聴覚心理モデル（LayerI, IIとは異なる）
+        \item 出力：信号対マスク比(SMR\footnote{Signal-to-Masking Ratio})，ブロックタイプ
+        \item 処理手順
+            \begin{enumerate}
+                \item フレーム切り出し・窓かけ・FFT
+                \item Unpredictability計算
+                \item パーティションごとのエネルギー計算
+                \item 広がり関数(Spreading Function)の畳み込み
+                \item ノイズ許容レベル計算
+                \item 聴覚しきい値計算
+                \item 知覚エントロピー計算
+                \item ブロックタイプ判定・信号対マスク比(SMR)計算
+            \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{フレーム切り出し・窓かけ・FFT}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{Unpredictability計算}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{パーティションごとのエネルギー計算}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{広がり関数の畳み込み}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ノイズ許容レベル計算}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{聴覚しきい値計算}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{知覚エントロピー計算}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ブロックタイプ判定・SMR計算}
 \end{frame}
 
 \appendix
@@ -1343,5 +1390,7 @@
     \end{align*}
     となる．
 \end{frame}
+
+\subsection{知覚エントロピー} \label{sec:proofs_perceptual_entropy}
 
 \end{document}
