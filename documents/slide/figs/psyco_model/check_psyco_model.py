@@ -873,9 +873,9 @@ def compute_psyco_model_II(frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, pr
 
     return w_long, nb_long, pe, block_type, ratio
 
-def _compute_partition_center_frequencies(partition, window_size):
+def _compute_partition_frequencies(partition, window_size):
     '''
-    パーティションの中心周波数を計算
+    パーティションの最小・最大周波数を計算
 
     Parameters
     ----------
@@ -886,16 +886,41 @@ def _compute_partition_center_frequencies(partition, window_size):
 
     Returns
     -------
-    center_freqs : ndarray
-        パーティションの中心周波数
+    min_freqs : ndarray
+        パーティションの最小周波数
+    max_freqs : ndarray
+        パーティションの最大周波数
     '''
-    center_freqs = np.zeros(len(partition))
+    min_freqs = np.zeros(len(partition))
+    max_freqs = np.zeros(len(partition))
     index = 0
     for part_index, part in enumerate(partition):
-        center_bin = (index + part['#lines']) / 2.0
-        center_freqs[part_index] = 2 * center_bin / window_size * SAMPLING_FREQUENCY
+        min_freqs[part_index] = index / window_size * SAMPLING_FREQUENCY
+        max_freqs[part_index] = (index + part['#lines']) / window_size * SAMPLING_FREQUENCY
         index += part['#lines']
-    return center_freqs
+    return min_freqs, max_freqs
+
+def _plot_partition_frequency(partition, window_size):
+    '''
+    パーティションの最小・最大周波数をプロット
+
+    Parameters
+    ----------
+    partition : list of dict
+        パーティション
+    window_size : int
+        フレーム窓サイズ
+    '''
+    x = np.arange(len(partition))
+    min_freqs, max_freqs = _compute_partition_frequencies(partition, window_size)
+    plt.plot(x, min_freqs, label='min')
+    plt.plot(x, max_freqs, label='max')
+    plt.xlabel('Partition number')
+    plt.ylabel('Frequency (Hz)')
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig('partion_frequency_long44100Hz.pdf')
 
 def _print_result(count, pe, block_type, ratio_long, ratio_short):
     '''
