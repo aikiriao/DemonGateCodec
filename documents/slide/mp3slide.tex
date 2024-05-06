@@ -1553,14 +1553,14 @@
 
 \begin{frame}[c]
     \frametitle{知覚エントロピー導出}
-    振幅スペクトル（$\approx$ DCTスペクトル）の符号化に必要なビット数を考える
+    スペクトルの符号化に必要なビット数を考える
     \begin{itemize}
         \item ビンあたりの平均振幅スペクトルは$\sqrt{I_{b} / n_{b}}$
-        \item 平均振幅スペクトルを整数量子化．振幅スペクトルは$[- \lceil \sqrt{I_{b} / n_{b}} \rceil, \lceil \sqrt{I_{b} / n_{b}} \rceil]$にある整数 $\Rightarrow$ 整数個数は高々$2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1$（$+1$は$0$）
+        \item スペクトルは$[- \lceil \sqrt{I_{b} / n_{b}} \rceil, \lceil \sqrt{I_{b} / n_{b}} \rceil]$の範囲 $\Rightarrow$ 実・虚含めて符号化範囲の幅は$4\sqrt{I_{b} / n_{b}}$
     \end{itemize}
-    整数個数をステップ幅$\Delta_{b}$で割ることで符号化シンボル個数になる．符号化に必要なビット幅(bit)は，
+    範囲をステップ幅$\Delta_{b}$で割ることで符号化シンボル個数になる．符号化に必要なビット数は，
     \begin{align}
-        \log_{2} \frac{2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1}{\Delta_{b}} \label{eq:mass_of_information_per_bin}
+        \log_{2} \frac{4 \sqrt{I_{b} / n_{b}}}{\Delta_{b}} \label{eq:mass_of_information_per_bin}
     \end{align}
 \end{frame}
 
@@ -1568,9 +1568,8 @@
     \frametitle{知覚エントロピー導出}
     \eqref{eq:mass_of_information_per_bin}式を変形
     \begin{align*}
-        \log_{2} \frac{2 \lceil \sqrt{I_{b} / n_{b}} \rceil + 1}{\Delta_{b}} &\approx \log_{2} \frac{2 \sqrt{I_{b} / n_{b}}}{\Delta_{b}} \ \ \text{（$I_{b}$は大と仮定）} \\
-        &= \frac{1}{2} \log_{2} \frac{4 I_{b}}{n_{b} \Delta_{b}^{2}} = \frac{1}{2} \log_{2} \frac{I_{b}}{3T_{b}} \\
-        &\propto \frac{1}{2} \log \frac{I_{b}}{3T_{b}} = \frac{1}{2} \log \frac{I_{b}}{T_{b}} + \mathrm{const.}
+        \log_{2} \frac{4 \sqrt{I_{b} / n_{b}}}{\Delta_{b}} &= \frac{1}{2} \log_{2} \frac{16 I_{b}}{n_{b} \Delta_{b}^{2}} = \frac{1}{2} \log_{2} \frac{4I_{b}}{3T_{b}} \\
+        &\propto \frac{1}{2} \log \frac{4I_{b}}{3T_{b}} = \frac{1}{2} \log \frac{I_{b}}{T_{b}} + \mathrm{const.}
     \end{align*}
     全周波数ビンの符号化に必要なビット数は
     \begin{align}
