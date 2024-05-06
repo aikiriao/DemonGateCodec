@@ -666,15 +666,15 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}[c]
-    \frametitle{$3/4$乗の効果}
-    平均0分散0.1のLaplace分布の絶対値$|x|$と$|x|^{\frac{3}{4}}$の密度
-    \begin{figure}
-        \includegraphics[width=90mm]{./figs/powered_distribution.pdf}
-    \end{figure}
-    \vspace{-10pt}
-    $0$近傍の密度が減少
-\end{frame}
+% \begin{frame}[c]
+%     \frametitle{$3/4$乗の効果}
+%     平均0分散0.1のLaplace分布の絶対値$|x|$と$|x|^{\frac{3}{4}}$の密度
+%     \begin{figure}
+%         \includegraphics[width=90mm]{./figs/powered_distribution.pdf}
+%     \end{figure}
+%     \vspace{-10pt}
+%     $0$近傍の密度が減少
+% \end{frame}
 
 \begin{frame}[c]
     \frametitle{$3/4$乗の効果}
@@ -695,7 +695,7 @@
         \includegraphics[width=115mm]{./figs/huffman_coding_region_division.png}
     \end{figure}
     \begin{description}
-        \item[big value] 大きい値は線形量子化
+        \item[big value] 大きい値は線形量子化を兼用
             \begin{itemize}
                 \item region0,1,2で異なるハフマンテーブルを使用
             \end{itemize}
@@ -863,18 +863,18 @@
     パーティション$b$の量子化ノイズ許容レベルを計算\footnote{shortは省略．SNRをテーブル引きして計算する以外同様のため}
     \small
     \begin{description}
-        \item[$tbb$の計算] $tbb=0$はノイズ，$tbb=1$は調波成分に近い
+        \item[$tbb$計算] $tbb=0$はノイズ，$tbb=1$は調波成分を示す尺度
             \begin{align}
                 cbb &= \log \left( \max \left\{ \frac{ctb[b]}{ecb^{l}[b]}, 0.01 \right\} \right) \\
                 tbb &= \min\{ 1.0, \max\{ 0.0, - 0.299 - 0.43 cbb \} \}
             \end{align}
-        \item[SNRの計算] $tbb$からSNR(dB)を計算．$29.0$は純音によるノイズのマスク(dB)，$6.0$はノイズによる純音のマスク(dB)
+        \item[SNR計算] マスクの加重和でSNR(dB)を計算．$29.0$は調波によるノイズのマスク，$6.0$はノイズによる純音のマスク
             \begin{align}
                 snr = \max \left\{ \mathrm{minval}_{b}, 29.0 tbb + 6.0 (1 - tbb) \right\}
             \end{align}
         \item[許容レベル計算] SNRにエネルギーを乗じて許容レベル$nb^{l}$を得る．広がり関数で増えたエネルギーを戻す
             \begin{align}
-                nb^{l}[b] = \frac{ecb^{l}[b] \times 10^{-snr / 10}}{\sum_{k} SF_{b}[k]}
+                nb^{l}[b] = \frac{ecb^{l}[b]}{\sum_{k} SF_{b}[k]} \times 10^{-\frac{snr}{10}}
             \end{align}
     \end{description}
 \end{frame}
@@ -897,7 +897,7 @@
         \item $\mathrm{qthr}_{b}$：最小可聴パワー
         \item $nb^{l\prime}, nb^{l\prime\prime}$：前とさらにその前のノイズ許容レベル
             \begin{itemize}
-                \item 前フレームのノイズを残し，プリエコー対策
+                \item 前フレームのノイズを残す．プリエコー対策
             \end{itemize}
     \end{itemize}
 \end{frame}
