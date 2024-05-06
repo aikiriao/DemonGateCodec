@@ -744,8 +744,8 @@
                 \item 広がり関数(Spreading function)の畳み込み
                 \item ノイズ許容レベル計算
                 \item 聴覚しきい値計算
-                \item 知覚エントロピー(Psychoacoustic entropy)計算
-                \item ブロックタイプ判定・信号対マスク比(SMR)計算
+                \item 知覚エントロピー(Psychoacoustic entropy)計算・ブロックタイプ判定
+                \item 信号対マスク比(SMR)計算
             \end{enumerate}
     \end{itemize}
 \end{frame}
@@ -768,7 +768,7 @@
     \frametitle{フレーム切り出し・窓かけ・FFT}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_energy.pdf}
-        \caption*{ピアノ(F0=220)のlongのエネルギー（パワースペクトル）}
+        \caption*{ピアノ($F_{0}$=220)のlongのエネルギー（パワースペクトル）}
     \end{figure}
 \end{frame}
 
@@ -824,7 +824,7 @@
     \frametitle{パーティションごとのエネルギー計算}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_partitioned_energy.pdf}
-        \caption*{ピアノ(F0=220)のlongパーティション分割後のエネルギー$eb^{l}$}
+        \caption*{ピアノ($F_{0}$=220)のlongパーティション分割後のエネルギー$eb^{l}$}
     \end{figure}
 \end{frame}
 
@@ -854,7 +854,7 @@
     \frametitle{広がり関数の畳み込み}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_convolved_partitioned_energy.pdf}
-        \caption*{ピアノ(F0=220)の広がり関数を畳みこんだエネルギー$ecb^{l}$}
+        \caption*{ピアノ($F_{0}$=220)の広がり関数を畳みこんだエネルギー$ecb^{l}$}
     \end{figure}
 \end{frame}
 
@@ -883,20 +883,47 @@
     \frametitle{ノイズ許容レベル計算}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_noise_permissive_level.pdf}
-        \caption*{ピアノ(F0=220)のノイズ許容レベル$nb^{l}$}
+        \caption*{ピアノ($F_{0}$=220)のノイズ許容レベル$nb^{l}$}
     \end{figure}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{聴覚しきい値計算}
+    前フレームのノイズ許容レベルと最小可聴パワーを考慮し，これを聴覚しきい値$thr^{l}$とする
+    \begin{align}
+        thr^{l}[b] = \max \left\{ \mathrm{qthr}_{b}, \min \{ 2nb^{l\prime}[b], 16nb^{l\prime\prime}[b], nb^{l}[b] \} \right\}
+    \end{align}
+    \begin{itemize}
+        \item $\mathrm{qthr}_{b}$：最小可聴パワー
+        \item $nb^{l\prime}, nb^{l\prime\prime}$：前とさらにその前のノイズ許容レベル
+            \begin{itemize}
+                \item 前フレームのノイズを残し，プリエコー対策
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{聴覚しきい値計算}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_threshold.pdf}
+        \caption*{ピアノ($F_{0}$=220)の聴覚しきい値$thr^{l}$}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{知覚エントロピー計算}
+    知覚エントロピー$\mathrm{PE}$を以下で計算
+    \begin{align}
+        \mathrm{PE} = \sum_{b} |P^{l}_{b}| \log \frac{eb^{l}[b] + 1}{thr^{l}[b]}
+    \end{align}
+    フレームの符号化に必要なビット数の目安\footnote{導出は補足\ref{sec:proofs_perceptual_entropy}参照}
+    \begin{itemize}
+        \item $\mathrm{PE} \geq 1800$ならばshortブロックと判定．さもなくばlongブロックと判定\footnote{dist10では以前のブロック判定結果を保持している．判定とブロックの状態遷移に従い結果をstart,stopに変更}
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{ブロックタイプ判定・SMR計算}
+    \frametitle{信号対マスク比計算}
 \end{frame}
 
 \appendix
