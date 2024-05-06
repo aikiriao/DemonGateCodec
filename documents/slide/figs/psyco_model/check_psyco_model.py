@@ -674,8 +674,8 @@ def _compute_permissive_noise_level(ecb_long, ctb_long, ecb_short):
         # [0,1]に範囲制限: cbbを符号反転しているため，予測しやすければ1, しにくければ0
         tbb = min(1.0, max(0.0, - 0.299 - 0.43 * cbb))
         # オフセットエネルギー(dB)の計算 以下2つのマスキング結果をtbbで重みづけ
-        #  * 29.0(dB): おそらくtone-masking-noise（純音によるノイズのマスク）
-        #  * 6.0(dB): おそらくnoise-masking-tone（ノイズによる純音のマスク）
+        #  * 29.0(dB): tone-masking-noise（純音によるノイズのマスク）
+        #  * 6.0(dB): noise-masking-tone（ノイズによる純音のマスク）
         # minvalは高域にいくほど減少
         snr = max(PARTITION_LONG[b]['minval'], 29.0 * tbb + 6.0 * (1.0 - tbb))
         # normにより正規化・オフセットをエネルギーに戻して乗算

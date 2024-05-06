@@ -830,10 +830,61 @@
 
 \begin{frame}[c]
     \frametitle{広がり関数の畳み込み}
+    エネルギーに広がり関数(Spreading function)$SF^{l}_{b}, SF^{s}_{b}$を畳み込み，調波成分のマスキングを考慮
+    \begin{itemize}
+        \item $ecb^{l}, ecb^{s}$：$SF^{l}_{b}, SF^{s}_{b}$を畳みこんだ$eb^{l}, eb^{s}$
+        \item $ctb$：$SF^{l}_{b}$を畳みこんだ$cb$
+    \end{itemize}
+    \begin{align}
+        ecb^{l}[b] &= \sum_{k} SF^{l}_{b}[k] eb^{l}[k] \\
+        ctb[b] &= \sum_{k} SF^{l}_{b}[k] cb[k] \\
+        ecb^{s}[b] &= \sum_{k} SF^{s}_{b}[k] eb^{s}[k]
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{広がり関数の概形}
+    \begin{figure}
+        \includegraphics[width=95mm]{./figs/spreading_functons.pdf}
+        \caption*{いくつかのバーク値での広がり関数．MP3では-60dB以下のスケールは0に丸め込むため線が途切れている．}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{広がり関数の畳み込み}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_convolved_partitioned_energy.pdf}
+        \caption*{ピアノ(F0=220)の広がり関数を畳みこんだエネルギー$ecb^{l}$}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{ノイズ許容レベル計算}
+    パーティション$b$の量子化ノイズ許容レベルを計算\footnote{shortは省略．SNRをテーブル引きして計算する以外同様のため}
+    \small
+    \begin{description}
+        \item[$tbb$の計算] $tbb=0$はノイズ，$tbb=1$は調波成分に近い
+            \begin{align}
+                cbb &= \log \left( \max \left\{ \frac{ctb[b]}{ecb^{l}[b]}, 0.01 \right\} \right) \\
+                tbb &= \min\{ 1.0, \max\{ 0.0, - 0.299 - 0.43 cbb \} \}
+            \end{align}
+        \item[SNRの計算] $tbb$からSNR(dB)を計算．$29.0$は純音によるノイズのマスク(dB)，$6.0$はノイズによる純音のマスク(dB)
+            \begin{align}
+                snr = \max \left\{ \mathrm{minval}_{b}, 29.0 tbb + 6.0 (1 - tbb) \right\} 
+            \end{align}
+        \item[許容レベル計算] SNRにエネルギーを乗じて許容レベル$nb^{l}$を得る．広がり関数で増えたエネルギーを戻す
+            \begin{align}
+                nb^{l}[b] = \frac{ecb^{l}[b] \times 10^{-snr / 10}}{\sum_{k} SF_{b}[k]}
+            \end{align}
+    \end{description}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{ノイズ許容レベル計算}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_noise_permissive_level.pdf}
+        \caption*{ピアノ(F0=220)のノイズ許容レベル$nb^{l}$}
+    \end{figure}
 \end{frame}
 
 \begin{frame}[c]
