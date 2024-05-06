@@ -870,7 +870,7 @@
             \end{align}
         \item[SNRの計算] $tbb$からSNR(dB)を計算．$29.0$は純音によるノイズのマスク(dB)，$6.0$はノイズによる純音のマスク(dB)
             \begin{align}
-                snr = \max \left\{ \mathrm{minval}_{b}, 29.0 tbb + 6.0 (1 - tbb) \right\} 
+                snr = \max \left\{ \mathrm{minval}_{b}, 29.0 tbb + 6.0 (1 - tbb) \right\}
             \end{align}
         \item[許容レベル計算] SNRにエネルギーを乗じて許容レベル$nb^{l}$を得る．広がり関数で増えたエネルギーを戻す
             \begin{align}
