@@ -509,12 +509,16 @@ def _compute_spreading_function(partition):
     sfunc = np.zeros((part_max, part_max))
     for i in range(part_max):
         for j in range(part_max):
-            # bvalはパーティションのBarkスケール中央値
+            # Barkスケールでの差 bvalはパーティションのBarkスケール中央値
             t_x = partition[i]['bval'] - partition[j]['bval']
+            # 自パーティションよりも小さい（低域の）パーティションの減衰を早くする
+            # 逆に言うと高域に広がりを持たせる
             t_x = 3.0 * t_x if i <= j else 1.5 * t_x
             x_ij = 8.0 * min((t_x - 0.5) ** 2.0 - 2.0 * (t_x - 0.5), 0.0)
+            # 広がり関数(dB)計算
             t_y = 15.811389 + 7.5 * (t_x + 0.474) - 17.5 * (1.0 + (t_x + 0.474) ** 2.0) ** 0.5
-            sfunc[i][j] = 10.0 ** ((x_ij + t_y) / 10) if t_y >= -60 else 0.0 # 本とdist10で異なる
+            # dBを振幅スケールに直す
+            sfunc[i][j] = 10.0 ** ((x_ij + t_y) / 10) if t_y >= -60 else 0.0 # 規格とdist10は-60 本では-100
     return sfunc
 
 def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
