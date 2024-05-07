@@ -774,26 +774,28 @@
 
 \begin{frame}[c]
     \frametitle{Unpredictability計算}
-    Unpredictability = 予測しずらさの尺度
-    \begin{itemize}
-        \item 振幅・位相スペクトルを直線予測した複素数を予測とし，誤差絶対値を正規化して評価
-        \item 予測が当っていれば$0$，外れていれば$1$
-        \item long, shortの直線予測（$w^{l\prime}$は前フレームの$w^{l}$）：
-            \footnotesize
-            \begin{align}
-                w^{l\ast}[n] &= (2|w^{l\prime}[n]| - |w^{l\prime\prime}[n]|) \exp[j (2\arg(w^{l\prime}[n]) - \arg(w^{l\prime\prime}[n]))] \\
-                w^{s\ast}[n] &= (2|w^{s_{1}}[n]| - |w^{s_{3}}[n]|) \exp[j (2\arg(w^{s_{1}}[n]) - \arg(w^{s_{3}}[n]))]
-            \end{align}
-    \end{itemize}
-    Unpredictability $cw$の計算式：
+    Unpredictability $cw$ = 予測しずらさの尺度
     \small
     \begin{align}
         cw[n] = \left\{ \begin{array}{cl}
             \frac{|w^{l}[n] - w^{l\ast}[n]|}{|w^{l}[n]| + |w^{l\ast}[n]|} & 0 \leq n \leq 5 \\
-            \frac{|w^{s}[j] - w^{s\ast}[j]|}{|w^{s}[j]| + |w^{s\ast}[j]|} & j = \lfloor (n + 2)/4 \rfloor,\ 6 \leq n \leq 205 \\
+            \frac{|w^{s_{2}}[j] - w^{s\ast}[j]|}{|w^{s_{2}}[j]| + |w^{s\ast}[j]|} & j = \lfloor (n + 2)/4 \rfloor,\ 6 \leq n \leq 205 \\
             0.4 & 206 \leq n \leq 512
         \end{array} \right.
     \end{align}
+    \normalsize
+    \begin{itemize}
+        \item $w^{l\ast}, w^{s\ast}$：振幅と位相を直線予測したスペクトル
+            \begin{itemize}
+                \item 直線予測の式（$w^{l\prime}$は前フレームの$w^{l}$）：
+                    \footnotesize
+                    \begin{align}
+                        w^{l\ast}[n] &= (2|w^{l\prime}[n]| - |w^{l\prime\prime}[n]|) \exp[j (2\arg(w^{l\prime}[n]) - \arg(w^{l\prime\prime}[n]))] \\
+                        w^{s\ast}[n] &= (2|w^{s_{1}}[n]| - |w^{s_{3}}[n]|) \exp[j (2\arg(w^{s_{1}}[n]) - \arg(w^{s_{3}}[n]))]
+                    \end{align}
+            \end{itemize}
+        \item 予測が当たれば$cw[n] = 0$，外れると$cw[n] = 1$
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[c]
