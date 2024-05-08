@@ -683,7 +683,7 @@
         \includegraphics[width=90mm]{./figs/powered_quantization_curve.pdf}
     \end{figure}
     \vspace{-10pt}
-    $0$近傍は荒く量子化，$\approx 0.3$以上では細かく量子化
+    $0$近傍は細かく量子化，$\approx 0.3$以上では荒く量子化
 \end{frame}
 
 \section{符号化}
@@ -716,7 +716,7 @@
             \begin{align}
                 X = 16 |X_{i}^{q}| + |X_{i+1}^{q}|
             \end{align}
-            として符号化．符号は2bitで出力
+            として符号化．非$0$の場合に符号bitを付加
         \item 線形符号化するかの閾値はテーブル毎に設定
     \end{itemize}
     \structure{count1 dataの符号化}
@@ -725,7 +725,7 @@
             \begin{align}
                 X = 8 s(X_{i+2}^{q}) + 4 s(X_{i+3}^{q}) + 2 s(X_{i}^{q}) + s(X_{i+1}^{q})
             \end{align}
-            として符号化（$s(x)$：$x\neq 0$なら$1$，$x=0$なら$0$）．符号は4bitで出力
+            として符号化（$s(x)$：$x\neq 0$なら$1$，$x=0$なら$0$）．非$0$の場合に符号bitを付加
     \end{itemize}
 \end{frame}
 
@@ -848,7 +848,7 @@
     \frametitle{広がり関数の概形}
     \begin{figure}
         \includegraphics[width=95mm]{./figs/spreading_functons.pdf}
-        \caption*{いくつかのバーク値での広がり関数．MP3では-60dB以下のスケールは0に丸め込むため線が途切れている．}
+        \caption*{いくつかのバーク値での広がり関数．破線はSchroeder\cite{schroeder1979optimizing}．MP3では-60dB以下のスケールは0に丸め込むため線が途切れている．}
     \end{figure}
 \end{frame}
 
@@ -937,7 +937,6 @@
 \begin{frame}{参考文献の紹介}
     \scriptsize
     \begin{itemize}
-        \item \cite{edler1992aliasing,liu1997design}：エイリアス削減の論文
         \item \cite{princen1986analysis}：Princen--Bradleyの完全再構成条件の導出
         \item \cite{raissi2002theory}：MP3の概要説明．
         \item \cite{fujiwara2001}：MPEG/Audioの他，2000年代前半の他のコーデックの概要を解説
@@ -947,7 +946,9 @@
         \item \cite{kiya1997}：DCTに関する詳しい解説
         \item \cite{kosugi200108,kosugi200109,kosugi200111,kosugi200201,kosugi200202}：技術解説と簡易MP3コーデックの実装例
         \item \cite{urata1999}：MP3のソース(dist10)の解説．ただし木を見て森を見ずな印象．実装の補足説明としては優秀だが，コードを数式に直訳した書き方のため，理解しずらい．
+        \item \cite{edler1992aliasing,liu1997design}：エイリアス削減の論文
         \item \cite{johnston1988estimation}：ノイズマスキングを用いた知覚エントロピーの考え方についての原論文
+        \item \cite{schroeder1979optimizing}：マスキング曲線のモデル化とそれを用いた音声符号化の原論文
     \end{itemize}
 \end{frame}
 
