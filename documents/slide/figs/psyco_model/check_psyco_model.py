@@ -6,6 +6,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile
 
+# 定数定義
+NUM_CRITICAL_BANDS_LONG = 63
+NUM_CRITICAL_BANDS_SHORT = 42
+PERCETUAL_ENTROPY_THRESHOLD = 1800.0
+LONG_WINDOW_SIZE = 1024
+SHORT_WINDOW_SIZE = 256
+NUM_GRANULE_SAMPLES = 576
+
+# 窓関数計算
+LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / LONG_WINDOW_SIZE)) for i in range(LONG_WINDOW_SIZE)]
+SHORT_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / SHORT_WINDOW_SIZE)) for i in range(SHORT_WINDOW_SIZE)]
+
 PARTITION_DATA = {
     'long48000': [
         { '#lines':  1, 'minval': 24.5, 'qthr':  4.532, 'norm': 0.970, 'bval':  0.000 },
@@ -984,22 +996,11 @@ def _print_result(count, pe, block_type, ratio_long, ratio_short):
             print('')
 
 if __name__ == '__main__':
-    # 定数定義
-    NUM_CRITICAL_BANDS_LONG = 63
-    NUM_CRITICAL_BANDS_SHORT = 42
-    PERCETUAL_ENTROPY_THRESHOLD = 1800.0
-    LONG_WINDOW_SIZE = 1024
-    SHORT_WINDOW_SIZE = 256
-    NUM_GRANULE_SAMPLES = 576
-
+    # 波形データ読み込み
     SAMPLING_FREQUENCY, indata = wavfile.read(sys.argv[1])
     NUM_SAMPLES = indata.shape[0]
     indata = indata.reshape((NUM_SAMPLES, -1))
     NUM_CHANNELS = indata.shape[1]
-
-    # 窓関数計算
-    LONG_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / LONG_WINDOW_SIZE)) for i in range(LONG_WINDOW_SIZE)]
-    SHORT_WINDOW = [0.5 * (1.0 - np.cos(2.0 * np.pi * (i - 0.5) / SHORT_WINDOW_SIZE)) for i in range(SHORT_WINDOW_SIZE)]
 
     # 聴覚データ取得
     PARTITION_LONG = PARTITION_DATA[f'long{SAMPLING_FREQUENCY}']
