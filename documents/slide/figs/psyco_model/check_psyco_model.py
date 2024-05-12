@@ -533,6 +533,30 @@ def _compute_spreading_function(partition):
             sfunc[i][j] = 10.0 ** ((x_ij + t_y) / 10) if t_y >= -60 else 0.0 # 規格とdist10は-60 本では-100
     return sfunc
 
+def _compute_partition_index(partition, window_size):
+    '''
+    パーティションインデックス配列の作成
+
+    Parameters
+    ----------
+    partition : list
+        パーティション
+    window_size : int
+        窓サイズ
+
+    Returns
+    -------
+    partition_index : ndarray
+        パーティションインデックス配列
+    '''
+    partition_index = np.zeros(window_size // 2 + 1, dtype=int)
+    index = 0
+    for part_index, part in enumerate(partition):
+        for _ in range(part['#lines']):
+            partition_index[index] = part_index
+            index += 1
+    return partition_index
+
 def _compute_unpredictability(wl, ws, prev_wl, prevprev_wl):
     '''
     Unpredictability cwの計算
@@ -1013,18 +1037,8 @@ if __name__ == '__main__':
     SPREADING_FUNCTION_SHORT = _compute_spreading_function(PARTITION_SHORT)
 
     # 分割インデックス作成
-    PARTITION_INDEX_LONG = np.zeros(LONG_WINDOW_SIZE // 2 + 1, dtype=int)
-    index = 0
-    for part_index, part in enumerate(PARTITION_LONG):
-        for _ in range(part['#lines']):
-            PARTITION_INDEX_LONG[index] = part_index
-            index += 1
-    PARTITION_INDEX_SHORT = np.zeros(SHORT_WINDOW_SIZE // 2 + 1, dtype=int)
-    index = 0
-    for part_index, part in enumerate(PARTITION_SHORT):
-        for _ in range(part['#lines']):
-            PARTITION_INDEX_SHORT[index] = part_index
-            index += 1
+    PARTITION_INDEX_LONG = _compute_partition_index(PARTITION_LONG, LONG_WINDOW_SIZE)
+    PARTITION_INDEX_SHORT = _compute_partition_index(PARTITION_SHORT, SHORT_WINDOW_SIZE)
 
     # ショートブロックのSNRと閾値作成
     # パーティション個数以降は0初期化されている
