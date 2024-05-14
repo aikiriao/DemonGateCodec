@@ -678,12 +678,16 @@
 
 \begin{frame}[c]
     \frametitle{$3/4$乗の効果}
-    $x, x^{\frac{3}{4}}$とそれらの微分（ステップ幅）
+    $x, x^{\frac{3}{4}}$とそれらの微分
+    \vspace{-8pt}
     \begin{figure}
         \includegraphics[width=90mm]{./figs/powered_quantization_curve.pdf}
     \end{figure}
     \vspace{-10pt}
-    $0$近傍は細かく量子化，$\approx 0.3$以上では荒く量子化
+    \begin{itemize}
+        \item $x^{\frac{3}{4}}$は$0$近傍で高感度（$\log$に近い）
+        \item $0$近傍は細かく，$\approx 0.3$以上は荒く量子化
+    \end{itemize}
 \end{frame}
 
 \section{符号化}
@@ -820,6 +824,8 @@
         \includegraphics[width=95mm]{./figs/partion_frequency_long44100Hz.pdf}
         \caption*{サンプリング周波数44.1kHzのlongのパーティション．Barkスケールを細かくしたものとみなせる}
     \end{figure}
+    % TODO: グラフを分かりやすくする
+    % 横軸Hz, 縦軸パーティション番号とかどうだろう
 \end{frame}
 
 \begin{frame}[c]
@@ -843,6 +849,8 @@
         ecb^{s}[b] &= \sum_{k} SF^{s}_{b}[k] eb^{s}[k]
     \end{align}
 \end{frame}
+
+% TODO: 広がり関数の式
 
 \begin{frame}[c]
     \frametitle{広がり関数の概形}
