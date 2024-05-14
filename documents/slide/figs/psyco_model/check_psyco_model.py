@@ -14,7 +14,7 @@ class PsycoAcousticsModelII:
     # 定数定義
     NUM_CRITICAL_BANDS_LONG = 63
     NUM_CRITICAL_BANDS_SHORT = 42
-    PERCETUAL_ENTROPY_THRESHOLD = 1800.0
+    PERCEPTUAL_ENTROPY_THRESHOLD = 1800.0
     LONG_WINDOW_SIZE = 1024
     SHORT_WINDOW_SIZE = 256
     NUM_GRANULE_SAMPLES = 576
@@ -765,7 +765,7 @@ class PsycoAcousticsModelII:
                     * self.PARTITION_LONG[b]['norm'] * 10.0 ** (self.SNR_SHORT[b] / 10.0)
         return nb_long, nb_short
 
-    def _compute_percetual_threshold(self, nb_long, prev_nb, prevprev_nb, nb_short):
+    def _compute_perceptual_threshold(self, nb_long, prev_nb, prevprev_nb, nb_short):
         '''
         聴覚しきい値の計算
     
@@ -800,7 +800,7 @@ class PsycoAcousticsModelII:
                 thr_short[sblock][b] = max(self.QTHR_SHORT[b], nb_short[sblock][b])
         return thr_long, thr_short
 
-    def _compute_percetual_entropy(self, eb_long, thr_long):
+    def _compute_perceptual_entropy(self, eb_long, thr_long):
         '''
         知覚エントロピーの計算
     
@@ -829,7 +829,7 @@ class PsycoAcousticsModelII:
             # pe -= PARTITION_LONG[b]['#lines'] * tp
         return pe
 
-    def _compute_percetual_threshold_ratio(self, psyco_data, eb, thr):
+    def _compute_perceptual_threshold_ratio(self, psyco_data, eb, thr):
         '''
         聴覚しきい値比(SMR, Signal-to-Masking Ratio)の計算コア処理
     
@@ -964,13 +964,13 @@ class PsycoAcousticsModelII:
 
         # 各パーティションの聴覚閾値を計算
         thr_long, thr_short\
-            = self._compute_percetual_threshold(nb_long, prev_nb, prevprev_nb, nb_short)
+            = self._compute_perceptual_threshold(nb_long, prev_nb, prevprev_nb, nb_short)
 
-        # 知覚エントロピー(percetual entropy)の計算
-        pe = self._compute_percetual_entropy(eb_long, thr_long)
+        # 知覚エントロピー(perceptual entropy)の計算
+        pe = self._compute_perceptual_entropy(eb_long, thr_long)
 
         # ブロックタイプ確定・スケールファクタバンドの聴覚しきい値比(SMR)計算
-        if pe < self.PERCETUAL_ENTROPY_THRESHOLD:
+        if pe < self.PERCEPTUAL_ENTROPY_THRESHOLD:
             if prev_block_type in ('NORMAL', 'STOP'):
                 block_type = 'NORMAL'
             elif prev_block_type == 'SHORT':
@@ -980,7 +980,7 @@ class PsycoAcousticsModelII:
             # BUG?:
             # ブロックタイプがSTARTに切り替わる時、前の計算結果が使われるため、ブロックタイプ判定後に計算
             # 毎ブロックで計算しているとリファレンスと一致しない
-            ratio = self._compute_percetual_threshold_ratio(self.PSYCO_LONG, eb_long, thr_long)
+            ratio = self._compute_perceptual_threshold_ratio(self.PSYCO_LONG, eb_long, thr_long)
         else:
             block_type = 'SHORT'
             # BUG?:
@@ -988,7 +988,7 @@ class PsycoAcousticsModelII:
             # 毎ブロックで計算しているとリファレンスと一致しない
             ratio = []
             for sblock in range(3):
-                ratio.append(self._compute_percetual_threshold_ratio(
+                ratio.append(self._compute_perceptual_threshold_ratio(
                     self.PSYCO_SHORT, eb_short[sblock], thr_short[sblock]))
 
     #   if count == 410:
