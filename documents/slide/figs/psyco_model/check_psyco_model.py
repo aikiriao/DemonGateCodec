@@ -502,12 +502,12 @@ class PsycoAcousticsModelII:
     def _dist10fft(self, data):
         '''
         dist10のFFT
-    
+
         Parameters
         ----------
         data : ndarray
             分析対象のフレーム
-    
+
         Returns
         -------
         spec : ndarray
@@ -522,12 +522,12 @@ class PsycoAcousticsModelII:
     def _compute_fft(self, analyze_frame):
         '''
         FFT計算
-    
+
         Parameters
         ----------
         analyze_frame : ndarray
             分析対象のフレーム
-    
+
         Returns
         -------
         spec_long : ndarray
@@ -577,14 +577,14 @@ class PsycoAcousticsModelII:
     def _compute_partition_index(self, partition, window_size):
         '''
         パーティションインデックス配列の作成
-    
+
         Parameters
         ----------
         partition : list
             パーティション
         window_size : int
             窓サイズ
-    
+
         Returns
         -------
         partition_index : ndarray
@@ -603,7 +603,7 @@ class PsycoAcousticsModelII:
         Unpredictability cwの計算
         大雑把に言って，cw[bin] = |予測の差| / (|真値| + |予測|)
         予測が当たっていれば0に近く，外れていれば1に近くなる
-    
+
         Parameters
         ----------
         wl : ndarray
@@ -614,7 +614,7 @@ class PsycoAcousticsModelII:
             前フレームのFFT結果（ロングブロック）
         prevprev_wl : ndarray
             前々フレームのFFT結果（ロングブロック）
-    
+
         Returns
         -------
         cw : ndarray
@@ -652,14 +652,14 @@ class PsycoAcousticsModelII:
     def _compute_energey_per_partition(self, cw, energy_long, energy_short):
         '''
         パーティション毎のエネルギー計算
-    
+
         Parameters
         ----------
         cw : ndarray
             Unpredictability
         energy_long : ndarray
             ロングブロックの各binのエネルギー（パワー）
-    
+
         Returns
         -------
         eb_long : ndarray
@@ -687,7 +687,7 @@ class PsycoAcousticsModelII:
     def _convolve_with_spreading_function(self, eb_long, cb_long, eb_short):
         '''
         広がり関数(Spreading function)と畳み込み
-    
+
         Parameters
         ----------
         eb_long : ndarray
@@ -696,7 +696,7 @@ class PsycoAcousticsModelII:
             Unpredictabilityで重みづけした，パーティションごとのエネルギー（ロングブロック）
         eb_short : ndarray
             パーティションごとのエネルギー（ショートブロック）
-    
+
         Returns
         -------
         ecb_long : ndarray
@@ -723,7 +723,7 @@ class PsycoAcousticsModelII:
     def _compute_permissive_noise_level(self, ecb_long, ctb_long, ecb_short):
         '''
         許容ノイズレベルの計算
-    
+
         Parameters
         ----------
         ecb_long : ndarray
@@ -732,7 +732,7 @@ class PsycoAcousticsModelII:
             Unpredictabilityで重みづけした，パーティションごとのエネルギー（ロングブロック）
         ecb_short : ndarray
             パーティションごとのエネルギー（ショートブロック）
-    
+
         Returns
         -------
         nb_long : ndarray
@@ -768,7 +768,7 @@ class PsycoAcousticsModelII:
     def _compute_perceptual_threshold(self, nb_long, prev_nb, prevprev_nb, nb_short):
         '''
         聴覚しきい値の計算
-    
+
         Parameters
         ----------
         nb_long : ndarray
@@ -779,7 +779,7 @@ class PsycoAcousticsModelII:
             前々フレームの許容ノイズレベル（ロングブロック）
         nb_short : ndarray
             許容ノイズレベル（ショートブロック）
-    
+
         Returns
         -------
         thr_long : ndarray
@@ -803,14 +803,14 @@ class PsycoAcousticsModelII:
     def _compute_perceptual_entropy(self, eb_long, thr_long):
         '''
         知覚エントロピーの計算
-    
+
         Parameters
         ----------
         eb_long : ndarray
             パーティションごとのエネルギー（ロングブロック）
         thr_long : ndarray
             聴覚しきい値（ロングブロック）
-    
+
         Returns
         -------
         pe : float
@@ -832,7 +832,7 @@ class PsycoAcousticsModelII:
     def _compute_perceptual_threshold_ratio(self, psyco_data, eb, thr):
         '''
         聴覚しきい値比(SMR, Signal-to-Masking Ratio)の計算コア処理
-    
+
         Parameters
         ----------
         psyco_data : list of dict
@@ -841,7 +841,7 @@ class PsycoAcousticsModelII:
             パーティションごとのエネルギー
         thr : ndarray
             聴覚しきい値
-    
+
         Returns
         -------
         ratio : ndarray
@@ -909,7 +909,7 @@ class PsycoAcousticsModelII:
         frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, prev_block_type):
         '''
         聴覚心理モデルIIの計算処理
-    
+
         Parameters
         ----------
         frame : ndarray
@@ -924,7 +924,7 @@ class PsycoAcousticsModelII:
             前々の許容ノイズレベル
         prev_block_type : string
             前のブロックタイプ
-    
+
         Returns
         -------
         wl_long : ndarray
@@ -999,12 +999,12 @@ class PsycoAcousticsModelII:
     def compute_psyco_model_II(self, frame):
         '''
         聴覚心理モデルIIの計算処理
-    
+
         Parameters
         ----------
         frame : ndarray
             信号フレーム
-    
+
         Returns
         -------
         pe : float
