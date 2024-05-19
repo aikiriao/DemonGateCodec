@@ -875,17 +875,18 @@
         t_{x} &= \left\{ \begin{array}{ll}
             3\Delta z & \Delta z \leq 0 \\
             1.5\Delta z & \Delta z > 0 \\
-        \end{array} \right. \\
+        \end{array} \right. \label{eq:spreading_function_tx} \\
         x &= 8 \min \{ (t_{x} - 0.5)^{2} - 2 (t_{x} - 0.5), 0 \} \\
         y &= \scalebox{0.95}{$15.811389 + 7.5 (t_{x} + 0.474) - 17.5 \sqrt{1 + (t_{x} + 0.474)^{2}}$}
     \end{align}
-    として，
+    として，$SF$を以下で計算
     \begin{align}
         10 \log_{10} SF(\Delta z) &= \left\{ \begin{array}{ll}
             x + y & y \geq -60 \\
             0 & \text{otherwise} \\
         \end{array} \right.
     \end{align}
+    \eqref{eq:spreading_function_tx}式より，低域側の減衰がより早い
 \end{frame}
 
 \begin{frame}[c]
