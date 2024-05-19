@@ -1069,57 +1069,6 @@ def get_frame(model, data, gr_index):
             new_frame[i] = data[smpl]
     return new_frame
 
-def compute_partition_frequencies(model, partition, window_size):
-    '''
-    パーティションの最小・最大周波数を計算
-
-    Parameters
-    ----------
-    model : PsycoAcousticsModelII
-        聴覚心理モデルII
-    partition : list of dict
-        パーティション
-    window_size : int
-        フレーム窓サイズ
-
-    Returns
-    -------
-    min_freqs : ndarray
-        パーティションの最小周波数
-    max_freqs : ndarray
-        パーティションの最大周波数
-    '''
-    min_freqs = np.zeros(len(partition))
-    max_freqs = np.zeros(len(partition))
-    index = 0
-    for part_index, part in enumerate(partition):
-        min_freqs[part_index] = index / window_size * model.SAMPLING_FREQUENCY
-        max_freqs[part_index] = (index + part['#lines']) / window_size * model.SAMPLING_FREQUENCY
-        index += part['#lines']
-    return min_freqs, max_freqs
-
-def plot_partition_frequency(partition, window_size):
-    '''
-    パーティションの最小・最大周波数をプロット
-
-    Parameters
-    ----------
-    partition : list of dict
-        パーティション
-    window_size : int
-        フレーム窓サイズ
-    '''
-    x = np.arange(len(partition))
-    min_freqs, max_freqs = _compute_partition_frequencies(partition, window_size)
-    plt.plot(x, min_freqs, label='min')
-    plt.plot(x, max_freqs, label='max')
-    plt.xlabel('Partition number')
-    plt.ylabel('Frequency (Hz)')
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
-    plt.savefig('partion_frequency_long44100Hz.pdf')
-
 def print_result(model, count, pe, block_type):
     '''
     分析結果のデバッグ表示

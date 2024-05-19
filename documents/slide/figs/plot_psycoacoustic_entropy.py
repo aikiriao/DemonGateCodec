@@ -39,10 +39,10 @@ if __name__ == '__main__':
 
     ax2 = fig.add_subplot(2, 1, 2)
 
-    ax2.axhline(model[ch].PERCEPTUAL_ENTROPY_THRESHOLD,\
-        color='orange', linestyle='--', label='PE threshold')
     ax2.plot(np.arange(len(pe_list)) * model[ch].NUM_GRANULE_SAMPLES / SAMPLING_FREQUENCY,\
         pe_list, color='red', label='Perceptual Entropy (PE)')
+    ax2.axhline(model[ch].PERCEPTUAL_ENTROPY_THRESHOLD,\
+        color='orange', linestyle='--', label='PE threshold')
     ax2.set_xlabel('time (sec)')
     ax2.set_ylabel('Perceptual entropy')
     ax2.set_xlim((0, max(t)))
