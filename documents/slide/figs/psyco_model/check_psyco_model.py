@@ -864,47 +864,6 @@ class PsycoAcousticsModelII:
             ratio[sb] = thm / en if en != 0.0 else 0.0
         return ratio
 
-    def _plot_analyze_result(self, energy_long, eb_long, ecb_long, nb_long, thr_long):
-        '''
-        分析結果のプロット
-        '''
-        freqs = np.linspace(0, self.SAMPLING_FREQUENCY / 2.0 + 1, len(self.PARTITION_INDEX_LONG))
-        eb_long_spec = [eb_long[self.PARTITION_INDEX_LONG[i]]\
-            for i in range(len(self.PARTITION_INDEX_LONG))]
-        etb_long_spec = [ecb_long[self.PARTITION_INDEX_LONG[i]]\
-            for i in range(len(self.PARTITION_INDEX_LONG))]
-        nb_long_spec = [nb_long[self.PARTITION_INDEX_LONG[i]]\
-            for i in range(len(self.PARTITION_INDEX_LONG))]
-        thr_long_spec = [thr_long[self.PARTITION_INDEX_LONG[i]]\
-            for i in range(len(self.PARTITION_INDEX_LONG))]
-        plt.cla()
-        plt.xlabel('Frequency (Hz)')
-        plt.ylabel('Power (dB)')
-        plt.xscale('log')
-        plt.xlim((50.0, max(freqs)))
-        plt.grid()
-        plt.plot(freqs, 10 * np.log10(energy_long[:len(self.PARTITION_INDEX_LONG)]), label='energy')
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig('psyco_analyze_energy.pdf')
-        plt.plot(freqs, 10 * np.log10(eb_long_spec), label='partitoned energy')
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig('psyco_analyze_partitioned_energy.pdf')
-        plt.plot(freqs, 10 * np.log10(etb_long_spec), label='convolved partitoned energy')
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig('psyco_analyze_convolved_partitioned_energy.pdf')
-        plt.plot(freqs, 10 * np.log10(nb_long_spec), label='noise permissive level')
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig('psyco_analyze_noise_permissive_level.pdf')
-        plt.plot(freqs, 10 * np.log10(thr_long_spec), label='threshold')
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig('psyco_analyze_threshold.pdf')
-        plt.close()
-
     def _compute_psyco_model_II_core(self,
         frame, prev_wl, prevprev_wl, prev_nb, prevprev_nb, prev_block_type):
         '''
@@ -991,8 +950,12 @@ class PsycoAcousticsModelII:
                 ratio.append(self._compute_perceptual_threshold_ratio(
                     self.PSYCO_SHORT, eb_short[sblock], thr_short[sblock]))
 
-    #   if count == 410:
-    #       _plot_analyze_result(energy_long, eb_long, ecb_long, nb_long, thr_long)
+        # 結果表示のため、一部結果を記録
+        self.energy_long = energy_long
+        self.eb_long = eb_long
+        self.ecb_long = ecb_long
+        self.nb_long = nb_long
+        self.thr_long = thr_long
 
         return w_long, nb_long, pe, block_type, ratio
 

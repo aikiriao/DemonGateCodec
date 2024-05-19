@@ -812,9 +812,9 @@
     long, shortのパーティション$b$を$P^{l}_{b}, P^{s}_{b}$と書くと，
     \small
     \begin{align}
-        eb^{l}[b] &= \sum_{n = \min P^{l}_{b}}^{\max P^{l}_{b} - 1} |w^{l}[n]|^{2} \\
-        cb[b] &= \sum_{n = \min P^{l}_{b}}^{\max P^{l}_{b} - 1} cw[n] |w^{l}[n]|^{2} \\
-        eb^{s}[b] &= \sum_{n = \min P^{s}_{b}}^{\max P^{s}_{b} - 1} |w^{s}[n]|^{2}
+        eb^{l}[b] &= \sum_{n \in P^{l}_{b}} |w^{l}[n]|^{2} \\
+        cb[b] &= \sum_{n \in \min P^{l}_{b}} cw[n] |w^{l}[n]|^{2} \\
+        eb^{s}[b] &= \sum_{n \in \min P^{s}_{b}} |w^{s}[n]|^{2}
     \end{align}
 \end{frame}
 
@@ -970,7 +970,29 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{信号対マスク比計算}
+    \frametitle{信号対マスク比(SMR)計算}
+    (聴覚しきい値)/(信号パワー)を計算．同時に周波数の分割をクリティカルバンドに揃える．クリティカルバンド$k$に属すパーティションの集合を$P_{k}$と書くと，
+    \footnotesize
+    \begin{align}
+        en[k] &= w_{1}[k] eb[\min P_{k}] + w_{2}[k] eb[\max P_{k}] + \sum_{P \in P_{k}} \sum_{n \in P} eb[n] \\
+        thm[k] &= w_{1}[k] thr[\min P_{k}] + w_{2}[k] thr[\max P_{k}] + \sum_{P \in P_{k}} \sum_{n \in P} thr[n]
+    \end{align}
+    \normalsize
+    として（$w_{1}, w_{2}$は隣接バンド間の重み定数\footnote{$w_{1}[k] + w_{2}[k-1] = 1$が成立．導出方法は不明...}），
+    \begin{align}
+        \mathrm{ratio}[k] = \left\{ \begin{array}{ll}
+            \frac{thm[k]}{en[k]} & en > 0 \\
+            0 & \text{otherwise} \\
+        \end{array} \right.
+    \end{align}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{信号対マスク比(SMR)計算}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_ratio.pdf}
+        \caption*{ピアノ($F_{0}$=220Hz)の信号対マスク比$\mathrm{ratio}$}
+    \end{figure}
 \end{frame}
 
 \appendix
