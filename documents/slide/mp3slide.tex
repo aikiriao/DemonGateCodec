@@ -974,14 +974,14 @@
     (聴覚しきい値)/(信号パワー)を計算．同時に周波数の分割をクリティカルバンドに揃える．クリティカルバンド$k$に属すパーティションの集合を$P_{k}$と書くと，
     \footnotesize
     \begin{align}
-        en[k] &= w_{1}[k] eb[\min P_{k}] + w_{2}[k] eb[\max P_{k}] + \sum_{P \in P_{k}} \sum_{n \in P} eb[n] \\
-        thm[k] &= w_{1}[k] thr[\min P_{k}] + w_{2}[k] thr[\max P_{k}] + \sum_{P \in P_{k}} \sum_{n \in P} thr[n]
+        en[k] &= w_{1}[k] eb[\min P_{k}] + w_{2}[k] eb[\max P_{k}] + \sum_{P \in P_{k}} \sum_{b \in P} eb[b] \\
+        thm[k] &= w_{1}[k] thr[\min P_{k}] + w_{2}[k] thr[\max P_{k}] + \sum_{P \in P_{k}} \sum_{b \in P} thr[b]
     \end{align}
     \normalsize
     として（$w_{1}, w_{2}$は隣接バンド間の重み定数\footnote{$w_{1}[k] + w_{2}[k-1] = 1$が成立．導出方法は不明...}），
     \begin{align}
         \mathrm{ratio}[k] = \left\{ \begin{array}{ll}
-            \frac{thm[k]}{en[k]} & en > 0 \\
+            \frac{thm[k]}{en[k]} & en[k] > 0 \\
             0 & \text{otherwise} \\
         \end{array} \right.
     \end{align}

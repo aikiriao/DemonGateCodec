@@ -66,7 +66,7 @@ def _plot_analyze_result(model):
     ax1.grid()
     ax1.legend(loc='upper right')
     ax2 = ax1.twinx()
-    ax2.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='SMR', color='red')
+    ax2.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='ratio', color='red')
     ax2.legend(loc='upper left')
     ax2.set_xscale('log')
     ax2.set_xlim((50.0, max(sf_freqs)))
