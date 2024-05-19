@@ -822,7 +822,7 @@
     \frametitle{パーティションごとのエネルギー計算}
     \begin{figure}
         \includegraphics[width=95mm]{./figs/partion_frequency_long44100Hz.pdf}
-        \caption*{サンプリング周波数44.1kHzのlongのパーティション．Barkスケールを細かくしたものとみなせる}
+        \caption*{サンプリング周波数44.1kHzのlongパーティション．Barkスケール細分化とみなせる．数値ラベルはスケールファクタ番号．}
     \end{figure}
     % TODO: グラフを分かりやすくする
     % 横軸Hz, 縦軸パーティション番号とかどうだろう
@@ -850,7 +850,35 @@
     \end{align}
 \end{frame}
 
-% TODO: 広がり関数の式
+\begin{frame}[c]
+    \frametitle{Schroederの広がり関数$SF_{\mathrm{schroeder}}$\cite{schroeder1979optimizing}}
+    バークスケール上の差$\Delta z = z(f_{\text{マスキー}}) - z(f_{\text{マスカー}})$を用いて，
+    \begin{align}
+        & 10 \log_{10} SF_{\mathrm{schroeder}}(\Delta z) \nonumber \\
+        & = 15.81 + 7.5 (\Delta z + 0.474) - 17.5 \sqrt{ 1 + (\Delta z + 0.474)^{2} } \label{eq:schroeder_spreading_function}
+    \end{align}
+    \eqref{eq:schroeder_spreading_function}式で求まる値はdBスケール．$10^{\frac{10 \log_{10} SF_{\mathrm{schroeder}}(\Delta z)}{10}}$で振幅スケールに変換
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{MP3の広がり関数$SF$}
+    Schroederの広がり関数を修正
+    \begin{align}
+        t_{x} &= \left\{ \begin{array}{ll}
+            3\Delta z & \Delta z \leq 0 \\
+            1.5\Delta z & \Delta z > 0 \\
+        \end{array} \right. \\
+        x &= 8 \min \{ (t_{x} - 0.5)^{2} - 2 (t_{x} - 0.5), 0 \} \\
+        y &= \scalebox{0.95}{$15.811389 + 7.5 (t_{x} + 0.474) - 17.5 \sqrt{1 + (t_{x} + 0.474)^{2}}$}
+    \end{align}
+    として，
+    \begin{align}
+        10 \log_{10} SF(\Delta z) &= \left\{ \begin{array}{ll}
+            x + y & y \geq -60 \\
+            0 & \text{otherwise} \\
+        \end{array} \right.
+    \end{align}
+\end{frame}
 
 \begin{frame}[c]
     \frametitle{広がり関数の概形}
