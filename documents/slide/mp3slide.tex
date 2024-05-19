@@ -772,7 +772,7 @@
     \frametitle{フレーム切り出し・窓かけ・FFT}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_energy.pdf}
-        \caption*{ピアノ($F_{0}$=220)のlongのエネルギー（パワースペクトル）}
+        \caption*{ピアノ($F_{0}$=220Hz)のlongのエネルギー（パワースペクトル）}
     \end{figure}
 \end{frame}
 
@@ -832,7 +832,7 @@
     \frametitle{パーティションごとのエネルギー計算}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_partitioned_energy.pdf}
-        \caption*{ピアノ($F_{0}$=220)のlongパーティション分割後のエネルギー$eb^{l}$}
+        \caption*{ピアノ($F_{0}$=220Hz)のlongパーティション分割後のエネルギー$eb^{l}$}
     \end{figure}
 \end{frame}
 
@@ -851,8 +851,16 @@
 \end{frame}
 
 \begin{frame}[c]
+    \frametitle{広がり関数の畳み込み}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/psyco_analyze_convolved_partitioned_energy.pdf}
+        \caption*{ピアノ($F_{0}$=220Hz)の広がり関数を畳みこんだエネルギー$ecb^{l}$}
+    \end{figure}
+\end{frame}
+
+\begin{frame}[c]
     \frametitle{Schroederの広がり関数$SF_{\mathrm{schroeder}}$\cite{schroeder1979optimizing}}
-    バークスケール上の差$\Delta z = z(f_{\text{マスキー}}) - z(f_{\text{マスカー}})$を用いて，
+    バークスケールに変換した周波数の差$\Delta z = z(f_{\text{マスキー}}) - z(f_{\text{マスカー}})$を用いて，
     \begin{align}
         & 10 \log_{10} SF_{\mathrm{schroeder}}(\Delta z) \nonumber \\
         & = 15.81 + 7.5 (\Delta z + 0.474) - 17.5 \sqrt{ 1 + (\Delta z + 0.474)^{2} } \label{eq:schroeder_spreading_function}
@@ -889,14 +897,6 @@
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{広がり関数の畳み込み}
-    \begin{figure}
-        \includegraphics[width=100mm]{./figs/psyco_analyze_convolved_partitioned_energy.pdf}
-        \caption*{ピアノ($F_{0}$=220)の広がり関数を畳みこんだエネルギー$ecb^{l}$}
-    \end{figure}
-\end{frame}
-
-\begin{frame}[c]
     \frametitle{ノイズ許容レベル計算}
     パーティション$b$の量子化ノイズ許容レベルを計算\footnote{shortは省略．SNRをテーブル引きして計算する以外同様のため}
     \small
@@ -921,7 +921,7 @@
     \frametitle{ノイズ許容レベル計算}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_noise_permissive_level.pdf}
-        \caption*{ピアノ($F_{0}$=220)のノイズ許容レベル$nb^{l}$}
+        \caption*{ピアノ($F_{0}$=220Hz)のノイズ許容レベル$nb^{l}$}
     \end{figure}
 \end{frame}
 
@@ -944,7 +944,7 @@
     \frametitle{聴覚しきい値計算}
     \begin{figure}
         \includegraphics[width=100mm]{./figs/psyco_analyze_threshold.pdf}
-        \caption*{ピアノ($F_{0}$=220)の聴覚しきい値$thr^{l}$}
+        \caption*{ピアノ($F_{0}$=220Hz)の聴覚しきい値$thr^{l}$}
     \end{figure}
 \end{frame}
 
@@ -956,11 +956,18 @@
     \end{align}
     フレームの符号化に必要なビット数の目安\footnote{導出は補足\ref{sec:proofs_perceptual_entropy}参照}
     \begin{itemize}
-        \item $\mathrm{PE} \geq 1800$ならばshortブロックと判定．さもなくばlongブロックと判定\footnote{dist10では以前のブロック判定結果を保持している．判定とブロックの状態遷移に従い結果をstart,stopに変更}
+        \item $\mathrm{PE} \geq 1800$ならばshortブロックと判定．さもなくばlongブロックと判定\footnote{dist10では以前のブロック判定結果を保持．判定とブロックの状態遷移に従い結果をstart,stopに変更}
     \end{itemize}
 \end{frame}
 
 % TODO: ピアノ音源で知覚エントロピーをプロット
+\begin{frame}[c]
+    \frametitle{知覚エントロピー計算}
+    \begin{figure}
+        \includegraphics[width=100mm]{./figs/perceptual_entropy_computation_example.pdf}
+        \caption*{ピアノ($F_{0}$=220Hz)の波形と聴覚エントロピー$\mathrm{PE}$の変化}
+    \end{figure}
+\end{frame}
 
 \begin{frame}[c]
     \frametitle{信号対マスク比計算}
