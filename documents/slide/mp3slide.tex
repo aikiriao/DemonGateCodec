@@ -996,6 +996,62 @@
     \end{figure}
 \end{frame}
 
+\section{エンコードの外部・内部ループ}
+
+\begin{frame}[c]
+    \frametitle{エンコードループ}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            量子化ゲイン($g, \mathrm{sl}_{i}, \mathrm{ss}_{i}$)とハフマン符号テーブルを決める処理
+            \begin{itemize}
+                \item 外部ループ（量子化ノイズ制御）・内部ループ（符号長制御）の相互繰り返し
+                \item 全スペクトル値が$0$ならばスキップ
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=41mm]{./figs/mp3_encode_process_iteration_loop.drawio.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{外部ループ}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            量子化ノイズが聴覚しきい値を超えないように制御する処理
+            \begin{description}
+                \item[プリエンファシス] 高域バンドがマスキング閾値を超えていたら，高域バンドと閾値を増幅
+                \item[歪み制御] マスキング閾値を超えたスケールファクタバンドの量子化ステップ幅を減少
+            \end{description}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=39mm]{./figs/mp3_encode_process_outer_loop.drawio.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{内部ループ}
+    \begin{columns}
+        \begin{column}{0.6\textwidth}
+            符号長が使用可能ビット以下になるように制御する処理
+            \begin{description}
+                \item[量子化ステップ幅増加] 量子化ステップ幅を増加（グローバルゲイン$g$増加に相当）
+                \item[符号長計算] スペクトルの区分割・テーブル選択を行って符号長を計算
+            \end{description}
+        \end{column}
+        \begin{column}{0.4\textwidth}
+            \begin{figure}
+                \includegraphics[width=41mm]{./figs/mp3_encode_process_inner_loop.drawio.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
 \appendix
 
 \section{参考文献}
