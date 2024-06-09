@@ -65,7 +65,7 @@ def _plot_analyze_result(model):
     plt.savefig('psyco_analyze_threshold.pdf')
     plt.cla()
     fig, ax1 = plt.subplots()
-    ax1.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='SMR', color='red')
+    ax1.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='ratio', color='red')
     ax1.legend(loc='upper left')
     ax1.set_xscale('log')
     ax1.set_xlim((50.0, max(sf_freqs)))
