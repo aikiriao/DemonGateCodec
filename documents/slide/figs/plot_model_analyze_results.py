@@ -23,13 +23,19 @@ def _plot_analyze_result(model):
         for i in range(len(model.PARTITION_INDEX_LONG))]
     sf_freqs = []
     for psy in model.PSYCO_LONG:
-        part = 0
+        min_part = -1
+        max_part = -1
         for i in range(len(model.PARTITION_INDEX_LONG)):
-            if model.PARTITION_INDEX_LONG[i] == psy['bu']:
-                part = i
+            part_index = model.PARTITION_INDEX_LONG[i]
+            if part_index == psy['bu']:
+                min_part = i
+            if part_index  == psy['bo']:
+                max_part = i
+            if min_part >= 0 and max_part >= 0:
                 break
-        min_freq = part * model.SAMPLING_FREQUENCY / (2.0 * len(model.PARTITION_INDEX_LONG))
-        sf_freqs.append(min_freq)
+        center_freq = 0.5 * (min_part + max_part)\
+                * model.SAMPLING_FREQUENCY / (2.0 * len(model.PARTITION_INDEX_LONG))
+        sf_freqs.append(center_freq)
 
     plt.cla()
     plt.xlabel('Frequency (Hz)')
@@ -59,18 +65,20 @@ def _plot_analyze_result(model):
     plt.savefig('psyco_analyze_threshold.pdf')
     plt.cla()
     fig, ax1 = plt.subplots()
+    ax1.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='SMR', color='red')
+    ax1.legend(loc='upper left')
+    ax1.set_xscale('log')
+    ax1.set_xlim((50.0, max(sf_freqs)))
     ax1.set_xlabel('Frequency (Hz)')
-    ax1.set_ylabel('Power (dB)')
-    ax1.plot(freqs, 10 * np.log10(eb_long_spec), label='partitoned energy')
-    ax1.plot(freqs, 10 * np.log10(thr_long_spec), label='threshold')
-    ax1.grid()
-    ax1.legend(loc='upper right')
+    ax1.set_ylabel('Signal-to-Mask Ratio (SMR) (dB)')
     ax2 = ax1.twinx()
-    ax2.plot(sf_freqs, 20.0 * np.log10(model.ratio_long), label='ratio', color='red')
-    ax2.legend(loc='upper left')
-    ax2.set_xscale('log')
-    ax2.set_xlim((50.0, max(sf_freqs)))
-    ax2.set_ylabel('Signal-to-Mask Ratio (SMR) (dB)')
+    ax2.set_ylabel('Power (dB)')
+    ax2.plot(freqs, 10 * np.log10(eb_long_spec),
+        label='partitoned energy', alpha=0.8, linestyle='--')
+    ax2.plot(freqs, 10 * np.log10(thr_long_spec),
+        label='threshold', alpha=0.8, linestyle='--')
+    ax2.legend(loc='upper right')
+    ax1.grid()
     fig.tight_layout()
     plt.savefig('psyco_analyze_ratio.pdf')
 
