@@ -721,7 +721,7 @@
                 X = 16 |X_{i}^{q}| + |X_{i+1}^{q}|
             \end{align}
             として符号化．非$0$の場合に符号bitを付加
-        \item 線形符号化するかの閾値はテーブル毎に設定
+        \item 線形符号化するかのしきい値はテーブル毎に設定
     \end{itemize}
     \structure{count1 dataの符号化}
     \begin{itemize}
@@ -1022,8 +1022,8 @@
         \begin{column}{0.6\textwidth}
             量子化ノイズが聴覚しきい値を超えないように制御する処理
             \begin{description}
-                \item[プリエンファシス] 高域バンドがマスキング閾値を超えていたら，高域バンドと閾値を増幅
-                \item[歪み制御] マスキング閾値を超えたスケールファクタバンドの量子化ステップ幅を減少
+                \item[プリエンファシス] 高域バンドが聴覚しきい値を超えていたら，しきい値を増幅
+                \item[歪み制御] 聴覚しきい値を超えたスケールファクタバンドの量子化ステップ幅を減少
             \end{description}
         \end{column}
         \begin{column}{0.4\textwidth}
