@@ -907,7 +907,7 @@
                 cbb &= \log \left( \max \left\{ \frac{ctb[b]}{ecb^{l}[b]}, 0.01 \right\} \right) \\
                 tbb &= \min\{ 1.0, \max\{ 0.0, - 0.299 - 0.43 cbb \} \}
             \end{align}
-        \item[SNR計算] マスクの加重和でSNR(dB)を計算．$29.0$は調波によるノイズのマスク，$6.0$はノイズによる純音のマスク
+        \item[SNR計算] マスクの加重和でSNR(dB)を計算．$29.0$は調波によるノイズのマスク，$6.0$はノイズによる調波のマスク
             \begin{align}
                 snr = \max \left\{ \mathrm{minval}_{b}, 29.0 tbb + 6.0 (1 - tbb) \right\}
             \end{align}
